@@ -26,8 +26,9 @@ group_data <- regex |>
     list_flags = paste(flag, collapse = "|")
   )
 
-# Applying patterns ============================================================
-# Function to apply the patterns
+# Applying flags ===============================================================
+
+# Creating function to apply the patterns --------------------------------------
 apply_regex_pattern <- function(data, flag, regex_pattern) {
   data |>
     mutate(
@@ -37,38 +38,66 @@ apply_regex_pattern <- function(data, flag, regex_pattern) {
 }
 
 # Keeping the old version separate for debugging purposes
-result <- test_data
+flagged_data <- test_data
 
-# Apply function over every row of the dataset...
+# Pre-cleaning steps -----------------------------------------------------------
+flagged_data <- flagged_data |>
+  mutate(
+    # Remove "in concert ... [end of string]" (e.g. TAXS, FAIL TO DISPLAY TAX STAMP ON CDS IN CONCERT W/J POOLE)
+    count_as_filed = str_remove_all(count_as_filed, stringr::regex("\\s*in(| )conc(ert|).*$", ignore_case = TRUE))
+  )
+
+# Apply function over every row of the dataset... ------------------------------
 for(i in seq(nrow(regex))) {
-  result <- apply_regex_pattern(result,
+  flagged_data <- apply_regex_pattern(flagged_data,
                                 regex$flag[i],
                                 regex$regex[i])
 }
 
-# ...then, apply the groups where relevant...
-for (i in seq(nrow(group_data))) {
-  group_flag <- group_data$group[i]
-  flags <- unlist(str_split(group_data$list_flags[i], "\\|"))
+# ...then, apply the groups where relevant... ----------------------------------
+for (j in seq(nrow(group_data))) {
+  group_flag <- group_data$group[j]
+  flags <- unlist(str_split(group_data$list_flags[j], "\\|"))
 
-  result <- result %>%
-    mutate(!!group_flag := rowSums(select(result, all_of(flags)), na.rm = TRUE) > 0)
+  flagged_data <- flagged_data %>%
+    mutate(!!group_flag := rowSums(select(flagged_data, all_of(flags)), na.rm = TRUE) > 0)
 }
 
 # ...now we have the flags in place, and we're ready to categorize!
 
 # Categorizing =================================================================
 
-categories <- result |>
+clean_data <- flagged_data |>
   mutate(
     # Cleaned charge descriptions (most specific, i.e. "simple possession", "kidnapping", etc.)
+    # Later ones should overwrite previous ones, so maybe order by ascending priority?
     count_cleaned = case_when(
       # Drug stuff -------------------------------------------------------------
-      any_drugs & !traffic_or_traffick & !distribution ~ "Drug Possession (Simple)",
+      any_drugs & !traffic_or_traffick & !distribution & !intent & !proceed &
+        !paraphernalia & !dui_or_apc & !stamp & !weapon ~ "Drug Possession (Simple)",
+        # maybe needs one for "KEEPING / MAINTAING PLACE" ?
+        # needs execption for "CARRYING A FIREARM WHILE UNDER THE INFLUENCE"
+        # need to incorporate "MANUFACTUR" flag into regex and add exception
+        # need to incorporate "MAINTAINING PLACE" flag into regex and add exception
+        # exception for "Littering Flaming or Glowing Substance from a Motor Vehicle"
+        # exception for "Jail / penal institution"
+        # exception for "larceny of CDS"
+      any_drugs & tax & stamp ~ "Drug Possession (Tax Stamp)",
+      any_drugs & paraphernalia ~ "Drug Paraphernalia Possession / Distribution",
+      any_drugs & intent & possess & (traffic_or_traffick | distribution) ~ "Drug Possession With Intent (PWID)",
+      any_drugs & (traffic_or_traffick | distribution) & !possess & !paraphernalia ~ "Drug Trafficking",
 
       TRUE ~ NA_character_
     ),
     # Cleaned charge CATEGORIES (i.e. "drug related", "property crime", "violent crime", etc.)
     # category = case_when(...)
   )
+
+true_clean_data <- clean_data |>
+  select(count_as_filed, n, count_cleaned)
+
+true_clean_data |>
+  group_by(count_cleaned) |>
+  slice_max(order_by = n, n = 10) |>
+  print(n = 40)
 
