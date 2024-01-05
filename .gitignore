@@ -43,3 +43,4 @@ vignettes/*.pdf
 
 # Secrets directory for secrets
 /secrets/
+.Rproj.user
