@@ -67,37 +67,61 @@ for (j in seq(nrow(group_data))) {
 
 # Categorizing =================================================================
 
+# this code should probably live in a function in R/
+
 clean_data <- flagged_data |>
   mutate(
     # Cleaned charge descriptions (most specific, i.e. "simple possession", "kidnapping", etc.)
     # Later ones should overwrite previous ones, so maybe order by ascending priority?
     count_cleaned = case_when(
       # Drug stuff -------------------------------------------------------------
-      any_drugs & !traffic_or_traffick & !distribution & !intent & !proceed &
-        !paraphernalia & !dui_or_apc & !stamp & !weapon ~ "Drug Possession (Simple)",
-        # maybe needs one for "KEEPING / MAINTAING PLACE" ?
-        # needs execption for "CARRYING A FIREARM WHILE UNDER THE INFLUENCE"
-        # need to incorporate "MANUFACTUR" flag into regex and add exception
-        # need to incorporate "MAINTAINING PLACE" flag into regex and add exception
-        # exception for "Littering Flaming or Glowing Substance from a Motor Vehicle"
-        # exception for "Jail / penal institution"
-        # exception for "larceny of CDS"
-      any_drugs & tax & stamp ~ "Drug Possession (Tax Stamp)",
-      any_drugs & paraphernalia ~ "Drug Paraphernalia Possession / Distribution",
-      any_drugs & intent & possess & (traffic_or_traffick | distribution) ~ "Drug Possession With Intent (PWID)",
-      any_drugs & (traffic_or_traffick | distribution) & !possess & !paraphernalia ~ "Drug Trafficking",
+      any_drugs & possess & !traffic_or_traffick & !distribution & !intent &
+        !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
+        !maintain_keep & !manufacture & !litter & !larceny & !jail_penal &
+        !school & !park ~ "CDS Possession (Simple)",
+      any_drugs & possess & (school | park | child) ~ "CDS Possession (Proximate to School, Park, or Minor)",
+      # any_drugs & jail_penal ~ "CDS Possession (in Jail / Prison)",
+        # Actually think I should just have a generic "contraband in jail" charge, that seems to be how it's used
+      any_drugs & maintain_keep ~ "CDS Possesssion (Maintaining a Place)",
+      any_drugs & larceny ~ "Larceny of a CDS",
+      any_drugs & stamp ~ "CDS Possession (Tax Stamp)",
+      any_drugs & paraphernalia ~ "CDS Paraphernalia Possession / Distribution",
+      any_drugs & intent & possess & (traffic_or_traffick | distribution) ~ "CDS Possession With Intent (PWID)",
+      any_drugs & (traffic_or_traffick | distribution) & !possess & !paraphernalia ~ "CDS Trafficking / Distribution",
 
+      # DUI / APC related stuff ------------------------------------------------
+      dui_or_apc ~ "DUI / APC",
+
+      # Sex Work related stuff -------------------------------------------------
+      sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
+      sex_work & !aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Engaging in Sex Work (Within 1,000 Feet)",
+      sex_work & aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Aiding / Abetting Sex Work (Simple)",
+      sex_work & aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Aiding / Abetting Sex Work (Within 1,000 Feet)",
+      sex_work & !aid_abet & child ~ "Engaging in Sex Work (Minor Involved)",
+      sex_work & aid_abet & child ~ "Aiding / Abetting Sex Work (Minor Involved)",
+      sex_work & (maintain_keep | operate) & !within_x_feet ~ "Maintaing / Operating Place for Sex Work (Simple)",
+      sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaing / Operating Place for Sex Work (Within 1,000 Feet)",
+
+
+      # Default to NA ----------------------------------------------------------
       TRUE ~ NA_character_
     ),
     # Cleaned charge CATEGORIES (i.e. "drug related", "property crime", "violent crime", etc.)
     # category = case_when(...)
   )
 
+# Version w/out flag columns
 true_clean_data <- clean_data |>
   select(count_as_filed, n, count_cleaned)
 
+# Glimpse results
 true_clean_data |>
   group_by(count_cleaned) |>
-  slice_max(order_by = n, n = 10) |>
-  print(n = 40)
+  slice_max(order_by = n, n = 100) |> view()
+
+# Summary of total charges filed of each type
+true_clean_data |>
+  group_by(count_cleaned) |>
+  summarize(total = sum(n)) |>
+  arrange(desc(total))
 
