@@ -1,21 +1,27 @@
 #' Apply OJO Regex
 #'
-#' @param data
-#' @param col_to_clean
+#' This function applies regular expressions patterns to clean and categorize charge descriptions in a given dataset.
 #'
-#' @return
+#' @param data A data frame containing the dataset to be processed.
+#' @param col_to_clean The name of the column in the dataset containing the charge descriptions to be cleaned and categorized.
+#' @param .keep_flags Logical value indicating whether to keep the concept flags generated during processing. Defaults to FALSE, which returns only the cleaned dataset without the flags.
+#'
+#' @return A cleaned and categorized dataset with charge descriptions in the specified column, along with any additional columns present in the original dataset.
+#'
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' # Load example dataset
+#' data(example_data)
+#'
+#' # Apply OJO Regex to clean and categorize charge descriptions
+#' cleaned_data <- apply_ojo_regex(data = example_data, col_to_clean = "charge_description")
+#'}
 apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
 
-  library(ojodb)
-  library(tidyverse)
-  library(googlesheets4)
-
   # Validate data ==============================================================
-  data <- data
-
+  data_names <- names(data)
   clean_col_name <- paste0(col_to_clean, "_clean")
 
   # Check if col_to_clean exists in the data frame
@@ -30,9 +36,9 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
   # Creating a list of groups and their relevant flags also (like cds | meth | paraphernalia ... = any_drugs)
   # these should all start with any_ prefix
   group_data <- regex |>
-    filter(!is.na(group)) |>
-    group_by(group) |>
-    summarize(
+    dplyr::filter(!is.na(group)) |>
+    dplyr::group_by(group) |>
+    dplyr::summarize(
       list_flags = paste(flag, collapse = "|")
     )
 
@@ -40,18 +46,18 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
   # Creating function to apply the patterns --------------------------------------
   apply_regex_pattern <- function(data, flag, regex_pattern) {
     data |>
-      mutate(
-        !!flag := str_detect(!!sym(col_to_clean),
-                             stringr::regex(regex_pattern, ignore_case = TRUE))
+      dplyr::mutate(
+        !!flag := stringr::str_detect(!!dplyr::sym(col_to_clean),
+                                      stringr::regex(regex_pattern, ignore_case = TRUE))
       )
   }
 
   # Pre-cleaning steps -----------------------------------------------------------
   flagged_data <- data |>
-    mutate(
-      !!paste0(col_to_clean, "_clean") := ojoregex::regex_pre_clean(!!sym(col_to_clean))
+    dplyr::mutate(
+      # This removes "... in concert with _____"
+      !!paste0(col_to_clean, "_clean") := ojoregex::regex_pre_clean(!!dplyr::sym(col_to_clean))
     )
-
 
   # Apply function over every row of the dataset... ------------------------------
   for(i in seq(nrow(regex))) {
@@ -63,10 +69,10 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
   # ...then, apply the groups where relevant... ----------------------------------
   for (j in seq(nrow(group_data))) {
     group_flag <- group_data$group[j]
-    flags <- unlist(str_split(group_data$list_flags[j], "\\|"))
+    flags <- unlist(stringr::str_split(group_data$list_flags[j], "\\|"))
 
-    flagged_data <- flagged_data %>%
-      mutate(!!group_flag := rowSums(select(flagged_data, all_of(flags)), na.rm = TRUE) > 0)
+    flagged_data <- flagged_data |>
+      dplyr::mutate(!!group_flag := rowSums(dplyr::select(flagged_data, all_of(flags)), na.rm = TRUE) > 0)
   }
 
   # ...now we have the flags in place, and we're ready to categorize!
@@ -74,10 +80,10 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
   # Categorizing =================================================================
 
   clean_data <- flagged_data |>
-    mutate(
+    dplyr::mutate(
       # Cleaned charge descriptions (most specific, i.e. "simple possession", "kidnapping", etc.)
       # Later ones should overwrite previous ones, so maybe order by ascending priority?
-      !!paste0(col_to_clean, "_clean") := case_when(
+      !!paste0(col_to_clean, "_clean") := dplyr::case_when(
         # Drug stuff -------------------------------------------------------------
         any_drugs & possess & !traffic_or_traffick & !distribution & !intent &
           !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
@@ -103,28 +109,27 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         sex_work & aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Aiding / Abetting Sex Work (Within 1,000 Feet)",
         sex_work & !aid_abet & child ~ "Engaging in Sex Work (Minor Involved)",
         sex_work & aid_abet & child ~ "Aiding / Abetting Sex Work (Minor Involved)",
-        sex_work & (maintain_keep | operate) & !within_x_feet ~ "Maintaing / Operating Place for Sex Work (Simple)",
-        sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaing / Operating Place for Sex Work (Within 1,000 Feet)",
+        sex_work & (maintain_keep | operate) & !within_x_feet ~ "Maintaining / Operating Place for Sex Work (Simple)",
+        sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
 
 
         # Default to NA ----------------------------------------------------------
         TRUE ~ NA_character_
       ),
       # Cleaned charge CATEGORIES (i.e. "drug related", "property crime", "violent crime", etc.)
-      # category = case_when(...)
+      # category = dplyr::case_when(...)
     )
 
+  # true_clean_data is the original data + the final categories, no flags
   true_clean_data <- clean_data |>
-    select({{ col_to_clean }}, paste0(col_to_clean, "_clean"))
+    dplyr::select({{ col_to_clean }}, paste0(col_to_clean, "_clean"),
+                  data_names)
 
-    if(.keep_flags) {
-      final <- data |>
-        left_join(clean_data)
-    } else{
-      final <- data |>
-        left_join(true_clean_data)
-    }
-
-  return(final)
+  if(.keep_flags == TRUE) {
+    # clean_data is just the version that still has the flags
+    return(clean_data)
+  } else {
+    return(true_clean_data)
+  }
 
 }
