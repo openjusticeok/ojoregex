@@ -2,7 +2,7 @@
 #'
 #' This function pre-cleans charge descriptions to be matched by removing specific patterns that are not relevant for matching. It removes phrases like "in concert with" from the end of the charge descriptions.
 #'
-#' @param text A character vector containing the charge descriptions to be pre-cleaned.
+#' @param count_as_filed A character vector containing the charge descriptions to be pre-cleaned.
 #'
 #' @return A character vector with pre-cleaned charge descriptions.
 #'
