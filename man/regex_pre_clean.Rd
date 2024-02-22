@@ -7,7 +7,7 @@
 regex_pre_clean(count_as_filed)
 }
 \arguments{
-\item{text}{A character vector containing the charge descriptions to be pre-cleaned.}
+\item{count_as_filed}{A character vector containing the charge descriptions to be pre-cleaned.}
 }
 \value{
 A character vector with pre-cleaned charge descriptions.

@@ -60,7 +60,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
     )
 
   # Apply function over every row of the dataset... ------------------------------
-  for(i in seq(nrow(regex))) {
+  for (i in seq(nrow(regex))) {
     flagged_data <- apply_regex_pattern(flagged_data,
                                         regex$flag[i],
                                         regex$regex[i])
@@ -72,7 +72,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
     flags <- unlist(stringr::str_split(group_data$list_flags[j], "\\|"))
 
     flagged_data <- flagged_data |>
-      dplyr::mutate(!!group_flag := rowSums(dplyr::select(flagged_data, all_of(flags)), na.rm = TRUE) > 0)
+      dplyr::mutate(!!group_flag := rowSums(dplyr::select(flagged_data, dplyr::all_of(flags)), na.rm = TRUE) > 0)
   }
 
   # ...now we have the flags in place, and we're ready to categorize!
