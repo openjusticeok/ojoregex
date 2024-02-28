@@ -102,6 +102,10 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         # DUI / APC related stuff ------------------------------------------------
         dui_or_apc ~ "DUI / APC",
 
+        # Property Crime related stuff -------------------------------------------
+        larceny & (merchandise | shoplift) & !aid_abet ~ "Larceny of Merchandise / Shoplifting",
+        larceny & (merchandise | shoplift) & aid_abet ~ "Larceny of Merchandise / Shoplifting (Aiding & Abetting)",
+
         # Sex Work related stuff -------------------------------------------------
         sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
         sex_work & !aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Engaging in Sex Work (Within 1,000 Feet)",
@@ -111,7 +115,6 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         sex_work & aid_abet & child ~ "Aiding / Abetting Sex Work (Minor Involved)",
         sex_work & (maintain_keep | operate) & !within_x_feet ~ "Maintaining / Operating Place for Sex Work (Simple)",
         sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
-
 
         # Default to NA ----------------------------------------------------------
         TRUE ~ NA_character_

@@ -1,10 +1,11 @@
 devtools::load_all()
 library(ojodb)
+library(tidyverse)
 
 ds <- ojo_crim_cases(
   districts = "Oklahoma",
-  case_types = c("CM", "CF"),
-  file_years = 2023:2023
+  case_types = c("CF"),
+  file_years = 2020:2023
 ) |>
   ojo_collect()
 
@@ -19,6 +20,8 @@ ds <- ojo_crim_cases(
 final <- ds |>
   ojoregex::apply_ojo_regex(col_to_clean = "count_as_filed")
 
+# -
+
 final |>
   filter(str_detect(count_as_filed_clean, "Sex Work")) |>
   count(count_as_filed_clean, sort = T) |>
@@ -27,3 +30,7 @@ final |>
 final |>
   filter(str_detect(count_as_filed_clean, "Sex Work")) |>
   count(district, sort = T)
+
+final |>
+  filter(str_detect(count_as_filed_clean, "Shoplift")) |>
+  view()
