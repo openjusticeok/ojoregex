@@ -103,8 +103,18 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         dui_or_apc ~ "DUI / APC",
 
         # Property Crime related stuff -------------------------------------------
-        larceny & (merchandise | shoplift) & !aid_abet ~ "Larceny of Merchandise / Shoplifting",
-        larceny & (merchandise | shoplift) & aid_abet ~ "Larceny of Merchandise / Shoplifting (Aiding & Abetting)",
+        # Not sure whether it's worth it to break out "aiding & abetting" versions?
+        # larceny & grand & !petit & !any_drugs & !aid_abet ~ "Larceny (Grand Larceny)",
+        # larceny & grand & !petit & !any_drugs & aid_abet ~ "Larceny (Grand Larceny) (Aiding & Abetting)",
+        larceny & grand & !petit & !any_drugs ~ "Larceny (Grand Larceny)",
+        larceny & petit & !grand & !any_drugs ~ "Larceny (Petit Larceny)",
+        # larceny & petit & !grand & !any_drugs & aid_abet ~ "Larceny (Petit Larceny) (Aiding & Abetting)",
+        (larceny & merchandise) | shoplift ~ "Larceny of Merchandise / Shoplifting",
+        # larceny & (merchandise | shoplift) & aid_abet ~ "Larceny of Merchandise / Shoplifting (Aiding & Abetting)",
+
+        larceny & !petit & !grand & !any_drugs & !(merchandise | shoplift) ~ "Larceny (Unspecified)", # Sometimes it lists none...
+        larceny & petit & grand & !any_drugs ~ "Larceny (Unspecified)", # ...and sometimes it lists all.
+        # larceny & !petit & !grand & !any_drugs & aid_abet ~ "Larceny (Unspecified) (Aiding & Abetting)",
 
         # Sex Work related stuff -------------------------------------------------
         sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
