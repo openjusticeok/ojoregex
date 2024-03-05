@@ -1,6 +1,7 @@
 devtools::load_all()
 library(ojodb)
 library(tidyverse)
+library(here)
 
 # ds <- ojo_crim_cases(
 #   districts = "all",
@@ -11,7 +12,7 @@ library(tidyverse)
 
 # write_rds(ds, "./data/test-data.rds")
 
-ds <- read_rds("./data/test-data.rds")
+ds <- read_rds(here("data", "test-data.rds"))
 
 # Using new regex --------------------------------------------------------------
 
