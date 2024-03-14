@@ -84,7 +84,8 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
       # Cleaned charge descriptions (most specific, i.e. "simple possession", "kidnapping", etc.)
       # Later ones should overwrite previous ones, so maybe order by ascending priority?
       !!paste0(col_to_clean, "_clean") := dplyr::case_when(
-        # Drug stuff -------------------------------------------------------------
+        # Drug stuff ===========================================================
+        # Generic drugs --------------------------------------------------------
         any_drugs & possess & !traffic_or_traffick & !distribution & !intent &
           !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
           !maintain_keep & !manufacture & !litter & !larceny & !jail_penal &
@@ -102,6 +103,25 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         # DUI / APC related stuff ------------------------------------------------
         dui_or_apc ~ "DUI / APC",
 
+        # Property Crimes ======================================================
+        # Larceny related stuff -------------------------------------------
+        # Not sure whether it's worth it to break out "aiding & abetting" versions?
+        # larceny & grand & !petit & !any_drugs & !aid_abet ~ "Larceny (Grand Larceny)",
+        # larceny & grand & !petit & !any_drugs & aid_abet ~ "Larceny (Grand Larceny) (Aiding & Abetting)",
+        larceny & grand & !petit & !any_drugs ~ "Larceny (Grand Larceny)",
+        larceny & petit & !grand & !any_drugs ~ "Larceny (Petit Larceny)",
+        # larceny & petit & !grand & !any_drugs & aid_abet ~ "Larceny (Petit Larceny) (Aiding & Abetting)",
+        (larceny & merchandise) | shoplift ~ "Larceny of Merchandise / Shoplifting",
+        # larceny & (merchandise | shoplift) & aid_abet ~ "Larceny of Merchandise / Shoplifting (Aiding & Abetting)",
+        (larceny | theft | steal) & copper & !intent & !false_report ~ "Larceny (Copper)",
+        (larceny | theft | steal) & intent & enter & !false_report ~ "Larceny (Entering w/ Intent)",
+
+        larceny & !petit & !grand & !any_drugs & !(merchandise | shoplift) ~ "Larceny (Unspecified)", # Sometimes it lists none...
+        larceny & petit & grand & !any_drugs ~ "Larceny (Unspecified)", # ...and sometimes it lists all.
+        # larceny & !petit & !grand & !any_drugs & aid_abet ~ "Larceny (Unspecified) (Aiding & Abetting)",
+        theft & !identity & !credit_card & !false_report ~ "Larceny (Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
+
+        # Other ================================================================
         # Sex Work related stuff -------------------------------------------------
         sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
         sex_work & !aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Engaging in Sex Work (Within 1,000 Feet)",
@@ -112,8 +132,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         sex_work & (maintain_keep | operate) & !within_x_feet ~ "Maintaining / Operating Place for Sex Work (Simple)",
         sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
 
-
-        # Default to NA ----------------------------------------------------------
+        # Default to NA ========================================================
         TRUE ~ NA_character_
       ),
       # Cleaned charge CATEGORIES (i.e. "drug related", "property crime", "violent crime", etc.)

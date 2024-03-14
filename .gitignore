@@ -44,3 +44,6 @@ vignettes/*.pdf
 # Secrets directory for secrets
 /secrets/
 .Rproj.user
+
+data/test-data.rds
+crim-data.rds
