@@ -46,3 +46,4 @@ vignettes/*.pdf
 .Rproj.user
 
 data/test-data.rds
+crim-data.rds
