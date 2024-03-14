@@ -25,19 +25,19 @@ final <- ds |>
 
 # Add theft --------------------------------------------------------------
 
-final <- final |>
-  mutate(
-    count_as_filed_clean = case_when(
-      !is.na(count_as_filed_clean) ~ count_as_filed_clean,
-      theft & !identity ~ "Larceny (Theft)",
-      theft & identity ~ "Identity Theft",
-      TRUE ~ count_as_filed_clean
-    )
-  )
+# final <- final |>
+#   mutate(
+#     count_as_filed_clean = case_when(
+#       !is.na(count_as_filed_clean) ~ count_as_filed_clean,
+#       theft & !identity ~ "Larceny (Theft)",
+#       theft & identity ~ "Identity Theft",
+#       TRUE ~ count_as_filed_clean
+#     )
+#   )
 
 final |>
-  filter(theft & !identity) |>
-  count(count_as_filed, sort = T)
+  # filter(theft & !identity) |>
+  count(count_as_filed, count_as_filed_clean, sort = T)
 
 #------------------------------------------------------------------------------
 
