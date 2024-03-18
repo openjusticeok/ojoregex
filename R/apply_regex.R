@@ -115,11 +115,12 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         # larceny & (merchandise | shoplift) & aid_abet ~ "Larceny of Merchandise / Shoplifting (Aiding & Abetting)",
         (larceny | theft | steal) & copper & !intent & !false_report ~ "Larceny (Copper)",
         (larceny | theft | steal) & intent & enter & !false_report ~ "Larceny (Entering w/ Intent)",
+        (larceny | theft | steal) & automobile & !false_report ~ "Larceny (Auto)",
 
-        larceny & !petit & !grand & !any_drugs & !(merchandise | shoplift) ~ "Larceny (Unspecified)", # Sometimes it lists none...
-        larceny & petit & grand & !any_drugs ~ "Larceny (Unspecified)", # ...and sometimes it lists all.
-        # larceny & !petit & !grand & !any_drugs & aid_abet ~ "Larceny (Unspecified) (Aiding & Abetting)",
-        theft & !identity & !credit_card & !false_report ~ "Larceny (Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
+        larceny & !petit & !grand & !any_drugs & !(merchandise | shoplift) & !automobile ~ "Larceny (Other / Unspecified)", # Sometimes it lists none...
+        larceny & petit & grand & !any_drugs ~ "Larceny (Other / Unspecified)", # ...and sometimes it lists all.
+        # larceny & !petit & !grand & !any_drugs & aid_abet ~ "Larceny (Other / Unspecified) (Aiding & Abetting)",
+        theft & !identity & !credit_card & !false_report ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
 
         # Other ================================================================
         # Sex Work related stuff -------------------------------------------------
