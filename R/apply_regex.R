@@ -113,8 +113,8 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         # larceny & petit & !grand & !any_drugs & aid_abet ~ "Larceny (Petit Larceny) (Aiding & Abetting)",
         (larceny & merchandise) | shoplift ~ "Larceny of Merchandise / Shoplifting",
         # larceny & (merchandise | shoplift) & aid_abet ~ "Larceny of Merchandise / Shoplifting (Aiding & Abetting)",
-        (larceny | theft | steal) & copper & !intent & !false_report ~ "Larceny (Copper)",
-        (larceny | theft | steal) & intent & enter & !false_report ~ "Larceny (Entering w/ Intent)",
+        # (larceny | theft | steal) & copper & !intent & !false_report ~ "Larceny (Copper)",
+        # (larceny | theft | steal) & intent & enter & !false_report ~ "Larceny (Entering w/ Intent)", # Removing bc this is in the burglary section of the statutes.
         (larceny | theft | steal) & automobile & !false_report ~ "Larceny (Auto)",
 
         larceny & !petit & !grand & !any_drugs & !(merchandise | shoplift) & !automobile ~ "Larceny (Other / Unspecified)", # Sometimes it lists none...
