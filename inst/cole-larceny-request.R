@@ -63,6 +63,10 @@ final |>
   filter(!str_detect(count_as_filed_clean, "(?i)larc")) |>
   count(count_as_filed, count_as_filed_clean, sort = T)
 
+final |>
+  filter(count_as_filed_clean == "Larceny (Other / Unspecified)") |>
+  count(count_as_filed, sort = T)
+
 # Ashley regex ----------------------------------------------------------------
 ashley_data <- ds |>
   mutate(
@@ -145,6 +149,7 @@ final |>
              y = n,
              fill = count_as_filed_clean)) +
   geom_col() +
+  scale_fill_brewer(palette = "Set2") +
   facet_wrap(~case_type)
 
 # By district
