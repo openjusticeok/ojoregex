@@ -1,6 +1,6 @@
 Package: ojoregex
 Title: Regex Categorization Tools for OJO Analysts
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: 
     person("Andrew", "Bell", , "abell@okpolicy.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
