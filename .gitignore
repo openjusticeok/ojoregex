@@ -45,5 +45,5 @@ vignettes/*.pdf
 /secrets/
 .Rproj.user
 
-data/test-data.rds
+data/*.rds
 crim-data.rds
