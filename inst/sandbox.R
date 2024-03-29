@@ -1,50 +1,43 @@
 devtools::load_all()
 library(ojodb)
 library(tidyverse)
+library(tictoc)
 
 # ds <- ojo_crim_cases(
 #   districts = "all",
 #   case_types = c("CF", "CM"),
-#   file_years = 2015:2023
+#   file_years = 2000:2024
 # ) |>
 #   ojo_collect()
+#
+# write_rds(ds, "./data/test-data-all.rds")
+#
+# beepr::beep()
 
-# write_rds(ds, "./data/test-data.rds")
-
-ds <- read_rds("./data/test-data.rds")
-
-# Using old methods ------------------------------------------------------------
-# ds |>
-#   mutate(sex_work_related = str_detect(count_as_filed, "(?i)prost|prositu")) |>
-#   filter(sex_work_related) |>
-#   nrow()
-
+ds <- read_rds("./data/test-data-tr-all.rds")
+# ds <- read_rds("./data/test-data-all.rds")
 
 # Using new regex --------------------------------------------------------------
+tic()
 final <- ds |>
   ojoregex::apply_ojo_regex(col_to_clean = "count_as_filed", .keep_flags = TRUE)
+toc()
 
-# -
+# Percent categorized:
+cli::cli_alert_success(
+  paste0(100 * round((final |> filter(!is.na(count_as_filed_clean)) |> nrow()) / nrow(final), 4), "% Done!!")
+)
+beepr::beep()
 
-# final |>
-#   filter(str_detect(count_as_filed_clean, "Sex Work")) |>
-#   count(count_as_filed_clean, sort = T) |>
-#   janitor::adorn_totals()
-#
-# final |>
-#   filter(str_detect(count_as_filed_clean, "Sex Work")) |>
-#   count(district, sort = T)
-#
-# final |>
-#   filter(str_detect(count_as_filed_clean, "Shoplift"))
-
+# Classifications rundown
 final |>
   group_by(count_as_filed_clean) |>
   summarize(
     n = n(),
-    all_counts = paste(count_as_filed, collapse = "; ")
+    # all_counts = paste(count_as_filed, collapse = "; ")
   ) |>
-  arrange(desc(n))
+  arrange(desc(n)) |>
+  print(n = 30)
 
 # Remaining unclassified
 remaining_nas <- final |>
@@ -56,6 +49,17 @@ remaining_nas <- final |>
   distinct(count_as_filed, .keep_all = TRUE) |>
   select(count_as_filed, n, everything()) |>
   arrange(desc(n))
+
+remaining_nas |>
+  arrange(desc(n)) |>
+  select(count_as_filed, n)
+
+#
+
+final |>
+  filter(str_detect(count_as_filed_clean, "Obstruction")) |>
+  # distinct(count_as_filed, .keep_all = TRUE) |>
+  count(count_as_filed, count_as_filed_clean, sort = T) |> view()
 
 final |>
   count(count_as_filed_clean, sort = T) |>

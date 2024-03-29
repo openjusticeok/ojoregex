@@ -84,7 +84,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
       # Cleaned charge descriptions (most specific, i.e. "simple possession", "kidnapping", etc.)
       # Later ones should overwrite previous ones, so maybe order by ascending priority?
       !!paste0(col_to_clean, "_clean") := dplyr::case_when(
-        # Drug stuff ===========================================================
+        # Drug Crimes ==========================================================
         # Generic drugs --------------------------------------------------------
         any_drugs & possess & !traffic_or_traffick & !distribution & !intent &
           !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
@@ -102,6 +102,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
 
         # DUI / APC related stuff ------------------------------------------------
         dui_or_apc ~ "DUI / APC",
+        public & intoxication ~ "Public Intoxication",
 
         # Property Crimes ======================================================
         # Larceny related stuff -------------------------------------------
@@ -122,6 +123,15 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         # larceny & !petit & !grand & !any_drugs & aid_abet ~ "Larceny (Other / Unspecified) (Aiding & Abetting)",
         theft & !identity & !credit_card & !false_report ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
 
+        # Traffic ==============================================================
+        speeding | x_in_y | x_over ~ "Speeding",
+        seatbelt & !child ~ "Seatbelt Violation",
+        seatbelt & child ~ "Child Seatbelt / Restraint Violation",
+        dus | (suspend & drive) ~ "Driving Under Suspension",
+        (operate | drive) & automobile & license & !tag ~ "Operating Motor Vehicle Without Valid License",
+        (operate | drive) & automobile & tag ~ "Operating Motor Vehicle Without Proper Tag",
+        failure & comply & insurance ~ "Failure to Comply With Compulsary Insurance Law",
+
         # Other ================================================================
         # Sex Work related stuff -------------------------------------------------
         sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
@@ -132,6 +142,13 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         sex_work & aid_abet & child ~ "Aiding / Abetting Sex Work (Minor Involved)",
         sex_work & (maintain_keep | operate) & !within_x_feet ~ "Maintaining / Operating Place for Sex Work (Simple)",
         sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
+
+        # Obstructing an officer, etc. -----------------------------------------
+        (resist | elude) & (police_officer | arrest) & !obstruct ~ "Resisting / Eluding Officer or Arrest",
+        (obstruct & (police_officer | justice)) |
+          str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
+        # TODO: There are a bunch of other "obstruction" ones that are really hard to capture because they refer to all kinds of things,
+        # like "Driving with obstructed view", "obstructing EMT", "Obstruction of legal hunting", "obstructing public road", etc.
 
         # Default to NA ========================================================
         TRUE ~ NA_character_
