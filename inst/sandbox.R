@@ -6,7 +6,7 @@ library(tictoc)
 # ds <- ojo_crim_cases(
 #   districts = "all",
 #   case_types = c("CF", "CM"),
-#   file_years = 2000:2024
+#   file_years = 2000:2024,
 # ) |>
 #   ojo_collect()
 #
@@ -14,8 +14,8 @@ library(tictoc)
 #
 # beepr::beep()
 
-ds <- read_rds("./data/test-data-tr-all.rds")
-# ds <- read_rds("./data/test-data-all.rds")
+# ds <- read_rds("./data/test-data-tr-all.rds")
+ds <- read_rds("./data/test-data-all.rds")
 
 # Using new regex --------------------------------------------------------------
 tic()
@@ -25,7 +25,7 @@ toc()
 
 # Percent categorized:
 cli::cli_alert_success(
-  paste0(100 * round((final |> filter(!is.na(count_as_filed_clean)) |> nrow()) / nrow(final), 4), "% Done!!")
+  paste0(100 * round((final |> filter(!is.na(count_as_filed_clean)) |> nrow()) / nrow(final |> filter(!is.na(count_as_filed))), 4), "% Done!!")
 )
 beepr::beep()
 
@@ -38,6 +38,11 @@ final |>
   ) |>
   arrange(desc(n)) |>
   print(n = 30)
+
+
+explore <- final |>
+  # filter(burgle) |>
+  count(count_as_filed, count_as_filed_clean, sort = T)
 
 # Remaining unclassified
 remaining_nas <- final |>
