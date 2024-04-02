@@ -101,7 +101,6 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         # Drug / Tax Stuff -----------------------------------------------------
         any_drugs & stamp ~ "CDS Possession (Tax Stamp)",
 
-
         # Property Crimes ======================================================
         # Larceny --------------------------------------------------------------
         larceny & grand & !petit & !any_drugs ~ "Larceny (Grand)",
@@ -131,10 +130,18 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         # revocation
         (operate | drive) & license & !tag & !suspend ~ "Driving Without Valid License",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag",
-        failure & comply & insurance ~ "Driving Without Valid Insurance",
+        ((failure & comply) | no) & insurance ~ "Driving Without Valid Insurance",
 
         # DUI / APC / etc. -----------------------------------------------------
         dui_or_apc ~ "DUI / APC",
+
+        # Violent Crimes =======================================================
+        # Assault / Battery ----------------------------------------------------
+        (assault | battery | a_and_b | abuse | violence | abdom) & domestic & !weapon ~ "Domestic Assault / Battery (Simple)",
+        (assault | battery | a_and_b | abuse | violence | abdom) & domestic & weapon ~ "Domestic Assault / Battery (Dangerous Weapon)",
+        (assault | battery | a_and_b | abgen) & weapon & !domestic & !abdom ~ "Assault / Battery (Dangerous Weapon)",
+        (assault | battery | a_and_b | abgen) & officer ~ "Assault / Battery (On Official)",
+        (assault | battery | a_and_b | abgen) & !weapon & !domestic & !abdom & !sex & !officer ~ "Assault / Battery (Other / Unspecified)",
 
         # Other ================================================================
         # Sex Work -------------------------------------------------------------
@@ -148,8 +155,8 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
 
         # Obstructing / Eluding ------------------------------------------------
-        (resist | elude) & (police_officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
-        (obstruct & (police_officer | justice)) |
+        (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
+        (obstruct & (officer | justice)) |
           str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
         # TODO: There are a bunch of other "obstruction" ones that are really hard to capture because they refer to all kinds of things,
         # like "Driving with obstructed view", "obstructing EMT", "Obstruction of legal hunting", "obstructing public road", etc.
@@ -170,8 +177,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
                   data_names)
 
   if(.keep_flags == TRUE) {
-    # clean_data is just the version that still has the flags
-    return(clean_data)
+    return(clean_data) # clean_data is just the version that still has the flags
   } else {
     return(true_clean_data)
   }

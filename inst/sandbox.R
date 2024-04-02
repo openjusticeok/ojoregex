@@ -14,8 +14,8 @@ library(tictoc)
 #
 # beepr::beep()
 
-# ds <- read_rds("./data/test-data-tr-all.rds")
-ds <- read_rds("./data/test-data-all.rds")
+ds <- read_rds("./data/test-data-tr-all.rds")
+# ds <- read_rds("./data/test-data-all.rds")
 
 # Using new regex --------------------------------------------------------------
 tic()
@@ -37,7 +37,7 @@ final |>
     # all_counts = paste(count_as_filed, collapse = "; ")
   ) |>
   arrange(desc(n)) |>
-  print(n = 30)
+  print(n = 300)
 
 
 explore <- final |>
