@@ -18,7 +18,7 @@
 #' # Apply OJO Regex to clean and categorize charge descriptions
 #' cleaned_data <- apply_ojo_regex(data = example_data, col_to_clean = "charge_description")
 #'}
-apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
+apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cache = TRUE) {
 
   # Validate data ==============================================================
   data_names <- names(data)
@@ -29,9 +29,19 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
     stop("Column not found in data frame.")
   }
 
-  # Regex list (in progress; replace w/ CSV before release):
-  googlesheets4::gs4_auth(email = "abell@okpolicy.org")
-  regex <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing")
+  if (.update_cache) {
+    # Regex list (in progress; replace w/ CSV before release):
+    googlesheets4::gs4_auth(email = "abell@okpolicy.org")
+    regex <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing")
+
+    # Save the regex data to a CSV file for future use
+    readr::write_csv(regex, here::here("data", paste0("ojo-big-ol-regex.csv")))
+
+  } else {
+    # Load the regex data from the CSV file
+    regex <- readr::read_csv(here::here("data", "ojo-big-ol-regex.csv"))
+  }
+
 
   # Creating a list of groups and their relevant flags also (like cds | meth | paraphernalia ... = any_drugs)
   # these should all start with any_ prefix
@@ -158,8 +168,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
         (obstruct & (officer | justice)) |
           str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
-        # TODO: There are a bunch of other "obstruction" ones that are really hard to capture because they refer to all kinds of things,
-        # like "Driving with obstructed view", "obstructing EMT", "Obstruction of legal hunting", "obstructing public road", etc.
+
 
         # Public Decency Crimes ------------------------------------------------
         public & intoxication ~ "Public Intoxication",
