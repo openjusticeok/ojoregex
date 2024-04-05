@@ -29,11 +29,11 @@ second,"s[econd]{4,}|sec0nd|seciond|sevcond|2\s*nd",NA,NA,Misc. Concept,No,secon
 third,third|thrid|3\s*(r|t)d,NA,NA,Misc. Concept,No,third; 3rd,NA
 fourth,fourth|fouth|forth|4\s*th,NA,NA,Misc. Concept,No,fourth; 4th,NA
 fifth,fifth|5\s*th,NA,NA,Misc. Concept,No,fifth; 5th,NA
-one,\b(one|1|i)\b,NA,NA,Misc. Concept,Yes,burglary i; burglary 1,NA
-two,\b(two|2|ii)\b,NA,NA,Misc. Concept,Yes,NA,NA
-three,\b(three|3|iii)\b,NA,NA,Misc. Concept,Yes,NA,NA
-four,\b(four|4|iv)\b,NA,NA,Misc. Concept,Yes,NA,NA
-five,\b(five|5)\b,NA,NA,Misc. Concept,Yes,NA,NA
+one,\b((?<!count )(one|1|i))\b,NA,NA,Misc. Concept,Yes,burglary i; burglary 1,"The lookback ""?!count ""excludes ""COUNT ONE"" / ""COUNT 1"" / etc. bc this is a common thing that gets added but has nothing to do with the charge itself"
+two,\b((?<!count )(two|2|ii))\b,NA,NA,Misc. Concept,Yes,NA,NA
+three,\b((?<!count )(three|3|iii))\b,NA,NA,Misc. Concept,Yes,NA,NA
+four,\b((?<!count )(four|4|iv))\b,NA,NA,Misc. Concept,Yes,NA,NA
+five,\b((?<!count )(five|5))\b,NA,NA,Misc. Concept,Yes,NA,NA
 distribution,\b(distr[A-Za-z]*e|distr[A-Za-z]*n|dist)\b,NA,Criminal Charge,Misc. Criminal,Yes,distr...e; distr...n; dist,"This one isn't great because there are some false positives on ""DIST"", like sometimes ""disturbing the peace"" gets shortened to that as well. We either need to add an exclusion or be careful of that with the flags. Also, note that it usually refers to drugs but can be other stuff like CSA materials and jail contraband and stuff like that."
 weapon,\b(weap.*|firearm(s*)|fire arm(s*))\b|weapon,NA,Criminal Charge,Misc. Criminal,Yes,weapon; fire arm; firearm; weap; dangerousweapon,"The extra ""weapon"" outside the word boundary is for cases where there's an exact word match but no space, like ""DANGEROUSWEAPON"""
 traffic_or_traffick,traffic,NA,Criminal Charge,Misc. Criminal,No,traffic; trafficking; etc.,"There are too many typos to distinguish between traffic / traffick consistently, so we'll have to add exceptions or just use this as a building block and combine it with the drug flags and stuff as needed."
@@ -88,3 +88,5 @@ sex,sex,NA,NA,Misc. Criminal,No,sex; sexual; sexualize,NA
 abuse,abus|absue,NA,NA,Misc. Criminal,No,abuse; abusive; abused; absue,NA
 violence,violen,NA,NA,Misc. Criminal,No,NA,NA
 no,\b(no)\b,NA,NA,Misc. Concept,Yes,no,NA
+arson,arson,NA,NA,Misc. Criminal,No,arson; xarson,Couldn't really find any major typos not covered by removing the word boundary; might need to revisit bc it's so simple but I actually think this works for now
+danger,dang,NA,NA,Misc. Criminal,No,danger; dangerous; endanger; dang.,NA

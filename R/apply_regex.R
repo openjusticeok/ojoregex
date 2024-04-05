@@ -118,18 +118,24 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         (larceny & merchandise) | shoplift ~ "Larceny (Shoplifting)",
         # (larceny | theft | steal) & copper & !intent & !false_report ~ "Larceny (Copper)",
         (larceny | theft | steal) & automobile & !false_report ~ "Larceny (Auto)",
-
         larceny & !petit & !grand & !any_drugs & !(merchandise | shoplift) & !automobile ~ "Larceny (Other / Unspecified)", # Sometimes it lists none...
         larceny & petit & grand & !any_drugs ~ "Larceny (Other / Unspecified)", # ...and sometimes it lists all.
         theft & !identity & !credit_card & !false_report ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
 
         # Burglary -------------------------------------------------------------
-        burgle & (first | one) ~ "Burglary (First Degree)", # TODO: Need to add "BURG 1" and "BURG I" etc
-        burgle & (second | two) ~ "Burglary (Second Degree)", # Same with BURG 2, BURG II, etc
+        burgle & (first | one) ~ "Burglary (First Degree)",
+        burgle & (second | two) ~ "Burglary (Second Degree)",
         burgle & (third | three | automobile) ~ "Burglary (Third Degree)",
         burgle & tools_implements ~ "Possession of Burglar's Tools",
         burgle & !first & !one & !second & !two & !third & !three & !tools_implements ~ "Burglary (Other / Unspecified)",
         enter & intent ~ "Entering with Intent To Commit a Crime",
+
+        # Arson ----------------------------------------------------------------
+        arson & (first | one | danger) ~ "Arson (First Degree)",
+        arson & (second | two) ~ "Arson (Second Degree)",
+        arson & (third | three) ~ "Arson (Third Degree)",
+        arson & (fourth | four) ~ "Arson (Fourth Degree)",
+        arson & !first & !one & !danger & !second & !two & !third & !three & !four ~ "Arson (Other / Unspecified)",
 
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff ---------------------------------------------
