@@ -90,3 +90,10 @@ violence,violen,NA,NA,Misc. Criminal,No,NA,NA
 no,\b(no)\b,NA,NA,Misc. Concept,Yes,no,NA
 arson,arson,NA,NA,Misc. Criminal,No,arson; xarson,Couldn't really find any major typos not covered by removing the word boundary; might need to revisit bc it's so simple but I actually think this works for now
 danger,dang,NA,NA,Misc. Criminal,No,danger; dangerous; endanger; dang.,NA
+education,\beduc,NA,NA,Misc. Criminal,Yes,"education; ""EDUC,""; educate; etc.","really only finding ""education"" and ""EDUC,"" in here"
+neglect,"\bn[eglct]{5,}|negl",NA,NA,Misc. Criminal,Yes,neglect; negligence; negligent,NA
+truant,\btruan|\btraun,NA,NA,Misc. Criminal,Yes,truant; truancy; trauncy,NA
+delinquent,"d[elinqunt]{8,}|delin|deliq",NA,NA,Misc. Criminal,No,delinquent; delinquint; delinquency,NA
+compel,compel|conmpel,NA,NA,Misc. Concept,No,compel; compels; compelled,NA
+refuse,refus,NA,NA,Misc. Concept,No,refuse; refusal; refused,NA
+compulsory,compul,NA,NA,Criminal Modifier,No,compulsory,NA

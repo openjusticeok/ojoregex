@@ -175,6 +175,8 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         (obstruct & (officer | justice)) |
           str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
 
+        # Child abuse / neglect / violation of compulsory education act --------
+        delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",
 
         # Public Decency Crimes ------------------------------------------------
         public & intoxication ~ "Public Intoxication",
