@@ -32,10 +32,15 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
   if (.update_cache) {
     # Regex list (in progress; replace w/ CSV before release):
     googlesheets4::gs4_auth(email = "abell@okpolicy.org")
-    regex <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing")
+    regex <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+                                       sheet = "Regex Flag List")
+    official_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+                                              sheet = "Clean Categories List") |>
+      filter(!is.na(clean_charge_description))
 
     # Save the regex data to a CSV file for future use
     readr::write_csv(regex, here::here("data", paste0("ojo-big-ol-regex.csv")))
+    readr::write_csv(official_cats, here::here("data", paste0("ojo-clean-cats.csv")))
 
   } else {
     # Load the regex data from the CSV file
@@ -138,12 +143,12 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         arson & !first & !one & !danger & !second & !two & !third & !three & !four ~ "Arson (Other / Unspecified)",
 
         # Traffic / Motor Vehicles =============================================
-        # Basic Traffic Stuff ---------------------------------------------
+        # Basic Traffic Stuff --------------------------------------------------
         speeding | x_in_y | x_over ~ "Speeding",
         seatbelt & !child ~ "Seatbelt Violation",
         seatbelt & child ~ "Child Seatbelt Violation",
-        ((operate | drive) & suspend) | dus ~ "Driving Under Suspension",
-        # revocation
+        # Driving under suspension / revocation --------------------------------
+        ((operate | drive) & (revocation | suspend)) | dus_code | dur_code ~ "Driving Under Suspension / Revocation",
         (operate | drive) & license & !tag & !suspend ~ "Driving Without Valid License",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag",
         ((failure & comply) | no) & insurance ~ "Driving Without Valid Insurance",

@@ -73,7 +73,8 @@ steal,\b(ste(a)*l)\b,NA,NA,Property Crimes,Yes,steal; stealing; entering w/ inte
 burgle,"\b(b[urglary]{6,}|brg)\b|burg|glary",NA,NA,Property Crimes,Yes,burgle; burglary; urglary; brg; burg,"This one was kind of hard, because ""BRG1"", ""BRG2"", etc are common codes that can refer to all kinds of things even when they're not related to burglary as a concept. I think this covers it pretty well though. Looks for words that start with b and have 4 letters from the set [urglary], or just ""brg"" as a word (when there's no letter next to it like the examples from before, it seems to be always referring to an actual burglary charge). Also looks for ""burg"" and ""glary"", which are outisde the word boundary! to catch remaining typos"
 speeding,speed(ing|)|speding|spedding,NA,NA,Traffic,No,speeding; speed; speding; etc,This covers all the typos I could find
 seatbelt,(safety|seat|restraint|restaint|set|seaat|sea|seata|seatn|seeat|sera|stea|steat|weat)(\s*)(bel|bet|ble),NA,NA,Traffic,No,"seat belt, seatbelt, safety belt, restraint belt, etc.",So many typos and I can't think of a good way to get them all except literal matches
-dus,\b(x*d\.*u\.*s)\b,NA,NA,Traffic,Yes,dus; DUS,This is for driving under suspension but isn't used universally
+dus_code,\b(x*d\.*u\.*s)\b,NA,NA,Traffic,Yes,dus; DUS,This is for driving under suspension but isn't used universally
+dur_code,\b(x*d\.*u\.*r)\b,NA,NA,Traffic,Yes,"dur; DUR,",NA
 drive,driv,NA,NA,Traffic,No,driving; drive; driver's license; driven,NA
 license,"\b(l[isenc]{4,}e)|(dl)\b",NA,NA,Traffic,Yes,lisence; license; licence; DL,"There were too many typos to cover manually, so this matches anything that starts with L, contains at least 4 characters from the set ""isenc"", and ends with E. Also matches ""DL"" which is used as shorthand for ""driver's license"""
 tag,\b(tag|plate)\b,NA,NA,Traffic,Yes,tag; plate; license plate,These two together seem to cover every instance where the concept of a license plate / tag is being referenced
@@ -96,4 +97,5 @@ truant,\btruan|\btraun,NA,NA,Misc. Criminal,Yes,truant; truancy; trauncy,NA
 delinquent,"d[elinqunt]{8,}|delin|deliq",NA,NA,Misc. Criminal,No,delinquent; delinquint; delinquency,NA
 compel,compel|conmpel,NA,NA,Misc. Concept,No,compel; compels; compelled,NA
 refuse,refus,NA,NA,Misc. Concept,No,refuse; refusal; refused,NA
-compulsory,compul,NA,NA,Criminal Modifier,No,compulsory,NA
+compulsory,compul,NA,NA,Misc. Criminal,No,compulsory,NA
+revocation,revo,NA,NA,Misc. Criminal,No,revoke; revocation; revoked,NA

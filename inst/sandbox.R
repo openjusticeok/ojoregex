@@ -5,7 +5,7 @@ library(tictoc)
 
 # ds <- ojo_crim_cases(
 #   districts = "all",
-#   case_types = c("CF", "CM"),
+#   case_types = c("CF", "CM", "TR"),
 #   file_years = 2000:2024,
 # ) |>
 #   ojo_collect()
@@ -14,8 +14,8 @@ library(tictoc)
 #
 # beepr::beep()
 
-ds <- read_rds("./data/test-data-tr-all.rds")
-# ds <- read_rds("./data/test-data-all.rds")
+# ds <- read_rds("./data/test-data-tr-all.rds")
+ds <- read_rds("./data/test-data-all.rds")
 
 # Using new regex --------------------------------------------------------------
 tic()
