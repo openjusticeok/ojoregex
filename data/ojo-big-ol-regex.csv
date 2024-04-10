@@ -47,7 +47,8 @@ child,\b(child(ren|)|minor(s|))\b,NA,Criminal Charge,Misc. Criminal,Yes,...in pr
 sex_work,prost|prositu,NA,Criminal Charge,Misc. Criminal,No,engaging in prostitution; prositution,"This appears to be pretty robust; I don't see any false positives or other ways that these charges get entered. They're defintiely never using the phrase ""sex work"" or anything like that."
 animal_cruelty,\b(animal)|(bird(s|))\b,NA,Criminal Charge,Misc. Criminal,Yes,NA,NA
 credit_card,\b(credit|debit|bank card)\b,NA,NA,Misc. Criminal,Yes,NA,NA
-false_report,false report,NA,NA,Misc. Criminal,No,NA,NA
+false,false,NA,NA,Misc. Concept,No,NA,NA
+report,report,NA,NA,Misc. Concept,No,NA,NA
 enter,\b(enter(ing)*)\b,NA,NA,Misc. Criminal,Yes,enter / entering,NA
 automobile,auto[a-z]*|motor|veh[a-z]*|\b(mv|mtv)\b,NA,NA,Misc. Criminal,Yes,"Auto, automobile, vehicle, motorist, motor vehicle, mv","Could need to separate these out later, but so far they seem to be interchangable. ""Car"" is also barely ever used and I made the call to exclude it bc there were as many false positives as real hits. ""mv"" is also used as a shorthand and wrapping it in the word boundary works well."
 guardian_truancy,compel child,NA,NA,Misc. Criminal,No,NA,NA
@@ -99,3 +100,15 @@ compel,compel|conmpel,NA,NA,Misc. Concept,No,compel; compels; compelled,NA
 refuse,refus,NA,NA,Misc. Concept,No,refuse; refusal; refused,NA
 compulsory,compul,NA,NA,Misc. Criminal,No,compulsory,NA
 revocation,revo,NA,NA,Misc. Criminal,No,revoke; revocation; revoked,NA
+personate,"(im|)p[ersoia]{4,}nat",NA,NA,Misc. Criminal,No,"impersonate; personate; personation; impersonation; persiration, etc.",NA
+pretense,(?<!in the )preten,NA,NA,Misc. Criminal,No,pretense; pretenses,"I tried a lot of different approaches here and this simple one seems to work best. It could also hit ""pretend"", etc., but I didn't find any of those in the data. Also, sometimes they typo ""presence"" as ""pretense"", which is why I added the negative lookbehind."
+bogus,"(?<!em)b[ogus]{4,}|\b(bogu|boguc|borgus|boguis|bocus|byogus|bogtus|bo-gus|bogue|b0gus|bobus|bofus|bogas|bogues|boguh|ogus|bous|bohus|bygus)\b",NA,NA,Misc. Criminal,Yes,bogus; endless typos,"So many typos on this one, and it's a short word with common letters so I couldn't find any way execpt the b[ogus]{4,} approach + explicitly listing all the stupidest remaining ones."
+check,\b(ck|chek|ceck|cehck|chceck|chcek|chceks)\b|check(s*),NA,NA,Misc. Criminal,Yes,check; checks; ch; ck; etc.,"Matches ""check"" and ""checks"" sans word boundary, and then matches several comon mispellings within a word boundary, including ""ck"" which is exclusivley used as shorthand for ""check"" in the data"
+bc_code,"bc\,",NA,NA,Misc. Criminal,No,"only matches ""BC,""",NA
+deception,dec(ep|ie|ei),NA,NA,Misc. Criminal,No,deceit; deciet; deception; deceive; decieve,NA
+forge,forg,NA,NA,Misc. Criminal,Yes,forgery; forged; forge,"Word boundary at the beginning doesn't actually affect anything, so I'm leaving it off for now"
+counterfeit,"c[ounter]{3,}f[eit]{3,}",NA,NA,Misc. Criminal,No,counterfeit; countfeit; cntfeit; counterfit; etc.,"Looking for words that start with some variant of ""counter"" and then some variant of ""feit"", allowing for mispellings"
+coporate,corpo(?!ral),NA,NA,Misc. Concept,No,corporate; corporation; incorporate,NA
+insolvent,\binsolv,NA,NA,Misc. Concept,Yes,insolvent,There is literally one of these charges in the criminal data. We might need to re-assess if we're using this in the civil data though! I could see this term having a lot more typos / being used far more often in those cases.
+individual,"ind[ivdual]{4,}",NA,NA,Misc. Concept,No,individual; typos,Not many of these in the data
+elder,elder,NA,NA,Misc. Concept,No,elder; elderly,"Tried w/ and w/out word boundary at the beginning, and it doesn't seem to make any difference"

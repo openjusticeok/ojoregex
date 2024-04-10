@@ -121,11 +121,10 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         larceny & grand & !petit & !any_drugs ~ "Larceny (Grand)",
         larceny & petit & !grand & !any_drugs ~ "Larceny (Petit)",
         (larceny & merchandise) | shoplift ~ "Larceny (Shoplifting)",
-        # (larceny | theft | steal) & copper & !intent & !false_report ~ "Larceny (Copper)",
-        (larceny | theft | steal) & automobile & !false_report ~ "Larceny (Auto)",
+        (larceny | theft | steal) & automobile & !(false & report) ~ "Larceny (Auto)",
         larceny & !petit & !grand & !any_drugs & !(merchandise | shoplift) & !automobile ~ "Larceny (Other / Unspecified)", # Sometimes it lists none...
         larceny & petit & grand & !any_drugs ~ "Larceny (Other / Unspecified)", # ...and sometimes it lists all.
-        theft & !identity & !credit_card & !false_report ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
+        theft & !identity & !credit_card & !(false & report) ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
 
         # Burglary -------------------------------------------------------------
         burgle & (first | one) ~ "Burglary (First Degree)",
@@ -141,6 +140,12 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         arson & (third | three) ~ "Arson (Third Degree)",
         arson & (fourth | four) ~ "Arson (Fourth Degree)",
         arson & !first & !one & !danger & !second & !two & !third & !three & !four ~ "Arson (Other / Unspecified)",
+
+        # Fraud / Forgery ------------------------------------------------------
+        personate ~ "Fraud (False Personation)",
+        ((bogus & check) | bc_code) & !(pretense | deception) ~ "Fraud (Bogus Check)",
+        (pretense | deception) & !(bogus & check) & !elder ~ "Fraud (False Pretense / Deception)", # Some forms of elder abuse include the term "deception"
+        (pretense | deception) & (bogus & check) ~ "Fraud (Other / Unspecified)", # Sometimes both will be listed
 
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------
