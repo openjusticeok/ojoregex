@@ -14,8 +14,8 @@ library(tictoc)
 #
 # beepr::beep()
 
-ds <- read_rds("./data/test-data-tr-all.rds")
-# ds <- read_rds("./data/test-data-all.rds")
+# ds <- read_rds("./data/test-data-tr-all.rds")
+ds <- read_rds("./data/test-data-all.rds")
 
 # Using new regex --------------------------------------------------------------
 tic()
@@ -31,6 +31,7 @@ beepr::beep()
 
 # Classifications rundown
 final |>
+  filter(str_detect(count_as_filed_clean, "Fraud")) |>
   group_by(count_as_filed_clean) |>
   summarize(
     n = n(),

@@ -113,6 +113,8 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         any_drugs & paraphernalia ~ "CDS Paraphernalia Possession / Distribution",
         any_drugs & intent & possess & (traffic_or_traffick | distribution) ~ "CDS Possession With Intent (PWID)",
         any_drugs & (traffic_or_traffick | distribution) & !possess & !paraphernalia ~ "CDS Trafficking / Distribution",
+        any_drugs & fraud ~ "Obtain CDS by Fraud",
+
         # Drug / Tax Stuff -----------------------------------------------------
         any_drugs & stamp ~ "CDS Possession (Tax Stamp)",
 
@@ -145,7 +147,12 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         personate ~ "Fraud (False Personation)",
         ((bogus & check) | bc_code) & !(pretense | deception) ~ "Fraud (Bogus Check)",
         (pretense | deception) & !(bogus & check) & !elder ~ "Fraud (False Pretense / Deception)", # Some forms of elder abuse include the term "deception"
+        credit_card ~ "Fraud (Credit Card)", # May need more refining
+        (forge | counterfeit) & !license & !bogus & !credit_card ~ "Fraud (Forgery / Counterfeiting)",
+        (corporate & !embezzle) | (insurance & fraud)  ~ "Fraud (Corporate / Insurance)",
         (pretense | deception) & (bogus & check) ~ "Fraud (Other / Unspecified)", # Sometimes both will be listed
+        fraud & !personate & !pretense & !deception & !credit_card & !forge & !counterfeit & !corporate & !insurance & !any_drugs ~ "Fraud (Other / Unspecified)",
+
 
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------

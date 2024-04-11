@@ -104,11 +104,13 @@ personate,"(im|)p[ersoia]{4,}nat",NA,NA,Misc. Criminal,No,"impersonate; personat
 pretense,(?<!in the )preten,NA,NA,Misc. Criminal,No,pretense; pretenses,"I tried a lot of different approaches here and this simple one seems to work best. It could also hit ""pretend"", etc., but I didn't find any of those in the data. Also, sometimes they typo ""presence"" as ""pretense"", which is why I added the negative lookbehind."
 bogus,"(?<!em)b[ogus]{4,}|\b(bogu|boguc|borgus|boguis|bocus|byogus|bogtus|bo-gus|bogue|b0gus|bobus|bofus|bogas|bogues|boguh|ogus|bous|bohus|bygus)\b",NA,NA,Misc. Criminal,Yes,bogus; endless typos,"So many typos on this one, and it's a short word with common letters so I couldn't find any way execpt the b[ogus]{4,} approach + explicitly listing all the stupidest remaining ones."
 check,\b(ck|chek|ceck|cehck|chceck|chcek|chceks)\b|check(s*),NA,NA,Misc. Criminal,Yes,check; checks; ch; ck; etc.,"Matches ""check"" and ""checks"" sans word boundary, and then matches several comon mispellings within a word boundary, including ""ck"" which is exclusivley used as shorthand for ""check"" in the data"
-bc_code,"bc\,",NA,NA,Misc. Criminal,No,"only matches ""BC,""",NA
+bc_code,"\bbc\,",NA,NA,Misc. Criminal,No,"only matches ""BC,"" with word boundary at the beginning to prevent false positives",NA
 deception,dec(ep|ie|ei),NA,NA,Misc. Criminal,No,deceit; deciet; deception; deceive; decieve,NA
-forge,forg,NA,NA,Misc. Criminal,Yes,forgery; forged; forge,"Word boundary at the beginning doesn't actually affect anything, so I'm leaving it off for now"
+forge,"forg(?!\,)",NA,NA,Misc. Criminal,Yes,forgery; forged; forge,"Word boundary at the beginning doesn't actually affect anything, so I'm leaving it off for now"
 counterfeit,"c[ounter]{3,}f[eit]{3,}",NA,NA,Misc. Criminal,No,counterfeit; countfeit; cntfeit; counterfit; etc.,"Looking for words that start with some variant of ""counter"" and then some variant of ""feit"", allowing for mispellings"
-coporate,corpo(?!ral),NA,NA,Misc. Concept,No,corporate; corporation; incorporate,NA
+corporate,corpo(?!ral),NA,NA,Misc. Concept,No,corporate; corporation; incorporate,NA
 insolvent,\binsolv,NA,NA,Misc. Concept,Yes,insolvent,There is literally one of these charges in the criminal data. We might need to re-assess if we're using this in the civil data though! I could see this term having a lot more typos / being used far more often in those cases.
 individual,"ind[ivdual]{4,}",NA,NA,Misc. Concept,No,individual; typos,Not many of these in the data
 elder,elder,NA,NA,Misc. Concept,No,elder; elderly,"Tried w/ and w/out word boundary at the beginning, and it doesn't seem to make any difference"
+fraud,fraud|frad,NA,NA,Misc. Criminal,No,fraud; fraudulent; fradulent,"""Fradulent"" was the only common typo I could find, so this covers it well enough I think"
+embezzle,"embez|embz|emb(?!\,)",NA,NA,Misc. Criminal,No,embezzle; embezzlement; emb,"The ""EMB,"" code can sometimes refer to elder abuse, etc., hence the lookahead for the comma."
