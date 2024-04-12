@@ -31,7 +31,7 @@ beepr::beep()
 
 # Classifications rundown
 final |>
-  filter(str_detect(count_as_filed_clean, "Fraud")) |>
+  # filter(str_detect(count_as_filed_clean, "Fraud")) |>
   group_by(count_as_filed_clean) |>
   summarize(
     n = n(),

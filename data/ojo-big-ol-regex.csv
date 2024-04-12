@@ -70,7 +70,7 @@ theft,theft,any_larceny_or_theft,NA,Property Crimes,Yes,NA,NA
 merchandise,merch|mdse,any_larceny_or_theft,NA,Property Crimes,No,LARCENY OF MERCH FROM RETAILER (SHOPLIFTING),"Added ""mdse"" shortening, which appears to be consistently used only for ""merchandise"""
 shoplift,shoplift,any_larceny_or_theft,NA,Property Crimes,No,LARCENY OF MERCH FROM RETAILER (SHOPLIFTING),NA
 copper,\b(copper|cooper|coper)\b,NA,NA,Property Crimes,Yes,copper theft,NA
-steal,\b(ste(a)*l)\b,NA,NA,Property Crimes,Yes,steal; stealing; entering w/ intent to steal; stal; etc.,NA
+steal,\b(ste(a)*l),NA,NA,Property Crimes,Yes,steal; stealing; entering w/ intent to steal; stal; etc.,NA
 burgle,"\b(b[urglary]{6,}|brg)\b|burg|glary",NA,NA,Property Crimes,Yes,burgle; burglary; urglary; brg; burg,"This one was kind of hard, because ""BRG1"", ""BRG2"", etc are common codes that can refer to all kinds of things even when they're not related to burglary as a concept. I think this covers it pretty well though. Looks for words that start with b and have 4 letters from the set [urglary], or just ""brg"" as a word (when there's no letter next to it like the examples from before, it seems to be always referring to an actual burglary charge). Also looks for ""burg"" and ""glary"", which are outisde the word boundary! to catch remaining typos"
 speeding,speed(ing|)|speding|spedding,NA,NA,Traffic,No,speeding; speed; speding; etc,This covers all the typos I could find
 seatbelt,(safety|seat|restraint|restaint|set|seaat|sea|seata|seatn|seeat|sera|stea|steat|weat)(\s*)(bel|bet|ble),NA,NA,Traffic,No,"seat belt, seatbelt, safety belt, restraint belt, etc.",So many typos and I can't think of a good way to get them all except literal matches
@@ -121,3 +121,16 @@ violate,"\bv[iolat]{5,}",NA,NA,Misc. Concept,Yes,violate; violation; vilation; e
 protect,\bprot,NA,NA,Misc. Criminal,Yes,protect; protective,NA
 order,\b(dis)*orde,NA,NA,Misc. Concept,Yes,order; disorder; disorderly,"Possible we might need to separate ""order"" and ""disorder"" at some point"
 stalk,stalk,NA,NA,Misc. Criminal,No,stalk; stalking,I tried with and without word boundary at the start and it made no difference
+kidnap,\bkidn,NA,NA,Misc. Criminal,Yes,kidnap; kidnapping,"word boundary needed to prevent matching with typos like ""TRAFFICKIDNG"""
+extort,\bexto,NA,NA,Misc. Criminal,Yes,extor; extortion,word boundary not necessarily needed here I think but I'm leaving it in because it doesn't seem to affect anything and it should theoretically help defend against possible future typos
+human,huma,NA,NA,Misc. Criminal,No,human; humane; humanity,"""huma"" and ""hum"" both seem to work, word boundary doesn't seem to be necessary either."
+maim,\b(maim(ing|ed)*)|maming\b,NA,NA,Misc. Criminal,Yes,maim; maimed; maiming,"""maming"" was the only typo I could identify, there were some false positives so I decided to include it specifically instead of doing something like ""\bma(i)*m..."""
+lane,\blane(s|d|use)*\b,NA,NA,Misc. Criminal,Yes,lane; lanes; laned road; laneuse,NA
+follow,follo|\b(folling|folliwing)\b,NA,NA,Misc. Criminal,Yes,follow; following; etc.,"Word boundary not needed on the ""follow"" stem it looks like, and I don't see any other typos besides the two explicit ones"
+close_closely,\bclos(?!ed|ing|ure),NA,NA,Misc. Criminal,Yes,too close; closely,"Does NOT match ""closure"", ""closed"", ""closing"", etc. since that's a different root word. This just captures ""close"" in the proximity sense, not in the ""open / closed"" sense"
+rcsp_code,"\brcsp\,",NA,NA,Misc. Criminal,Yes,"RCSP,","Code for ""Recieve / Conceal Stolen Property"""
+rcspmv_code,"\brcspmv\,",NA,NA,Misc. Criminal,Yes,"RCSPMV,","Code for ""Recieve / Conceal Stolen Property: Motor Vehicle"""
+receive,rec(ei|ie)(?!pt),NA,NA,Misc. Criminal,No,receiving; recieving; receive; etc.,"Does NOT match ""receipt"""
+property,prop(?!erly)[a-z]*y,NA,NA,Misc. Concept,No,property; propety; properpty; proprty; etc,NA
+kcsp,\b(kcsp)\b,NA,NA,Misc. Criminal,No,kcsp,NA
+conceal,conc(ea|ae)l|coc[a-z]*(l|ing),NA,NA,Misc. Criminal,No,conceal; concael; concealing; conceals; concealed,NA

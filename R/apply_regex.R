@@ -128,6 +128,9 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         larceny & petit & grand & !any_drugs ~ "Larceny (Other / Unspecified)", # ...and sometimes it lists all.
         theft & !identity & !credit_card & !(false & report) ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
 
+        # RCSP
+        (property & (receive | conceal | rcsp_code)) | kcsp ~ "Receiving / Concealing Stolen Property",
+
         # Burglary -------------------------------------------------------------
         burgle & (first | one) ~ "Burglary (First Degree)",
         burgle & (second | two) ~ "Burglary (Second Degree)",
@@ -156,10 +159,13 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
 
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------
-        speeding | x_in_y | x_over ~ "Speeding",
+        (speeding | x_in_y | x_over) & !lane & !close_closely ~ "Speeding",
         seatbelt & !child ~ "Seatbelt Violation",
         seatbelt & child ~ "Child Seatbelt Violation",
-        # Driving under suspension / revocation --------------------------------
+        lane & !speeding ~ "Changing Lanes Unsafely", # Could potentially make more generic since it covers a few things, maybe "Unsafe Lane Use"?
+        follow & close_closely ~ "Following Too Closely",
+
+        # Driving without proper documentation ---------------------------------
         ((operate | drive) & (revocation | suspend)) | dus_code | dur_code ~ "Driving Under Suspension / Revocation",
         (operate | drive) & license & !tag & !suspend ~ "Driving Without Valid License",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag",
@@ -175,6 +181,12 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         (assault | battery | a_and_b | abgen) & weapon & !domestic & !abdom ~ "Assault / Battery (Dangerous Weapon)",
         (assault | battery | a_and_b | abgen) & officer ~ "Assault / Battery (On Official)",
         (assault | battery | a_and_b | abgen) & !weapon & !domestic & !abdom & !sex & !officer ~ "Assault / Battery (Other / Unspecified)",
+
+        # Kidnapping -----------------------------------------------------------
+        kidnap & !child & !extort & !traffic_or_traffick ~ "Kidnapping (Simple)",
+        (kidnap | steal) & child & !traffic_or_traffick ~ "Kidnapping (Child Stealing)",
+        kidnap & extort & !child & !traffic_or_traffick ~ "Kidnapping (Extortion)",
+        human & traffic_or_traffick ~ "Kidnapping (Human Trafficking)",
 
         # Other ================================================================
         # Sex Work -------------------------------------------------------------
