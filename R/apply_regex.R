@@ -149,7 +149,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         (pretense | deception) & !(bogus & check) & !elder ~ "Fraud (False Pretense / Deception)", # Some forms of elder abuse include the term "deception"
         credit_card ~ "Fraud (Credit Card)", # May need more refining
         (forge | counterfeit) & !license & !bogus & !credit_card ~ "Fraud (Forgery / Counterfeiting)",
-        (corporate & !embezzle) | (insurance & fraud)  ~ "Fraud (Corporate / Insurance)",
+        (corporate & !embezzle) | (insurance & fraud) | (insurance & false) ~ "Fraud (Corporate / Insurance)",
         (pretense | deception) & (bogus & check) ~ "Fraud (Other / Unspecified)", # Sometimes both will be listed
         fraud & !personate & !pretense & !deception & !credit_card & !forge & !counterfeit & !corporate & !insurance & !any_drugs ~ "Fraud (Other / Unspecified)",
 
@@ -163,7 +163,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         ((operate | drive) & (revocation | suspend)) | dus_code | dur_code ~ "Driving Under Suspension / Revocation",
         (operate | drive) & license & !tag & !suspend ~ "Driving Without Valid License",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag",
-        ((failure & comply) | no) & insurance ~ "Driving Without Valid Insurance",
+        fr5_code | ((failure | comply | no | compulsory) & insurance) ~ "Driving Without Valid Insurance / Security",
 
         # DUI / APC / etc. -----------------------------------------------------
         dui_or_apc ~ "DUI / APC",
@@ -191,6 +191,9 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
         (obstruct & (officer | justice)) |
           str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
+
+        # VPO ------------------------------------------------------------------
+        vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) ~ "Violation of Protective Order (VPO)",
 
         # Child abuse / neglect / violation of compulsory education act --------
         delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",

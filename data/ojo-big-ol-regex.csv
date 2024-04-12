@@ -79,7 +79,7 @@ dur_code,\b(x*d\.*u\.*r)\b,NA,NA,Traffic,Yes,"dur; DUR,",NA
 drive,driv,NA,NA,Traffic,No,driving; drive; driver's license; driven,NA
 license,"\b(l[isenc]{4,}e)|(dl)\b",NA,NA,Traffic,Yes,lisence; license; licence; DL,"There were too many typos to cover manually, so this matches anything that starts with L, contains at least 4 characters from the set ""isenc"", and ends with E. Also matches ""DL"" which is used as shorthand for ""driver's license"""
 tag,\b(tag|plate)\b,NA,NA,Traffic,Yes,tag; plate; license plate,These two together seem to cover every instance where the concept of a license plate / tag is being referenced
-insurance,"\b(i(?!ncense)[nsurace]{6,})|(ins\.)\b",NA,NA,Traffic,Yes,insurance; innusrce; isurnance;,"Looks for words that start with i and contain at least 6 characters from the set [nsurace]. Will not match ""Incense"" (a drug I guess, it showed up in the data) because of the lookahead"
+insurance,"\b(i(?!ncense)[nsurace]{6,})|ins\.|insur\.",NA,NA,Traffic,Yes,insurance; innusrce; isurnance;,"Looks for words that start with i and contain at least 6 characters from the set [nsurace]. Will not match ""Incense"" (a drug I guess, it showed up in the data) because of the lookahead"
 assault,"(a[sault]{5,})",NA,NA,Violent Crimes,No,assault; assaulting;,NA
 battery,"\b(b[atery]{5,})\b",NA,NA,Violent Crimes,Yes,battery; bttary,NA
 a_and_b,\b(a[\/\-\&\s]*b)\b,NA,NA,Violent Crimes,Yes,a/b; a-b/ a&b,This is a shorthand of assault / battery
@@ -114,3 +114,10 @@ individual,"ind[ivdual]{4,}",NA,NA,Misc. Concept,No,individual; typos,Not many o
 elder,elder,NA,NA,Misc. Concept,No,elder; elderly,"Tried w/ and w/out word boundary at the beginning, and it doesn't seem to make any difference"
 fraud,fraud|frad,NA,NA,Misc. Criminal,No,fraud; fraudulent; fradulent,"""Fradulent"" was the only common typo I could find, so this covers it well enough I think"
 embezzle,"embez|embz|emb(?!\,)",NA,NA,Misc. Criminal,No,embezzle; embezzlement; emb,"The ""EMB,"" code can sometimes refer to elder abuse, etc., hence the lookahead for the comma."
+fr5_code,"\bfr5\,",NA,NA,Misc. Criminal,Yes,"FR5,","This is a code that always indicates ""failure to carry valid insurance / security"""
+vpo_code,"\bvpo\,",NA,NA,Misc. Criminal,Yes,"VPO,","Indicates a VPO, but isn't used universally"
+vpo,\b(vpo)\b,NA,NA,Misc. Criminal,Yes,VPO,"This is to account for the ones that are just like ""violate vpo"""
+violate,"\bv[iolat]{5,}",NA,NA,Misc. Concept,Yes,violate; violation; vilation; etc.,"There's one ""ÿVIOLATION OF PROTECTIVE ORDER"" currently but I'm gonna remove all those stupid special characters so the word boundary is fine"
+protect,\bprot,NA,NA,Misc. Criminal,Yes,protect; protective,NA
+order,\b(dis)*orde,NA,NA,Misc. Concept,Yes,order; disorder; disorderly,"Possible we might need to separate ""order"" and ""disorder"" at some point"
+stalk,stalk,NA,NA,Misc. Criminal,No,stalk; stalking,I tried with and without word boundary at the start and it made no difference

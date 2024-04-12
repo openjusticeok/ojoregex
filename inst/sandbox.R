@@ -14,8 +14,8 @@ library(tictoc)
 #
 # beepr::beep()
 
-# ds <- read_rds("./data/test-data-tr-all.rds")
-ds <- read_rds("./data/test-data-all.rds")
+ds <- read_rds("./data/test-data-tr-all.rds")
+# ds <- read_rds("./data/test-data-all.rds")
 
 # Using new regex --------------------------------------------------------------
 tic()
