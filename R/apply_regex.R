@@ -206,7 +206,7 @@ apply_ojo_regex <- function(data,
         # Obstructing / Eluding ------------------------------------------------
         (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
         (obstruct & (officer | justice)) |
-          str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
+          stringr::str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
 
         # VPO ------------------------------------------------------------------
         vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) ~ "Violation of Protective Order (VPO)",
