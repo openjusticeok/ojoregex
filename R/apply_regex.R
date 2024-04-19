@@ -20,7 +20,7 @@
 #' cleaned_data <- apply_ojo_regex(data = example_data, col_to_clean = "charge_description")
 #'}
 apply_ojo_regex <- function(data,
-                            col_to_clean,
+                            col_to_clean = "count_as_filed",
                             .keep_flags = FALSE,
                             .update_cache = FALSE # Set this to TRUE for development / debugging
                             ) {
@@ -35,22 +35,22 @@ apply_ojo_regex <- function(data,
   }
 
   if (.update_cache) {
-    # Regex list (in progress; replace w/ CSV before release):
+    # Regex list (in progress)
     googlesheets4::gs4_auth(email = "abell@okpolicy.org")
-    regex <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+    ojo_regex_flags <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
                                        sheet = "Regex Flag List")
-    official_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
-                                              sheet = "Clean Categories List") |>
-      filter(!is.na(clean_charge_description))
+    ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+                                              sheet = "Clean Categories List",
+                                              col_types = "lccccccccccccc") |>
+      dplyr::filter(in_ojoregex == TRUE)
 
-    # Save the regex data to a CSV file for future use
-    readr::write_csv(regex, here::here("data", paste0("ojo-big-ol-regex.csv")))
-    readr::write_csv(official_cats, here::here("data", paste0("ojo-clean-cats.csv")))
+    # Save the regex data to the package data
+    save(ojo_regex_flags, file = here::here("data", "ojo_regex_flags.rda"))
+    save(ojo_regex_cats, file = here::here("data", "ojo_regex_cats.rda"))
 
   } else {
-    # Load the regex data from the CSV file
-    regex <- readr::read_csv(here::here("data", "ojo-big-ol-regex.csv"),
-                             show_col_types = FALSE)
+    # Load the regex data
+    regex <- ojoregex::ojo_regex_flags
   }
 
 
