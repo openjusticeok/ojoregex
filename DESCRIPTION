@@ -1,6 +1,6 @@
 Package: ojoregex
 Title: Regex Categorization Tools for OJO Analysts
-Version: 0.0.3
+Version: 0.1.0
 Authors@R: 
     person("Andrew", "Bell", , "abell@okpolicy.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
@@ -12,6 +12,10 @@ RoxygenNote: 7.3.1
 Imports:
   dplyr,
   googlesheets4,
+  here,
   stringr
 Remotes:
   openjusticeok/ojodb
+Depends: 
+    R (>= 2.10)
+LazyData: true

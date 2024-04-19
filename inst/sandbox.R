@@ -5,8 +5,8 @@ library(tictoc)
 
 # ds <- ojo_crim_cases(
 #   districts = "all",
-#   case_types = c("CF", "CM"),
-#   file_years = 2000:2024
+#   case_types = c("CF", "CM", "TR"),
+#   file_years = 2000:2024,
 # ) |>
 #   ojo_collect()
 #
@@ -20,24 +20,31 @@ ds <- read_rds("./data/test-data-tr-all.rds")
 # Using new regex --------------------------------------------------------------
 tic()
 final <- ds |>
-  ojoregex::apply_ojo_regex(col_to_clean = "count_as_filed", .keep_flags = TRUE)
+  ojoregex::apply_ojo_regex(col_to_clean = "count_as_filed",
+                            .keep_flags = FALSE)
 toc()
 
 # Percent categorized:
 cli::cli_alert_success(
-  paste0(100 * round((final |> filter(!is.na(count_as_filed_clean)) |> nrow()) / nrow(final), 4), "% Done!!")
+  paste0(100 * round((final |> filter(!is.na(count_as_filed_clean)) |> nrow()) / nrow(final |> filter(!is.na(count_as_filed))), 4), "% Done!!")
 )
 beepr::beep()
 
 # Classifications rundown
 final |>
+  # filter(str_detect(count_as_filed_clean, "Fraud")) |>
   group_by(count_as_filed_clean) |>
   summarize(
     n = n(),
     # all_counts = paste(count_as_filed, collapse = "; ")
   ) |>
   arrange(desc(n)) |>
-  print(n = 30)
+  print(n = 300)
+
+
+explore <- final |>
+  # filter(burgle) |>
+  count(count_as_filed, count_as_filed_clean, sort = T)
 
 # Remaining unclassified
 remaining_nas <- final |>

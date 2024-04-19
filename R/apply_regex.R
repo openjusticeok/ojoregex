@@ -18,7 +18,10 @@
 #' # Apply OJO Regex to clean and categorize charge descriptions
 #' cleaned_data <- apply_ojo_regex(data = example_data, col_to_clean = "charge_description")
 #'}
-apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
+apply_ojo_regex <- function(data,
+                            col_to_clean = "count_as_filed",
+                            .keep_flags = FALSE
+                            ) {
 
   # Validate data ==============================================================
   data_names <- names(data)
@@ -29,9 +32,23 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
     stop("Column not found in data frame.")
   }
 
-  # Regex list (in progress; replace w/ CSV before release):
-  googlesheets4::gs4_auth(email = "abell@okpolicy.org")
-  regex <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing")
+  # Uncomment this for dev / debugging -----------------------------------------
+  # # Regex list (in progress)
+  # googlesheets4::gs4_auth(email = "abell@okpolicy.org")
+  # ojo_regex_flags <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+  #                                              sheet = "Regex Flag List")
+  # ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+  #                                             sheet = "Clean Categories List",
+  #                                             col_types = "lccccccccccccc") |>
+  #   dplyr::filter(in_ojoregex == TRUE)
+  #
+  # # Save the regex data to the package data
+  # save(ojo_regex_flags, file = here::here("data", "ojo_regex_flags.rda"))
+  # save(ojo_regex_cats, file = here::here("data", "ojo_regex_cats.rda"))
+
+  # Load the regex data
+  regex <- ojo_regex_flags
+
 
   # Creating a list of groups and their relevant flags also (like cds | meth | paraphernalia ... = any_drugs)
   # these should all start with any_ prefix
@@ -85,7 +102,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
       # Later ones should overwrite previous ones, so maybe order by ascending priority?
       !!paste0(col_to_clean, "_clean") := dplyr::case_when(
         # Drug Crimes ==========================================================
-        # Generic drugs --------------------------------------------------------
+        # Basic Drug Stuff -----------------------------------------------------
         any_drugs & possess & !traffic_or_traffick & !distribution & !intent &
           !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
           !maintain_keep & !manufacture & !litter & !larceny & !jail_penal &
@@ -95,45 +112,88 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         # Actually think I should just have a generic "contraband in jail" charge, that seems to be how it's used
         any_drugs & maintain_keep ~ "CDS Possesssion (Maintaining a Place)",
         any_drugs & larceny ~ "Larceny of a CDS",
-        any_drugs & stamp ~ "CDS Possession (Tax Stamp)",
         any_drugs & paraphernalia ~ "CDS Paraphernalia Possession / Distribution",
         any_drugs & intent & possess & (traffic_or_traffick | distribution) ~ "CDS Possession With Intent (PWID)",
         any_drugs & (traffic_or_traffick | distribution) & !possess & !paraphernalia ~ "CDS Trafficking / Distribution",
+        any_drugs & fraud ~ "Obtain CDS by Fraud",
 
-        # DUI / APC related stuff ------------------------------------------------
-        dui_or_apc ~ "DUI / APC",
-        public & intoxication ~ "Public Intoxication",
+        # Drug / Tax Stuff -----------------------------------------------------
+        any_drugs & stamp ~ "CDS Possession (Tax Stamp)",
 
         # Property Crimes ======================================================
-        # Larceny related stuff -------------------------------------------
-        # Not sure whether it's worth it to break out "aiding & abetting" versions?
-        # larceny & grand & !petit & !any_drugs & !aid_abet ~ "Larceny (Grand Larceny)",
-        # larceny & grand & !petit & !any_drugs & aid_abet ~ "Larceny (Grand Larceny) (Aiding & Abetting)",
-        larceny & grand & !petit & !any_drugs ~ "Larceny (Grand Larceny)",
-        larceny & petit & !grand & !any_drugs ~ "Larceny (Petit Larceny)",
-        # larceny & petit & !grand & !any_drugs & aid_abet ~ "Larceny (Petit Larceny) (Aiding & Abetting)",
-        (larceny & merchandise) | shoplift ~ "Larceny of Merchandise / Shoplifting",
-        # larceny & (merchandise | shoplift) & aid_abet ~ "Larceny of Merchandise / Shoplifting (Aiding & Abetting)",
-        # (larceny | theft | steal) & copper & !intent & !false_report ~ "Larceny (Copper)",
-        # (larceny | theft | steal) & intent & enter & !false_report ~ "Larceny (Entering w/ Intent)", # Removing bc this is in the burglary section of the statutes.
-        (larceny | theft | steal) & automobile & !false_report ~ "Larceny (Auto)",
-
+        # Larceny --------------------------------------------------------------
+        larceny & grand & !petit & !any_drugs ~ "Larceny (Grand)",
+        larceny & petit & !grand & !any_drugs ~ "Larceny (Petit)",
+        (larceny & merchandise) | shoplift ~ "Larceny (Shoplifting)",
+        (larceny | theft | steal) & automobile & !(false & report) ~ "Larceny (Auto)",
         larceny & !petit & !grand & !any_drugs & !(merchandise | shoplift) & !automobile ~ "Larceny (Other / Unspecified)", # Sometimes it lists none...
         larceny & petit & grand & !any_drugs ~ "Larceny (Other / Unspecified)", # ...and sometimes it lists all.
-        # larceny & !petit & !grand & !any_drugs & aid_abet ~ "Larceny (Other / Unspecified) (Aiding & Abetting)",
-        theft & !identity & !credit_card & !false_report ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
+        theft & !identity & !credit_card & !(false & report) ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
 
-        # Traffic ==============================================================
-        speeding | x_in_y | x_over ~ "Speeding",
+        # RCSP
+        ((property & (receive | conceal)) | kcsp | (rcsp_code & !credit_card)) & !rcspmv_code ~ "Receiving / Concealing Stolen Property",
+
+        # Burglary -------------------------------------------------------------
+        burgle & (first | one) ~ "Burglary (First Degree)",
+        burgle & (second | two) ~ "Burglary (Second Degree)",
+        burgle & (third | three | automobile) ~ "Burglary (Third Degree)",
+        burgle & tools_implements ~ "Possession of Burglar's Tools",
+        burgle & !first & !one & !second & !two & !third & !three & !tools_implements ~ "Burglary (Other / Unspecified)",
+        enter & intent ~ "Entering with Intent To Commit a Crime",
+
+        # Arson ----------------------------------------------------------------
+        arson & (first | one | danger) ~ "Arson (First Degree)",
+        arson & (second | two) ~ "Arson (Second Degree)",
+        arson & (third | three) ~ "Arson (Third Degree)",
+        arson & (fourth | four) ~ "Arson (Fourth Degree)",
+        arson & !first & !one & !danger & !second & !two & !third & !three & !four ~ "Arson (Other / Unspecified)",
+
+        # Fraud / Forgery ------------------------------------------------------
+        personate ~ "Fraud (False Personation)",
+        ((bogus & check) | bc_code) & !(pretense | deception) ~ "Fraud (Bogus Check)",
+        (pretense | deception) & !(bogus & check) & !elder ~ "Fraud (False Pretense / Deception)", # Some forms of elder abuse include the term "deception"
+        credit_card ~ "Fraud (Credit Card)", # May need more refining
+        (forge | counterfeit) & !license & !bogus & !credit_card ~ "Fraud (Forgery / Counterfeiting)",
+        (corporate & !embezzle) | (insurance & fraud) | (insurance & false) ~ "Fraud (Corporate / Insurance)",
+        (pretense | deception) & (bogus & check) ~ "Fraud (Other / Unspecified)", # Sometimes both will be listed
+        fraud & !personate & !pretense & !deception & !credit_card & !forge & !counterfeit & !corporate & !insurance & !any_drugs ~ "Fraud (Other / Unspecified)",
+
+        # Traffic / Motor Vehicles =============================================
+        # Basic Traffic Stuff --------------------------------------------------
+        (speeding | x_in_y | x_over) & !lane & !close_closely ~ "Speeding",
         seatbelt & !child ~ "Seatbelt Violation",
-        seatbelt & child ~ "Child Seatbelt / Restraint Violation",
-        dus | (suspend & drive) ~ "Driving Under Suspension",
-        (operate | drive) & automobile & license & !tag ~ "Operating Motor Vehicle Without Valid License",
-        (operate | drive) & automobile & tag ~ "Operating Motor Vehicle Without Proper Tag",
-        failure & comply & insurance ~ "Failure to Comply With Compulsary Insurance Law",
+        seatbelt & child ~ "Child Seatbelt Violation",
+        lane & !speeding ~ "Changing Lanes Unsafely", # Could potentially make more generic since it covers a few things, maybe "Unsafe Lane Use"?
+        follow & close_closely ~ "Following Too Closely",
+        stop & (sign | light) ~ "Fail to Stop at Sign",
+        attention & !medical ~ "Inattentive Driving", # Originally had "drive" in here too, but some just say "INATTENTION" and stuff so this works better
+
+
+        # Driving without proper documentation ---------------------------------
+        ((operate | drive) & (revocation | suspend)) | dus_code | dur_code ~ "Driving Under Suspension / Revocation",
+        (operate | drive) & license & !tag & !suspend ~ "Driving Without Valid License",
+        (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag",
+        fr5_code | ((failure | comply | no | compulsory) & insurance) ~ "Driving Without Valid Insurance / Security",
+
+        # DUI / APC / etc. -----------------------------------------------------
+        dui_or_apc ~ "DUI / APC",
+
+        # Violent Crimes =======================================================
+        # Assault / Battery ----------------------------------------------------
+        (assault | battery | a_and_b | abuse | violence | abdom) & domestic & !weapon ~ "Domestic Assault / Battery (Simple)",
+        (assault | battery | a_and_b | abuse | violence | abdom) & domestic & weapon ~ "Domestic Assault / Battery (Dangerous Weapon)",
+        (assault | battery | a_and_b | abgen) & weapon & !domestic & !abdom ~ "Assault / Battery (Dangerous Weapon)",
+        (assault | battery | a_and_b | abgen) & officer ~ "Assault / Battery (On Official)",
+        (assault | battery | a_and_b | abgen) & !weapon & !domestic & !abdom & !sex & !officer ~ "Assault / Battery (Other / Unspecified)",
+
+        # Kidnapping -----------------------------------------------------------
+        kidnap & !child & !extort & !traffic_or_traffick ~ "Kidnapping (Simple)",
+        (kidnap | steal) & child & !traffic_or_traffick ~ "Kidnapping (Child Stealing)",
+        kidnap & extort & !child & !traffic_or_traffick ~ "Kidnapping (Extortion)",
+        human & traffic_or_traffick ~ "Kidnapping (Human Trafficking)",
 
         # Other ================================================================
-        # Sex Work related stuff -------------------------------------------------
+        # Sex Work -------------------------------------------------------------
         sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
         sex_work & !aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Engaging in Sex Work (Within 1,000 Feet)",
         sex_work & aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Aiding / Abetting Sex Work (Simple)",
@@ -143,12 +203,19 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
         sex_work & (maintain_keep | operate) & !within_x_feet ~ "Maintaining / Operating Place for Sex Work (Simple)",
         sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
 
-        # Obstructing an officer, etc. -----------------------------------------
-        (resist | elude) & (police_officer | arrest) & !obstruct ~ "Resisting / Eluding Officer or Arrest",
-        (obstruct & (police_officer | justice)) |
-          str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
-        # TODO: There are a bunch of other "obstruction" ones that are really hard to capture because they refer to all kinds of things,
-        # like "Driving with obstructed view", "obstructing EMT", "Obstruction of legal hunting", "obstructing public road", etc.
+        # Obstructing / Eluding ------------------------------------------------
+        (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
+        (obstruct & (officer | justice)) |
+          stringr::str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
+
+        # VPO ------------------------------------------------------------------
+        vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) ~ "Violation of Protective Order (VPO)",
+
+        # Child abuse / neglect / violation of compulsory education act --------
+        delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",
+
+        # Public Decency Crimes ------------------------------------------------
+        public & intoxication ~ "Public Intoxication",
 
         # Default to NA ========================================================
         TRUE ~ NA_character_
@@ -163,8 +230,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE) {
                   data_names)
 
   if(.keep_flags == TRUE) {
-    # clean_data is just the version that still has the flags
-    return(clean_data)
+    return(clean_data) # clean_data is just the version that still has the flags
   } else {
     return(true_clean_data)
   }
