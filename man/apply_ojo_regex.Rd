@@ -4,7 +4,7 @@
 \alias{apply_ojo_regex}
 \title{Apply OJO Regex}
 \usage{
-apply_ojo_regex(data, col_to_clean, .keep_flags = FALSE, .update_cache = TRUE)
+apply_ojo_regex(data, col_to_clean, .keep_flags = FALSE, .update_cache = FALSE)
 }
 \arguments{
 \item{data}{A data frame containing the dataset to be processed.}
@@ -12,6 +12,8 @@ apply_ojo_regex(data, col_to_clean, .keep_flags = FALSE, .update_cache = TRUE)
 \item{col_to_clean}{The name of the column in the dataset containing the charge descriptions to be cleaned and categorized.}
 
 \item{.keep_flags}{Logical value indicating whether to keep the concept flags generated during processing. Defaults to FALSE, which returns only the cleaned dataset without the flags.}
+
+\item{.update_cache}{Logical value indicating whether to refresh the regex flags from the Google Sheet. Keep FALSE unless you're doing dev / debugging stuff.}
 }
 \value{
 A cleaned and categorized dataset with charge descriptions in the specified column, along with any additional columns present in the original dataset.

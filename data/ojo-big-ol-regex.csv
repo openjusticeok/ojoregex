@@ -134,3 +134,8 @@ receive,rec(ei|ie)(?!pt),NA,NA,Misc. Criminal,No,receiving; recieving; receive; 
 property,prop(?!erly)[a-z]*y,NA,NA,Misc. Concept,No,property; propety; properpty; proprty; etc,NA
 kcsp,\b(kcsp)\b,NA,NA,Misc. Criminal,No,kcsp,NA
 conceal,conc(ea|ae)l|coc[a-z]*(l|ing),NA,NA,Misc. Criminal,No,conceal; concael; concealing; conceals; concealed,NA
+stop,stop,NA,NA,Traffic,No,stop; stopped; stopping;,NA
+sign,sig(h)*n,NA,NA,Traffic,No,sign; signing; signal; sighn,NA
+light,li(gh|hg)t,NA,NA,Traffic,No,light; lihgt,NA
+attention,(?<!thre)a(t)*enti,NA,NA,Misc. Concept,No,attention; attentive; inattention; innatention,"Lookback is to avoid false positive with ""threatening"", etc."
+medical,medi,NA,NA,Misc. Criminal,No,medical; medicine; medic,NA

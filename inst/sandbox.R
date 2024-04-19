@@ -20,7 +20,9 @@ ds <- read_rds("./data/test-data-tr-all.rds")
 # Using new regex --------------------------------------------------------------
 tic()
 final <- ds |>
-  ojoregex::apply_ojo_regex(col_to_clean = "count_as_filed", .keep_flags = TRUE, .update_cache = TRUE)
+  ojoregex::apply_ojo_regex(col_to_clean = "count_as_filed",
+                            .keep_flags = FALSE,
+                            .update_cache = FALSE)
 toc()
 
 # Percent categorized:

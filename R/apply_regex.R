@@ -5,6 +5,7 @@
 #' @param data A data frame containing the dataset to be processed.
 #' @param col_to_clean The name of the column in the dataset containing the charge descriptions to be cleaned and categorized.
 #' @param .keep_flags Logical value indicating whether to keep the concept flags generated during processing. Defaults to FALSE, which returns only the cleaned dataset without the flags.
+#' @param .update_cache Logical value indicating whether to refresh the regex flags from the Google Sheet. Keep FALSE unless you're doing dev / debugging stuff.
 #'
 #' @return A cleaned and categorized dataset with charge descriptions in the specified column, along with any additional columns present in the original dataset.
 #'
@@ -18,7 +19,11 @@
 #' # Apply OJO Regex to clean and categorize charge descriptions
 #' cleaned_data <- apply_ojo_regex(data = example_data, col_to_clean = "charge_description")
 #'}
-apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cache = TRUE) {
+apply_ojo_regex <- function(data,
+                            col_to_clean,
+                            .keep_flags = FALSE,
+                            .update_cache = FALSE # Set this to TRUE for development / debugging
+                            ) {
 
   # Validate data ==============================================================
   data_names <- names(data)
@@ -44,7 +49,8 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
 
   } else {
     # Load the regex data from the CSV file
-    regex <- readr::read_csv(here::here("data", "ojo-big-ol-regex.csv"))
+    regex <- readr::read_csv(here::here("data", "ojo-big-ol-regex.csv"),
+                             show_col_types = FALSE)
   }
 
 
@@ -129,7 +135,7 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         theft & !identity & !credit_card & !(false & report) ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
 
         # RCSP
-        (property & (receive | conceal | rcsp_code)) | kcsp ~ "Receiving / Concealing Stolen Property",
+        ((property & (receive | conceal)) | kcsp | (rcsp_code & !credit_card)) & !rcspmv_code ~ "Receiving / Concealing Stolen Property",
 
         # Burglary -------------------------------------------------------------
         burgle & (first | one) ~ "Burglary (First Degree)",
@@ -156,7 +162,6 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         (pretense | deception) & (bogus & check) ~ "Fraud (Other / Unspecified)", # Sometimes both will be listed
         fraud & !personate & !pretense & !deception & !credit_card & !forge & !counterfeit & !corporate & !insurance & !any_drugs ~ "Fraud (Other / Unspecified)",
 
-
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------
         (speeding | x_in_y | x_over) & !lane & !close_closely ~ "Speeding",
@@ -164,6 +169,9 @@ apply_ojo_regex <- function(data, col_to_clean, .keep_flags = FALSE, .update_cac
         seatbelt & child ~ "Child Seatbelt Violation",
         lane & !speeding ~ "Changing Lanes Unsafely", # Could potentially make more generic since it covers a few things, maybe "Unsafe Lane Use"?
         follow & close_closely ~ "Following Too Closely",
+        stop & (sign | light) ~ "Fail to Stop at Sign",
+        attention & !medical ~ "Inattentive Driving", # Originally had "drive" in here too, but some just say "INATTENTION" and stuff so this works better
+
 
         # Driving without proper documentation ---------------------------------
         ((operate | drive) & (revocation | suspend)) | dus_code | dur_code ~ "Driving Under Suspension / Revocation",
