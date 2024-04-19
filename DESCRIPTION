@@ -16,3 +16,6 @@ Imports:
   stringr
 Remotes:
   openjusticeok/ojodb
+Depends: 
+    R (>= 2.10)
+LazyData: true

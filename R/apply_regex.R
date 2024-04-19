@@ -47,7 +47,7 @@ apply_ojo_regex <- function(data,
   # save(ojo_regex_cats, file = here::here("data", "ojo_regex_cats.rda"))
 
   # Load the regex data
-  regex <- ojoregex::ojo_regex_flags
+  regex <- ojo_regex_flags
 
 
   # Creating a list of groups and their relevant flags also (like cds | meth | paraphernalia ... = any_drugs)
