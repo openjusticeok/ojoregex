@@ -5,7 +5,6 @@
 #' @param data A data frame containing the dataset to be processed.
 #' @param col_to_clean The name of the column in the dataset containing the charge descriptions to be cleaned and categorized.
 #' @param .keep_flags Logical value indicating whether to keep the concept flags generated during processing. Defaults to FALSE, which returns only the cleaned dataset without the flags.
-#' @param .update_cache Logical value indicating whether to refresh the regex flags from the Google Sheet. Keep FALSE unless you're doing dev / debugging stuff.
 #'
 #' @return A cleaned and categorized dataset with charge descriptions in the specified column, along with any additional columns present in the original dataset.
 #'
@@ -21,8 +20,7 @@
 #'}
 apply_ojo_regex <- function(data,
                             col_to_clean = "count_as_filed",
-                            .keep_flags = FALSE,
-                            .update_cache = FALSE # Set this to TRUE for development / debugging
+                            .keep_flags = FALSE
                             ) {
 
   # Validate data ==============================================================
@@ -34,24 +32,22 @@ apply_ojo_regex <- function(data,
     stop("Column not found in data frame.")
   }
 
-  if (.update_cache) {
-    # Regex list (in progress)
-    googlesheets4::gs4_auth(email = "abell@okpolicy.org")
-    ojo_regex_flags <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
-                                       sheet = "Regex Flag List")
-    ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
-                                              sheet = "Clean Categories List",
-                                              col_types = "lccccccccccccc") |>
-      dplyr::filter(in_ojoregex == TRUE)
+  # Uncomment this for dev / debugging -----------------------------------------
+  # # Regex list (in progress)
+  # googlesheets4::gs4_auth(email = "abell@okpolicy.org")
+  # ojo_regex_flags <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+  #                                              sheet = "Regex Flag List")
+  # ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+  #                                             sheet = "Clean Categories List",
+  #                                             col_types = "lccccccccccccc") |>
+  #   dplyr::filter(in_ojoregex == TRUE)
+  #
+  # # Save the regex data to the package data
+  # save(ojo_regex_flags, file = here::here("data", "ojo_regex_flags.rda"))
+  # save(ojo_regex_cats, file = here::here("data", "ojo_regex_cats.rda"))
 
-    # Save the regex data to the package data
-    save(ojo_regex_flags, file = here::here("data", "ojo_regex_flags.rda"))
-    save(ojo_regex_cats, file = here::here("data", "ojo_regex_cats.rda"))
-
-  } else {
-    # Load the regex data
-    regex <- ojoregex::ojo_regex_flags
-  }
+  # Load the regex data
+  regex <- ojoregex::ojo_regex_flags
 
 
   # Creating a list of groups and their relevant flags also (like cds | meth | paraphernalia ... = any_drugs)

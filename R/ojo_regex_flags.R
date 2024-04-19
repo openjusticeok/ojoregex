@@ -1,4 +1,5 @@
 #' OJO Regex Flags Dataset
+#'
 #' @format A data frame with 139 rows and 8 columns:
 #' \describe{
 #'   \item{flag}{Description of column1}
