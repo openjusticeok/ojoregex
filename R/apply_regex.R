@@ -233,6 +233,7 @@ apply_ojo_regex <- function(data,
         stop & (sign | light) ~ "Fail to Stop at Sign",
         attention & !medical ~ "Inattentive Driving", # Originally had "drive" in here too, but some just say "INATTENTION" and stuff so this works better
         authorized & automobile & !license ~ "Unauthorized Use of Vehicle",
+        reckless & drive ~ "Reckless Driving",
 
         # Driving without proper documentation ---------------------------------
         ((operate | drive) & (revocation | suspend)) | dus_code | dur_code ~ "Driving Under Suspension / Revocation",
