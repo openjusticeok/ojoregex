@@ -33,18 +33,18 @@ apply_ojo_regex <- function(data,
   }
 
   # Uncomment this for dev / debugging -----------------------------------------
-  # # Regex list (in progress)
-  # googlesheets4::gs4_auth(email = "abell@okpolicy.org")
-  # ojo_regex_flags <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
-  #                                              sheet = "Regex Flag List")
-  # ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
-  #                                             sheet = "Clean Categories List",
-  #                                             col_types = "lccccccccccccc") |>
-  #   dplyr::filter(in_ojoregex == TRUE)
-  #
-  # # Save the regex data to the package data
-  # save(ojo_regex_flags, file = here::here("data", "ojo_regex_flags.rda"))
-  # save(ojo_regex_cats, file = here::here("data", "ojo_regex_cats.rda"))
+  # Regex list (in progress)
+  googlesheets4::gs4_auth(email = "abell@okpolicy.org")
+  ojo_regex_flags <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+                                               sheet = "Regex Flag List")
+  ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+                                              sheet = "Clean Categories List",
+                                              col_types = "lccccccccccccc") |>
+    dplyr::filter(in_ojoregex == TRUE)
+
+  # Save the regex data to the package data
+  save(ojo_regex_flags, file = here::here("data", "ojo_regex_flags.rda"))
+  save(ojo_regex_cats, file = here::here("data", "ojo_regex_cats.rda"))
 
   # Load the regex data
   regex <- ojo_regex_flags
@@ -130,7 +130,7 @@ apply_ojo_regex <- function(data,
         larceny & petit & grand & !any_drugs ~ "Larceny (Other / Unspecified)", # ...and sometimes it lists all.
         theft & !identity & !credit_card & !(false & report) ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
 
-        # RCSP
+        # RCSP -----------------------------------------------------------------
         ((property & (receive | conceal)) | kcsp | (rcsp_code & !credit_card)) & !rcspmv_code ~ "Receiving / Concealing Stolen Property",
 
         # Burglary -------------------------------------------------------------
@@ -140,6 +140,8 @@ apply_ojo_regex <- function(data,
         burgle & tools_implements ~ "Possession of Burglar's Tools",
         burgle & !first & !one & !second & !two & !third & !three & !tools_implements ~ "Burglary (Other / Unspecified)",
         enter & intent ~ "Entering with Intent To Commit a Crime",
+
+        # Robbery --------------------------------------------------------------
 
         # Arson ----------------------------------------------------------------
         arson & (first | one | danger) ~ "Arson (First Degree)",
@@ -158,6 +160,9 @@ apply_ojo_regex <- function(data,
         (pretense | deception) & (bogus & check) ~ "Fraud (Other / Unspecified)", # Sometimes both will be listed
         fraud & !personate & !pretense & !deception & !credit_card & !forge & !counterfeit & !corporate & !insurance & !any_drugs ~ "Fraud (Other / Unspecified)",
 
+        # Embezzlement ---------------------------------------------------------
+        embezzle ~ "Embezzlement",
+
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------
         (speeding | x_in_y | x_over) & !lane & !close_closely ~ "Speeding",
@@ -167,7 +172,7 @@ apply_ojo_regex <- function(data,
         follow & close_closely ~ "Following Too Closely",
         stop & (sign | light) ~ "Fail to Stop at Sign",
         attention & !medical ~ "Inattentive Driving", # Originally had "drive" in here too, but some just say "INATTENTION" and stuff so this works better
-
+        authorized & automobile & !license ~ "Unauthorized Use of Vehicle",
 
         # Driving without proper documentation ---------------------------------
         ((operate | drive) & (revocation | suspend)) | dus_code | dur_code ~ "Driving Under Suspension / Revocation",
@@ -175,8 +180,12 @@ apply_ojo_regex <- function(data,
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag",
         fr5_code | ((failure | comply | no | compulsory) & insurance) ~ "Driving Without Valid Insurance / Security",
 
-        # DUI / APC / etc. -----------------------------------------------------
+        # DUI / APC / TOC / etc. -----------------------------------------------
         dui_or_apc ~ "DUI / APC",
+        toc | open & (container | bottle | beer) ~ "Transporting Open Container",
+
+        # Stolen Vehicles ------------------------------------------------------
+        (possess | receive) & automobile ~ "Possession of Stolen Vehicle",
 
         # Violent Crimes =======================================================
         # Assault / Battery ----------------------------------------------------
@@ -215,7 +224,11 @@ apply_ojo_regex <- function(data,
         delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",
 
         # Public Decency Crimes ------------------------------------------------
-        public & intoxication ~ "Public Intoxication",
+        public & (intoxication | drunk) ~ "Public Intoxication",
+        (outrage | disturb) & decency ~ "Outraging Public Decency",
+        (disturb | breach) & peace ~ "Disturbing the Peace",
+
+        # Firearm Possession ---------------------------------------------------
 
         # Default to NA ========================================================
         TRUE ~ NA_character_
