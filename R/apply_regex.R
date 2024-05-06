@@ -161,6 +161,9 @@ apply_ojo_regex <- function(data,
         # Embezzlement ---------------------------------------------------------
         embezzle ~ "Embezzlement",
 
+        # Malicious Injury to Propert / minor property crimes ------------------
+        malicious & injury & property ~ "Malicious Injury to Property",
+
         # Violent Crimes =======================================================
         # Assault / Battery ----------------------------------------------------
         (assault | battery | a_and_b | abuse | violence | abdom) & domestic & !weapon ~ "Domestic Assault / Battery (Simple)",
@@ -182,7 +185,7 @@ apply_ojo_regex <- function(data,
         kidnap & extort & !child & !traffic_or_traffick ~ "Kidnapping (Extortion)",
         human & traffic_or_traffick ~ "Kidnapping (Human Trafficking)",
 
-        # Maiming -=------------------------------------------------------------
+        # Maiming --------------------------------------------------------------
         maim ~ "Maiming",
 
         # Other ================================================================
