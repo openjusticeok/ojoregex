@@ -141,8 +141,6 @@ apply_ojo_regex <- function(data,
         burgle & !first & !one & !second & !two & !third & !three & !tools_implements ~ "Burglary (Other / Unspecified)",
         enter & intent ~ "Entering with Intent To Commit a Crime",
 
-        # Robbery --------------------------------------------------------------
-
         # Arson ----------------------------------------------------------------
         arson & (first | one | danger) ~ "Arson (First Degree)",
         arson & (second | two) ~ "Arson (Second Degree)",
@@ -163,6 +161,61 @@ apply_ojo_regex <- function(data,
         # Embezzlement ---------------------------------------------------------
         embezzle ~ "Embezzlement",
 
+        # Violent Crimes =======================================================
+        # Assault / Battery ----------------------------------------------------
+        (assault | battery | a_and_b | abuse | violence | abdom) & domestic & !weapon ~ "Domestic Assault / Battery (Simple)",
+        (assault | battery | a_and_b | abuse | violence | abdom) & domestic & weapon ~ "Domestic Assault / Battery (Dangerous Weapon)",
+        (assault | battery | a_and_b | abgen) & weapon & !domestic & !abdom ~ "Assault / Battery (Dangerous Weapon)",
+        (assault | battery | a_and_b | abgen) & officer ~ "Assault / Battery (On Official)",
+        (assault | battery | a_and_b | abgen) & !weapon & !domestic & !abdom & !sex & !officer ~ "Assault / Battery (Simple)",
+
+        # Robbery --------------------------------------------------------------
+        rob & (first | one | force | fear) & !(conjoint | two_or_more) ~ "Robbery (First Degree)",
+        rob & (second | two) & !(conjoint | two_or_more) ~ "Robbery (Second Degree)",
+        rob & weapon & !(conjoint | two_or_more) ~ "Robbery (With a Dangerous Weapon)",
+        rob & (conjoint | two_or_more) ~ "Robbery (Conjoint)",
+        rob & !first & !one & !second & !two & !conjoint & !two_or_more & !weapon & !extort ~ "Robbery (Other / Unspecified)",
+
+        # Kidnapping -----------------------------------------------------------
+        kidnap & !child & !extort & !traffic_or_traffick ~ "Kidnapping (Simple)",
+        (kidnap | steal) & child & !traffic_or_traffick ~ "Kidnapping (Child Stealing)",
+        kidnap & extort & !child & !traffic_or_traffick ~ "Kidnapping (Extortion)",
+        human & traffic_or_traffick ~ "Kidnapping (Human Trafficking)",
+
+        # Maiming -=------------------------------------------------------------
+        maim ~ "Maiming",
+
+        # Other ================================================================
+        # # Sex Work -------------------------------------------------------------
+        # sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
+        # sex_work & !aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Engaging in Sex Work (Within 1,000 Feet)",
+        # sex_work & aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Aiding / Abetting Sex Work (Simple)",
+        # sex_work & aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Aiding / Abetting Sex Work (Within 1,000 Feet)",
+        # sex_work & !aid_abet & child ~ "Engaging in Sex Work (Minor Involved)",
+        # sex_work & aid_abet & child ~ "Aiding / Abetting Sex Work (Minor Involved)",
+        # sex_work & (maintain_keep | operate) & !within_x_feet ~ "Maintaining / Operating Place for Sex Work (Simple)",
+        # sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
+
+        # Obstructing / Eluding ------------------------------------------------
+        (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
+        (obstruct & (officer | justice)) |
+          stringr::str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
+        # TODO: replace above with flags, I don't like having str_detect() in here
+
+        # VPO ------------------------------------------------------------------
+        vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) ~ "Violation of Protective Order (VPO)",
+
+        # Child abuse / neglect / violation of compulsory education act --------
+        delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",
+
+        # Public Decency Crimes ------------------------------------------------
+        public & (intoxication | drunk) ~ "Public Intoxication",
+        (outrage | disturb) & decency ~ "Outraging Public Decency",
+        (disturb | breach) & peace ~ "Disturbing the Peace",
+
+        # Firearm Possession ---------------------------------------------------
+        possess & weapon ~ "Illegal Possession of a Firearm",
+
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------
         (speeding | x_in_y | x_over) & !lane & !close_closely ~ "Speeding",
@@ -178,57 +231,14 @@ apply_ojo_regex <- function(data,
         ((operate | drive) & (revocation | suspend)) | dus_code | dur_code ~ "Driving Under Suspension / Revocation",
         (operate | drive) & license & !tag & !suspend ~ "Driving Without Valid License",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag",
-        fr5_code | ((failure | comply | no | compulsory) & insurance) ~ "Driving Without Valid Insurance / Security",
+        fr5_code | ((failure | comply | no | compulsory) & insurance) ~ "Driving Without Valid Insurance",
 
         # DUI / APC / TOC / etc. -----------------------------------------------
-        dui_or_apc ~ "DUI / APC",
+        dui_or_apc & !weapon ~ "DUI / APC",
         toc | open & (container | bottle | beer) ~ "Transporting Open Container",
 
         # Stolen Vehicles ------------------------------------------------------
         (possess | receive) & automobile ~ "Possession of Stolen Vehicle",
-
-        # Violent Crimes =======================================================
-        # Assault / Battery ----------------------------------------------------
-        (assault | battery | a_and_b | abuse | violence | abdom) & domestic & !weapon ~ "Domestic Assault / Battery (Simple)",
-        (assault | battery | a_and_b | abuse | violence | abdom) & domestic & weapon ~ "Domestic Assault / Battery (Dangerous Weapon)",
-        (assault | battery | a_and_b | abgen) & weapon & !domestic & !abdom ~ "Assault / Battery (Dangerous Weapon)",
-        (assault | battery | a_and_b | abgen) & officer ~ "Assault / Battery (On Official)",
-        (assault | battery | a_and_b | abgen) & !weapon & !domestic & !abdom & !sex & !officer ~ "Assault / Battery (Other / Unspecified)",
-
-        # Kidnapping -----------------------------------------------------------
-        kidnap & !child & !extort & !traffic_or_traffick ~ "Kidnapping (Simple)",
-        (kidnap | steal) & child & !traffic_or_traffick ~ "Kidnapping (Child Stealing)",
-        kidnap & extort & !child & !traffic_or_traffick ~ "Kidnapping (Extortion)",
-        human & traffic_or_traffick ~ "Kidnapping (Human Trafficking)",
-
-        # Other ================================================================
-        # Sex Work -------------------------------------------------------------
-        sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
-        sex_work & !aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Engaging in Sex Work (Within 1,000 Feet)",
-        sex_work & aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Aiding / Abetting Sex Work (Simple)",
-        sex_work & aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Aiding / Abetting Sex Work (Within 1,000 Feet)",
-        sex_work & !aid_abet & child ~ "Engaging in Sex Work (Minor Involved)",
-        sex_work & aid_abet & child ~ "Aiding / Abetting Sex Work (Minor Involved)",
-        sex_work & (maintain_keep | operate) & !within_x_feet ~ "Maintaining / Operating Place for Sex Work (Simple)",
-        sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
-
-        # Obstructing / Eluding ------------------------------------------------
-        (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
-        (obstruct & (officer | justice)) |
-          stringr::str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
-
-        # VPO ------------------------------------------------------------------
-        vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) ~ "Violation of Protective Order (VPO)",
-
-        # Child abuse / neglect / violation of compulsory education act --------
-        delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",
-
-        # Public Decency Crimes ------------------------------------------------
-        public & (intoxication | drunk) ~ "Public Intoxication",
-        (outrage | disturb) & decency ~ "Outraging Public Decency",
-        (disturb | breach) & peace ~ "Disturbing the Peace",
-
-        # Firearm Possession ---------------------------------------------------
 
         # Default to NA ========================================================
         TRUE ~ NA_character_
