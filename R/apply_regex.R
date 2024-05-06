@@ -158,6 +158,9 @@ apply_ojo_regex <- function(data,
         (pretense | deception) & (bogus & check) ~ "Fraud (Other / Unspecified)", # Sometimes both will be listed
         fraud & !personate & !pretense & !deception & !credit_card & !forge & !counterfeit & !corporate & !insurance & !any_drugs ~ "Fraud (Other / Unspecified)",
 
+        # False declaration of ownership ---------------------------------------
+        false & declaration ~ "False Declaration of Ownership",
+
         # Embezzlement ---------------------------------------------------------
         embezzle ~ "Embezzlement",
 
@@ -211,10 +214,11 @@ apply_ojo_regex <- function(data,
         # Child abuse / neglect / violation of compulsory education act --------
         delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",
 
-        # Public Decency Crimes ------------------------------------------------
+        # Public Decency / Disturbing Peace Crimes -----------------------------
         public & (intoxication | drunk) ~ "Public Intoxication",
         (outrage | disturb) & decency ~ "Outraging Public Decency",
         (disturb | breach) & peace ~ "Disturbing the Peace",
+        threat & violence ~ "Threaten or Plan Act of Violence",
 
         # Firearm Possession ---------------------------------------------------
         possess & weapon ~ "Illegal Possession of a Firearm",
