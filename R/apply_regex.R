@@ -227,7 +227,7 @@ apply_ojo_regex <- function(data,
         # Basic Traffic Stuff --------------------------------------------------
         (speeding | x_in_y | x_over) & !lane & !close_closely ~ "Speeding",
         seatbelt & !child ~ "Seatbelt Violation",
-        seatbelt & child ~ "Child Seatbelt Violation",
+        (seatbelt | restrain) & child ~ "Child Seatbelt Violation",
         lane & !speeding ~ "Changing Lanes Unsafely", # Could potentially make more generic since it covers a few things, maybe "Unsafe Lane Use"?
         follow & close_closely ~ "Following Too Closely",
         stop & (sign | light) ~ "Fail to Stop at Sign",
@@ -236,10 +236,11 @@ apply_ojo_regex <- function(data,
         reckless & drive ~ "Reckless Driving",
 
         # Driving without proper documentation ---------------------------------
-        ((operate | drive) & (revocation | suspend)) | dus_code | dur_code ~ "Driving Under Suspension / Revocation",
-        (operate | drive) & license & !tag & !suspend ~ "Driving Without Valid License",
+        ((operate | drive | violate | possess | display) & (revocation | suspend)) |
+          dus_code | dur_code | (suspend & license) ~ "Driving Under Suspension / Revocation",
+        (operate | drive | violate | possess | display | valid) & license & !tag & !suspend ~ "Driving Without Valid License",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag",
-        fr5_code | ((failure | comply | no | compulsory) & insurance) ~ "Driving Without Valid Insurance",
+        fr5_code | ((failure | comply | no | compulsory) & (insurance | secure)) ~ "Driving Without Valid Insurance / Security",
 
         # DUI / APC / TOC / etc. -----------------------------------------------
         dui_or_apc & !weapon ~ "DUI / APC",
