@@ -249,7 +249,8 @@ apply_ojo_regex <- function(data,
         # Stolen Vehicles ------------------------------------------------------
         (possess | receive) & automobile ~ "Possession of Stolen Vehicle",
 
-        # Default to NA ========================================================
+        # Defaults =============================================================
+        # !!dplyr::sym(col_to_clean) == "DISMISSED" ~ "DISMISSED",
         TRUE ~ NA_character_
       ),
       # Cleaned charge CATEGORIES (i.e. "drug related", "property crime", "violent crime", etc.)
