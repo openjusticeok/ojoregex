@@ -95,3 +95,43 @@ final |>
   # guides(fill = "none")
 
 
+# --- temp ---
+# larceny_cases <- final |>
+#   group_by(case = paste(case_number, district)) |>
+#   # filter(any(str_detect(count_as_filed_clean, "Larceny"))) |>
+#   summarize(
+#     n_charges = n(),
+#     list_charges = paste(count_as_filed, collapse = "; "),
+#     list_clean_charges = paste(count_as_filed_clean, collapse = "; "),
+#     has_larceny = any(count_as_filed_clean %in% c("Larceny (Shoplifting)", "Larceny (Grand)", "Larceny (Petit)",
+#                                                   "Larceny (Other / Unspecified)", "Larceny (Auto)")),
+#     has_rcsp = any(count_as_filed_clean == "Receiving / Concealing Stolen Property")
+#   )
+#
+# n_larc_cases <- larceny_cases |>
+#   filter(has_larceny) |>
+#   nrow()
+#
+# n_w_rcsp <- larceny_cases |>
+#   filter(has_larceny, has_rcsp) |>
+#   nrow()
+#
+# n_w_rcsp / n_larc_cases
+#
+#
+# larceny_cases <- final |>
+#   group_by(case = paste(case_number, district)) |>
+#   # filter(any(str_detect(count_as_filed_clean, "Larceny"))) |>
+#   mutate(
+#     n_charges = n(),
+#     # list_charges = paste(count_as_filed, collapse = "; "),
+#     # list_clean_charges = paste(count_as_filed_clean, collapse = "; "),
+#     has_larceny = any(count_as_filed_clean %in% c("Larceny (Shoplifting)", "Larceny (Grand)", "Larceny (Petit)",
+#                                                   "Larceny (Other / Unspecified)", "Larceny (Auto)")),
+#     has_rcsp = any(count_as_filed_clean == "Receiving / Concealing Stolen Property")
+#   ) |>
+#   filter(has_larceny)
+#
+# larceny_cases |>
+#   ungroup() |>
+#   count(count_as_filed_clean, sort = T)
