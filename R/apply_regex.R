@@ -101,7 +101,7 @@ apply_ojo_regex <- function(data,
       # Cleaned charge descriptions (most specific, i.e. "simple possession", "kidnapping", etc.)
       # Later ones should overwrite previous ones, so maybe order by ascending priority?
       !!paste0(col_to_clean, "_clean") := dplyr::case_when(
-    # Drug Crimes ==========================================================
+        # Drug Crimes ==========================================================
         # Basic Drug Stuff -----------------------------------------------------
         any_drugs & possess & !traffic_or_traffick & !distribution & !intent &
           !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
@@ -120,7 +120,7 @@ apply_ojo_regex <- function(data,
         # Drug / Tax Stuff -----------------------------------------------------
         any_drugs & stamp ~ "CDS Possession (Tax Stamp)",
 
-    # Property Crimes ==========================================================
+        # Property Crimes ==========================================================
         # Larceny --------------------------------------------------------------
         larceny & grand & !petit & !any_drugs ~ "Larceny (Grand)",
         larceny & petit & !grand & !any_drugs ~ "Larceny (Petit)",
@@ -167,7 +167,7 @@ apply_ojo_regex <- function(data,
         # Malicious Injury to Property / minor property crimes -----------------
         malicious & injury & property ~ "Malicious Injury to Property",
 
-    # Violent Crimes ===========================================================
+        # Violent Crimes ===========================================================
         # Assault / Battery ----------------------------------------------------
         (assault | battery | a_and_b | abuse | violence | abdom) & domestic & !weapon ~ "Domestic Assault / Battery (Simple)",
         (assault | battery | a_and_b | abuse | violence | abdom) & domestic & weapon ~ "Domestic Assault / Battery (Dangerous Weapon)",
@@ -198,7 +198,7 @@ apply_ojo_regex <- function(data,
         (child | molest | proposal | act) & (lewd | indecent) ~ "Indecent or Lewd Acts With Child",
 
 
-    # Other ================================================================
+        # Other ================================================================
         # # Sex Work -------------------------------------------------------------
         # sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
         # sex_work & !aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Engaging in Sex Work (Within 1,000 Feet)",
@@ -211,9 +211,7 @@ apply_ojo_regex <- function(data,
 
         # Obstructing / Eluding ------------------------------------------------
         (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
-        (obstruct & (officer | justice)) |
-          stringr::str_detect(count_as_filed, "(?i)obs, obst|^obstruct(ing|ion)$") ~ "Obstruction of Justice", # that last one is to catch "OBS, OBSTRUCTION" / "OBSTRUCTION" which are hard to capture with the flags
-        # TODO: replace above with flags, I don't like having str_detect() in here
+        (obstruct & (officer | justice)) | obstruction_of_justice ~ "Obstruction of Justice",
 
         # VPO ------------------------------------------------------------------
         vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) ~ "Violation of Protective Order (VPO)",
@@ -231,7 +229,7 @@ apply_ojo_regex <- function(data,
         # Firearm Possession ---------------------------------------------------
         possess & weapon ~ "Illegal Possession of a Firearm",
 
-    # Traffic / Motor Vehicles =============================================
+        # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------
         (speeding | x_in_y | x_over) & !lane & !close_closely ~ "Speeding",
         seatbelt & !child ~ "Seatbelt Violation",
@@ -247,8 +245,9 @@ apply_ojo_regex <- function(data,
         ((operate | drive | violate | possess | display) & (revocation | suspend)) |
           dus_code | dur_code | (suspend & license) ~ "Driving Under Suspension / Revocation",
         (operate | drive | violate | possess | display | valid) & license & !tag & !suspend ~ "Driving Without Valid License",
-        (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag",
         fr5_code | ((failure | comply | no | compulsory) & (insurance | secure)) ~ "Driving Without Valid Insurance / Security",
+        (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag", # There are a couple of these...
+        due_to_state ~ "Driving Without Proper Tag", # Alt way for this to be phrased
 
         # DUI / APC / TOC / etc. -----------------------------------------------
         dui_or_apc & !weapon ~ "DUI / APC",
@@ -257,7 +256,7 @@ apply_ojo_regex <- function(data,
         # Stolen Vehicles ------------------------------------------------------
         (possess | receive) & automobile ~ "Possession of Stolen Vehicle",
 
-    # Defaults =============================================================
+        # Defaults =============================================================
         # !!dplyr::sym(col_to_clean) == "DISMISSED" ~ "DISMISSED",
         TRUE ~ NA_character_
       ),

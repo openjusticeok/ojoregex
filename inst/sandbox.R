@@ -48,7 +48,8 @@ explore <- final |>
 
 # Remaining unclassified
 remaining_nas <- final |>
-  filter(is.na(count_as_filed_clean)) |>
+  filter(is.na(count_as_filed_clean),
+         !is.na(count_as_filed)) |>
   select(-c(id, district, case_number, case_type, date_filed, date_closed, counts, open_counts, disposition,
             count_as_filed_clean)) |>
   group_by(count_as_filed) |>
