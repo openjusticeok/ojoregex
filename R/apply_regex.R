@@ -101,6 +101,12 @@ apply_ojo_regex <- function(data,
       # Cleaned charge descriptions (most specific, i.e. "simple possession", "kidnapping", etc.)
       # Later ones should overwrite previous ones, so maybe order by ascending priority?
       !!paste0(col_to_clean, "_clean") := dplyr::case_when(
+        # Overriding charges ===================================================
+        # These are at the top because I want them to override everything else. For example,
+        # if a charge says "Accessory to Murder", I want it to be "Accessory" instead of "Murder"
+        # Accessory to a felony ------------------------------------------------
+        accessory ~ "Accessory to a Felony",
+
         # Drug Crimes ==========================================================
         # Basic Drug Stuff -----------------------------------------------------
         any_drugs & possess & !traffic_or_traffick & !distribution & !intent &
