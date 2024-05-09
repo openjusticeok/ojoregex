@@ -202,6 +202,9 @@ apply_ojo_regex <- function(data,
 
         # Other ================================================================
         # # Sex Work -------------------------------------------------------------
+        sex_work & !child & !maintain_keep & !operate ~ "Engaging in Sex Work (Simple)",
+        sex_work & child ~ "Engaging in Sex Work (Minor Involved)",
+        sex_work & (maintain_keep | operate) ~ "Maintaining / Operating Place for Sex Work",
         # sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
         # sex_work & !aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Engaging in Sex Work (Within 1,000 Feet)",
         # sex_work & aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Aiding / Abetting Sex Work (Simple)",
