@@ -179,6 +179,13 @@ apply_ojo_regex <- function(data,
         trespass & !rail & timber ~ "Trespassing by Cutting Timber",
 
         # Violent Crimes ===========================================================
+        # Murder / Homicide ----------------------------------------------------
+        (shoot & kill & intent) | (weapon & automobile) | drive_by  ~ "Shooting With Intent to Kill",
+        murder & (one | first) & !solicit ~ "Murder (First Degree)",
+        murder & (two | second) & !solicit ~ "Murder (Second Degree",
+        murder & solicit ~ "Solicting Murder",
+        murder & !(solicit | one | first | two | second) ~ "Murder (Other / Unspecified)",
+
         # Assault / Battery ----------------------------------------------------
         (assault | battery | a_and_b | abuse | violence | abdom) & domestic & !weapon ~ "Domestic Assault / Battery (Simple)",
         (assault | battery | a_and_b | abuse | violence | abdom) & domestic & weapon ~ "Domestic Assault / Battery (Dangerous Weapon)",
