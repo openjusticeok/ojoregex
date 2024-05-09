@@ -142,7 +142,7 @@ apply_ojo_regex <- function(data,
         enter & intent ~ "Entering with Intent To Commit a Crime",
 
         # Arson ----------------------------------------------------------------
-        arson & (first | one | danger) ~ "Arson (First Degree)",
+        arson & (first | one | danger) ~ "Arson (First Degree)", # This is actually a violent crime
         arson & (second | two) ~ "Arson (Second Degree)",
         arson & (third | three) ~ "Arson (Third Degree)",
         arson & (fourth | four) ~ "Arson (Fourth Degree)",
@@ -166,6 +166,11 @@ apply_ojo_regex <- function(data,
 
         # Malicious Injury to Property / minor property crimes -----------------
         malicious & injury & property ~ "Malicious Injury to Property",
+
+        # Trespassing ----------------------------------------------------------
+        trespass & !rail & !timber ~ "Trespassing After Being Forbidden",
+        trespass & rail & !timber ~ "Trespassing / Destroying Railroad Equipment",
+        trespass & !rail & timber ~ "Trespassing by Cutting Timber",
 
         # Violent Crimes ===========================================================
         # Assault / Battery ----------------------------------------------------
