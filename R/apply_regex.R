@@ -197,6 +197,8 @@ apply_ojo_regex <- function(data,
         # This is where we'd distinguish if we want
         (child | molest | proposal | act) & (lewd | indecent) ~ "Indecent or Lewd Acts With Child",
 
+        # Pointing firearm -----------------------------------------------------
+        point & weapon ~ "Pointing Weapon at Another",
 
         # Other ================================================================
         # # Sex Work -------------------------------------------------------------
@@ -216,7 +218,7 @@ apply_ojo_regex <- function(data,
         # VPO ------------------------------------------------------------------
         vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) ~ "Violation of Protective Order (VPO)",
 
-        # violation of compulsory education act --------------------------------
+        # Violation of compulsory education act --------------------------------
         delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",
         # child & neglect
 
@@ -225,9 +227,15 @@ apply_ojo_regex <- function(data,
         (outrage | disturb) & decency ~ "Outraging Public Decency",
         (disturb | breach) & peace ~ "Disturbing the Peace",
         threat & violence ~ "Threaten or Plan Act of Violence",
+        indecent & expose ~ "Indecent Exposure",
 
         # Firearm Possession ---------------------------------------------------
         possess & weapon ~ "Illegal Possession of a Firearm",
+
+        # Fugitive from justice ------------------------------------------------
+        fugitive & !harbor ~ "Fugitive From Justice",
+        fugitive & harbor ~ "Fugitive From Justice (Assisting / Harboring)",
+        escape ~ "Escape from Arrest or Detention",
 
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------
@@ -240,14 +248,16 @@ apply_ojo_regex <- function(data,
         attention & !medical ~ "Inattentive Driving", # Originally had "drive" in here too, but some just say "INATTENTION" and stuff so this works better
         authorized & automobile & !license ~ "Unauthorized Use of Vehicle",
         reckless & drive ~ "Reckless Driving",
+        failure & signal ~ "Fail to Signal",
 
         # Driving without proper documentation ---------------------------------
         ((operate | drive | violate | possess | display) & (revocation | suspend)) |
           dus_code | dur_code | (suspend & license) ~ "Driving Under Suspension / Revocation",
         (operate | drive | violate | possess | display | valid) & license & !tag & !suspend ~ "Driving Without Valid License",
         fr5_code | ((failure | comply | no | compulsory) & (insurance | secure)) ~ "Driving Without Valid Insurance / Security",
-        (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag", # There are a couple of these...
-        due_to_state ~ "Driving Without Proper Tag", # Alt way for this to be phrased
+        (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag / Registration", # There are a couple of these...
+        due_to_state ~ "Driving Without Proper Tag / Registration",
+        (registration | tag) & (expire | violate) ~ "Driving Without Proper Tag / Registration",
 
         # DUI / APC / TOC / etc. -----------------------------------------------
         dui_or_apc & !weapon ~ "DUI / APC",
@@ -256,8 +266,14 @@ apply_ojo_regex <- function(data,
         # Stolen Vehicles ------------------------------------------------------
         (possess | receive) & automobile ~ "Possession of Stolen Vehicle",
 
-        # Defaults =============================================================
+        # Defaults / special cases =============================================
+        # This is at the end so that anything with "conspiracy" that already hasn't been categorized
+        # will get put odwn as "Conspiracy (Other / Unspecified)"
+        conspiracy ~ "Conspiracy (Other / Unspecified)",
+
         # !!dplyr::sym(col_to_clean) == "DISMISSED" ~ "DISMISSED",
+        dismiss ~ "Error: DISMISSED",
+        count_x ~ "Error: COUNT X",
         TRUE ~ NA_character_
       ),
       # Cleaned charge CATEGORIES (i.e. "drug related", "property crime", "violent crime", etc.)
