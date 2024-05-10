@@ -267,7 +267,10 @@ apply_ojo_regex <- function(data,
         # Bail jumping / bond forfeiture ---------------------------------------
         (bail | bond) & jump & !forfeit ~ "Bail Jumping",
         (bail | bond) & forfeit & !jump ~ "Bail Forfeiture",
-        (bail | bond) & ((forfeit & jump) | (!forfeit & !jump)) ~ "Bail Jumping", # Just gonna have these defualt to the more common one for now
+        (bail | bond) & ((forfeit & jump) | (!forfeit & !jump)) ~ "Bail Jumping", # Just gonna have these default to the more common one for now
+
+        # Animal Cruelty / neglect ---------------------------------------------
+        animal & cruel ~ "Cruelty to Animals",
 
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------
