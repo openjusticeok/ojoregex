@@ -179,12 +179,18 @@ apply_ojo_regex <- function(data,
         trespass & !rail & timber ~ "Trespassing by Cutting Timber",
 
         # Violent Crimes ===========================================================
-        # Murder / Homicide ----------------------------------------------------
+        # Murder / Intentional Homicide ----------------------------------------
         (shoot & kill & intent) | (weapon & automobile) | drive_by  ~ "Shooting With Intent to Kill",
         murder & (one | first) & !solicit ~ "Murder (First Degree)",
         murder & (two | second) & !solicit ~ "Murder (Second Degree",
         murder & solicit ~ "Solicting Murder",
         murder & !(solicit | one | first | two | second) ~ "Murder (Other / Unspecified)",
+
+        # Manslaughter / Negligent Homicide ------------------------------------
+        manslaughter & (one | first) ~ "Manslaughter (First Degree)",
+        manslaughter & (two | second) ~ "Manslaughter (Second Degree)",
+        manslaughter & !(one | first | two | second) ~ "Manslaughter (Other / Unspecified)",
+        homicide & negligent ~ "Negligent Vehicular Homicide",
 
         # Assault / Battery ----------------------------------------------------
         (assault | battery | a_and_b | abuse | violence | abdom) & domestic & !weapon ~ "Domestic Assault / Battery (Simple)",
@@ -257,6 +263,11 @@ apply_ojo_regex <- function(data,
         fugitive & !harbor ~ "Fugitive From Justice",
         fugitive & harbor ~ "Fugitive From Justice (Assisting / Harboring)",
         escape ~ "Escape from Arrest or Detention",
+
+        # Bail jumping / bond forfeiture ---------------------------------------
+        (bail | bond) & jump & !forfeit ~ "Bail Jumping",
+        (bail | bond) & forfeit & !jump ~ "Bail Forfeiture",
+        (bail | bond) & ((forfeit & jump) | (!forfeit & !jump)) ~ "Bail Jumping", # Just gonna have these defualt to the more common one for now
 
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------
