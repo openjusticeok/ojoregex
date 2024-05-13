@@ -150,7 +150,7 @@ apply_ojo_regex <- function(data,
         burgle & (third | three | automobile) ~ "Burglary (Third Degree)",
         burgle & tools_implements ~ "Possession of Burglar's Tools",
         burgle & !first & !one & !second & !two & !third & !three & !tools_implements ~ "Burglary (Other / Unspecified)",
-        enter & intent ~ "Entering with Intent To Commit a Crime",
+        (enter & intent) | (breaking & enter) ~ "Entering with Intent To Commit a Crime",
 
         # Arson ----------------------------------------------------------------
         arson & (first | one | danger) ~ "Arson (First Degree)", # This is actually a violent crime
@@ -296,8 +296,9 @@ apply_ojo_regex <- function(data,
         (operate | drive | violate | possess | display | valid) & license & !tag & !suspend ~ "Driving Without Valid License",
         fr5_code | ((failure | comply | no | compulsory) & (insurance | secure)) ~ "Driving Without Valid Insurance / Security",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag / Registration", # There are a couple of these...
-        due_to_state ~ "Driving Without Proper Tag / Registration",
-        (registration | tag) & (expire | violate) ~ "Driving Without Proper Tag / Registration",
+        due_to_state ~ "Driving Without Proper Tag / Registration", # "taxes due to state"
+        (registration | tag) & (expire | violate | improper | alter) ~ "Driving Without Proper Tag / Registration",
+        license & (improper | alter) ~ "Driving Without Proper Tag / Registration", # "Altered / Improper license plates"
 
         # DUI / APC / TOC / etc. -----------------------------------------------
         dui_or_apc & !weapon ~ "DUI / APC",
@@ -305,6 +306,9 @@ apply_ojo_regex <- function(data,
 
         # Stolen Vehicles ------------------------------------------------------
         (possess | receive) & automobile ~ "Possession of Stolen Vehicle",
+
+        # Leaving scene --------------------------------------------------------
+        leave & scene ~ "Leaving the Scene of an Accident",
 
         # Defaults / special cases =============================================
         # This is at the end so that anything with "conspiracy" that already hasn't been categorized
