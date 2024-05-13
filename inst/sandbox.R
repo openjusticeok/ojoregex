@@ -39,7 +39,7 @@ final |>
     # all_counts = paste(count_as_filed, collapse = "; ")
   ) |>
   arrange(desc(n)) |>
-  print(n = 300)
+  print(n = 20)
 
 
 explore <- final |>

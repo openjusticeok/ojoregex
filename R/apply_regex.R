@@ -290,7 +290,7 @@ apply_ojo_regex <- function(data,
         reckless & drive ~ "Reckless Driving",
         failure & signal ~ "Fail to Signal",
 
-        # Driving without proper documentation ---------------------------------
+        # Driving without proper documentation / tags / etc --------------------
         ((operate | drive | violate | possess | display) & (revocation | suspend)) |
           dus_code | dur_code | (suspend & license) ~ "Driving Under Suspension / Revocation",
         (operate | drive | violate | possess | display | valid) & license & !tag & !suspend ~ "Driving Without Valid License",
@@ -299,6 +299,9 @@ apply_ojo_regex <- function(data,
         due_to_state ~ "Driving Without Proper Tag / Registration", # "taxes due to state"
         (registration | tag) & (expire | violate | improper | alter) ~ "Driving Without Proper Tag / Registration",
         license & (improper | alter) ~ "Driving Without Proper Tag / Registration", # "Altered / Improper license plates"
+
+        # Defective equipment --------------------------------------------------
+        defective & (automobile | brake | tire | light | equip | muffler) ~ "Defective Vehicle",
 
         # DUI / APC / TOC / etc. -----------------------------------------------
         dui_or_apc & !weapon ~ "DUI / APC",
