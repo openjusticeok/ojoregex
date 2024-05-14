@@ -126,7 +126,7 @@ apply_ojo_regex <- function(data,
         any_drugs & !possess & !traffic_or_traffick & !distribution & !intent &
           !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
           !maintain_keep & !manufacture & !litter & !larceny & !jail_penal &
-          !school & !park ~ "CDS (Other / Unspecified)",
+          !school & !park & !drive ~ "CDS (Other / Unspecified)",
 
         # Drug / Tax Stuff -----------------------------------------------------
         any_drugs & stamp ~ "CDS Possession (Tax Stamp)",
@@ -313,7 +313,8 @@ apply_ojo_regex <- function(data,
         defective & (automobile | brake | tire | light | equip | muffler) ~ "Defective Vehicle",
 
         # DUI / APC / TOC / etc. -----------------------------------------------
-        dui_or_apc & !weapon ~ "DUI / APC",
+        (drive | automobile) & (influence | intoxication) | (dui_or_apc & !weapon) ~ "Driving Under the Influence / Actual Physical Control",
+        (drive | automobile) & impair ~ "Driving While Impaired",
         toc | open & (container | bottle | beer) ~ "Transporting Open Container",
 
         # Stolen Vehicles ------------------------------------------------------
