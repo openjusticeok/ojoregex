@@ -226,6 +226,15 @@ apply_ojo_regex <- function(data,
         # This is where we'd distinguish if we want
         (child | molest | proposal | act) & (lewd | indecent) ~ "Indecent or Lewd Acts With Child",
 
+        # Rape -----------------------------------------------------------------
+        (sex & battery) & !instrument ~ "Rape (First Degree)",
+        rape & (first | one) & !instrument ~ "Rape (First Degree)",
+        rape & (second | two) & !instrument ~ "Rape (Second Degree)",
+        rape & instrument ~ "Rape by Instrumentation",
+        sodomy ~ "Forcible Sodomy", # Not sure this is specific enough.
+        rape & !first & ! one & !second & !two & !instrument ~ "Rape (Other / Unspecified)",
+
+
         # Pointing firearm -----------------------------------------------------
         point & weapon ~ "Pointing Weapon at Another",
 
