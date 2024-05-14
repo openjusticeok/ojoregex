@@ -131,6 +131,12 @@ apply_ojo_regex <- function(data,
         # Drug / Tax Stuff -----------------------------------------------------
         any_drugs & stamp ~ "CDS Possession (Tax Stamp)",
 
+        # Acquiring proceeds ---------------------------------------------------
+        # proceed & any_drugs & (acquire | possess | transport | conceal) ~ "Possession of Proceeds in Violation UCDSA",
+        # proceed & !any_drugs & (acquire | possess | transport | conceal) ~ "Possession of Proceeds from Unlawful Activity",
+        proceed & any_drugs & !bail ~ "Possession of Proceeds in Violation UCDSA",
+        proceed & !any_drugs & !bail ~ "Possession of Proceeds from Unlawful Activity",
+
         # Property Crimes ==========================================================
         # Larceny --------------------------------------------------------------
         larceny & grand & !petit & !any_drugs ~ "Larceny (Grand)",
