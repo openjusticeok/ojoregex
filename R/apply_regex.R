@@ -295,8 +295,9 @@ apply_ojo_regex <- function(data,
 
         # Sex Offender related -------------------------------------------------
         # (registration | address) & sex & offender ~ "Failure to Comply With Sex Offender Registration Act",
-        (sex & offender) & !within_x_feet ~ "Failure to Comply With Sex Offender Registration Act",
-        (sex & offender) & within_x_feet ~ "Sex Offender Living Within 2000 Feet of School / Park / Child Care",
+        (sex & offender) & !within_x_feet & !zone_of_safety ~ "Failure to Comply With Sex Offender Registration Act",
+        (sex & offender) & within_x_feet & !zone_of_safety ~ "Sex Offender Living Within 2000 Feet of School / Park / Child Care",
+        zone_of_safety ~ "Sex Offender Violating Zone of Safety",
 
         # Violent crime registration related -----------------------------------
         (registration | address) & violence & (offender | comply | violate) ~ "Failure to Comply With Violent Crime Offender Registration Act",
