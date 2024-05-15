@@ -332,7 +332,7 @@ apply_ojo_regex <- function(data,
         (operate | drive | violate | possess | display | valid) & license & !tag & !suspend & !weapon ~ "Driving Without Valid License",
         fr5_code | ((failure | comply | no | compulsory) & (insurance | secure)) ~ "Driving Without Valid Insurance / Security",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag / Registration", # There are a couple of these...
-        due_to_state ~ "Driving Without Proper Tag / Registration", # "taxes due to state"
+        taxes_due ~ "Driving Without Proper Tag / Registration", # "taxes due to state"
         (registration | tag) & (expire | violate | improper | alter) & !sex & !violence ~ "Driving Without Proper Tag / Registration",
         license & (improper | alter) ~ "Driving Without Proper Tag / Registration", # "Altered / Improper license plates"
 
