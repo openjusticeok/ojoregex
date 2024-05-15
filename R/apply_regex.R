@@ -94,20 +94,21 @@ apply_ojo_regex <- function(data,
 
   # ...now we have the flags in place, and we're ready to categorize!
 
-  # Categorizing =================================================================
+  # Categorizing
 
   clean_data <- flagged_data |>
     dplyr::mutate(
-      # Cleaned charge descriptions (most specific, i.e. "simple possession", "kidnapping", etc.)
-      # Later ones should overwrite previous ones, so maybe order by ascending priority?
+      # Earlier ones will overwrite later ones, so the order is important!
       !!paste0(col_to_clean, "_clean") := dplyr::case_when(
-        # Overriding charges ===================================================
+        # ===================================================================================================================
+        # Overriding charges ================================================================================================
         # These are at the top because I want them to override everything else. For example,
         # if a charge says "Accessory to Murder", I want it to be "Accessory" instead of "Murder"
         # Accessory to a felony ------------------------------------------------
         accessory ~ "Accessory to a Felony",
 
-        # Drug Crimes ==========================================================
+        # ====================================================================================================================
+        # Drug Crimes ========================================================================================================
         # Basic Drug Stuff -----------------------------------------------------
         any_drugs & possess & !traffic_or_traffick & !distribution & !intent &
           !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
@@ -137,7 +138,8 @@ apply_ojo_regex <- function(data,
         proceed & any_drugs & !bail ~ "Possession of Proceeds in Violation UCDSA",
         proceed & !any_drugs & !bail ~ "Possession of Proceeds from Unlawful Activity",
 
-        # Property Crimes ==========================================================
+        # =====================================================================================================================
+        # Property Crimes =====================================================================================================
         # Larceny --------------------------------------------------------------
         larceny & grand & !petit & !any_drugs ~ "Larceny (Grand)",
         larceny & petit & !grand & !any_drugs ~ "Larceny (Petit)",
@@ -189,9 +191,10 @@ apply_ojo_regex <- function(data,
         trespass & rail & !timber ~ "Trespassing / Destroying Railroad Equipment",
         trespass & !rail & timber ~ "Trespassing by Cutting Timber",
 
-        # Violent Crimes ===========================================================
+        # =====================================================================================================================
+        # Violent Crimes ======================================================================================================
         # Murder / Intentional Homicide ----------------------------------------
-        (shoot & kill & intent) | (weapon & automobile) | drive_by  ~ "Shooting With Intent to Kill",
+        (shoot & kill & intent) | (weapon & automobile & !transport) | drive_by  ~ "Shooting With Intent to Kill",
         murder & (one | first) & !solicit ~ "Murder (First Degree)",
         murder & (two | second) & !solicit ~ "Murder (Second Degree",
         murder & solicit ~ "Solicting Murder",
@@ -244,7 +247,8 @@ apply_ojo_regex <- function(data,
         # Pointing firearm -----------------------------------------------------
         point & weapon ~ "Pointing Weapon at Another",
 
-        # Other ================================================================
+        # =====================================================================================================================
+        # Other ===============================================================================================================
         # # Sex Work -------------------------------------------------------------
         sex_work & !child & !maintain_keep & !operate ~ "Engaging in Sex Work (Simple)",
         sex_work & child ~ "Engaging in Sex Work (Minor Involved)",
@@ -278,7 +282,12 @@ apply_ojo_regex <- function(data,
         indecent & expose ~ "Indecent Exposure",
 
         # Firearm Possession ---------------------------------------------------
-        possess & weapon ~ "Illegal Possession of a Firearm",
+        (under_the_influence | intoxication) & weapon & !contraband ~ "Carrying Firearm While Under the Influence",
+        transport & weapon ~ "Improper Transportation of Firearms",
+        (possess | carry | transfer) & weapon & !serial_number ~ "Illegal Possession of a Firearm",
+        ((possess | carry | use) & weapon & commit) | (weapon & serial_number) ~ "Use of Firearm During Felony / Altering Serial Number",
+        reckless & weapon ~ "Reckless Conduct With Firearm",
+        discharge & weapon ~ "Reckless Discharge of Firearm",
 
         # Fugitive from justice ------------------------------------------------
         fugitive & !harbor ~ "Fugitive From Justice",
@@ -302,7 +311,8 @@ apply_ojo_regex <- function(data,
         # Violent crime registration related -----------------------------------
         (registration | address) & violence & (offender | comply | violate) ~ "Failure to Comply With Violent Crime Offender Registration Act",
 
-        # Traffic / Motor Vehicles =============================================
+        # =====================================================================================================================
+        # Traffic / Motor Vehicles ============================================================================================
         # Basic Traffic Stuff --------------------------------------------------
         (speeding | x_in_y | x_over) & !lane & !close_closely ~ "Speeding",
         seatbelt & !child ~ "Seatbelt Violation",
@@ -319,7 +329,7 @@ apply_ojo_regex <- function(data,
         # Driving without proper documentation / tags / etc --------------------
         ((operate | drive | violate | possess | display) & (revocation | suspend)) |
           dus_code | dur_code | (suspend & license) ~ "Driving Under Suspension / Revocation",
-        (operate | drive | violate | possess | display | valid) & license & !tag & !suspend ~ "Driving Without Valid License",
+        (operate | drive | violate | possess | display | valid) & license & !tag & !suspend & !weapon ~ "Driving Without Valid License",
         fr5_code | ((failure | comply | no | compulsory) & (insurance | secure)) ~ "Driving Without Valid Insurance / Security",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag / Registration", # There are a couple of these...
         due_to_state ~ "Driving Without Proper Tag / Registration", # "taxes due to state"
@@ -331,7 +341,7 @@ apply_ojo_regex <- function(data,
         overweight ~ "Overweight Violation",
 
         # DUI / APC / TOC / etc. -----------------------------------------------
-        (drive | automobile) & (influence | intoxication) | (dui_or_apc & !weapon) ~ "Driving Under the Influence / Actual Physical Control",
+        (drive | automobile) & (influence | intoxication) | (dui_or_apc | under_the_influence & !weapon) ~ "Driving Under the Influence / Actual Physical Control",
         (drive | automobile) & impair ~ "Driving While Impaired",
         toc | open & (container | bottle | beer) ~ "Transporting Open Container",
 
@@ -341,9 +351,10 @@ apply_ojo_regex <- function(data,
         # Leaving scene --------------------------------------------------------
         leave & scene ~ "Leaving the Scene of an Accident",
 
-        # Defaults / special cases =============================================
+        # =====================================================================================================================
+        # Defaults / special cases ============================================================================================
         # This is at the end so that anything with "conspiracy" that already hasn't been categorized
-        # will get put odwn as "Conspiracy (Other / Unspecified)"
+        # will get put down as "Conspiracy (Other / Unspecified)"
         conspiracy ~ "Conspiracy (Other / Unspecified)",
 
         # !!dplyr::sym(col_to_clean) == "DISMISSED" ~ "DISMISSED",
