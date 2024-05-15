@@ -262,8 +262,10 @@ apply_ojo_regex <- function(data,
         (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
         (obstruct & (officer | justice)) | obstruction_of_justice ~ "Obstruction of Justice",
 
-        # VPO ------------------------------------------------------------------
-        vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) ~ "Violation of Protective Order (VPO)",
+        # VPO / Stalking -------------------------------------------------------
+        vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) | (stalk & violate) ~ "Violation of Protective Order (VPO)",
+        stalk & !vpo ~ "Stalking",
+
 
         # Violation of compulsory education act --------------------------------
         delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",
@@ -304,6 +306,7 @@ apply_ojo_regex <- function(data,
         authorized & automobile & !license ~ "Unauthorized Use of Vehicle",
         reckless & drive ~ "Reckless Driving",
         failure & signal ~ "Fail to Signal",
+        left & center ~ "Driving Left of Center",
 
         # Driving without proper documentation / tags / etc --------------------
         ((operate | drive | violate | possess | display) & (revocation | suspend)) |
