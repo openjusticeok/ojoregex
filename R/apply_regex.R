@@ -266,7 +266,6 @@ apply_ojo_regex <- function(data,
         vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) | (stalk & violate) ~ "Violation of Protective Order (VPO)",
         stalk & !vpo ~ "Stalking",
 
-
         # Violation of compulsory education act --------------------------------
         delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",
         # child & neglect
@@ -294,6 +293,14 @@ apply_ojo_regex <- function(data,
         # Animal Cruelty / neglect ---------------------------------------------
         animal & cruel ~ "Cruelty to Animals",
 
+        # Sex Offender related -------------------------------------------------
+        # (registration | address) & sex & offender ~ "Failure to Comply With Sex Offender Registration Act",
+        (sex & offender) & !within_x_feet ~ "Failure to Comply With Sex Offender Registration Act",
+        (sex & offender) & within_x_feet ~ "Sex Offender Living Within 2000 Feet of School / Park / Child Care",
+
+        # Violent crime registration related -----------------------------------
+        (registration | address) & violence & (offender | comply | violate) ~ "Failure to Comply With Violent Crime Offender Registration Act",
+
         # Traffic / Motor Vehicles =============================================
         # Basic Traffic Stuff --------------------------------------------------
         (speeding | x_in_y | x_over) & !lane & !close_closely ~ "Speeding",
@@ -315,11 +322,12 @@ apply_ojo_regex <- function(data,
         fr5_code | ((failure | comply | no | compulsory) & (insurance | secure)) ~ "Driving Without Valid Insurance / Security",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag / Registration", # There are a couple of these...
         due_to_state ~ "Driving Without Proper Tag / Registration", # "taxes due to state"
-        (registration | tag) & (expire | violate | improper | alter) ~ "Driving Without Proper Tag / Registration",
+        (registration | tag) & (expire | violate | improper | alter) & !sex & !violence ~ "Driving Without Proper Tag / Registration",
         license & (improper | alter) ~ "Driving Without Proper Tag / Registration", # "Altered / Improper license plates"
 
         # Defective equipment --------------------------------------------------
         defective & (automobile | brake | tire | light | equip | muffler) ~ "Defective Vehicle",
+        overweight ~ "Overweight Violation",
 
         # DUI / APC / TOC / etc. -----------------------------------------------
         (drive | automobile) & (influence | intoxication) | (dui_or_apc & !weapon) ~ "Driving Under the Influence / Actual Physical Control",
