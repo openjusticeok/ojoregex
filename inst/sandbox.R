@@ -14,8 +14,8 @@ library(tictoc)
 #
 # beepr::beep()
 
-ds <- read_rds("./data/test-data-tr-all.rds")
-# ds <- read_rds("./data/test-data-all.rds")
+# ds <- read_rds("./data/test-data-tr-all.rds")
+ds <- read_rds("./data/test-data-all.rds")
 
 # Using new regex --------------------------------------------------------------
 tic()
@@ -30,17 +30,16 @@ cli::cli_alert_success(
 )
 beepr::beep()
 
-# Classifications rundown
-final |>
-  # filter(str_detect(count_as_filed_clean, "Fraud")) |>
-  group_by(count_as_filed_clean) |>
-  summarize(
-    n = n(),
-    # all_counts = paste(count_as_filed, collapse = "; ")
-  ) |>
-  arrange(desc(n)) |>
-  print(n = 20)
-
+# # Classifications rundown
+# final |>
+#   # filter(str_detect(count_as_filed_clean, "Fraud")) |>
+#   group_by(count_as_filed_clean) |>
+#   summarize(
+#     n = n(),
+#     # all_counts = paste(count_as_filed, collapse = "; ")
+#   ) |>
+#   arrange(desc(n)) |>
+#   print(n = 20)
 
 explore <- final |>
   # filter(burgle) |>

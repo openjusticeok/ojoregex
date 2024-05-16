@@ -126,7 +126,7 @@ apply_ojo_regex <- function(data,
         # Sometimes it will just say "Marijuana", etc.
         any_drugs & !possess & !traffic_or_traffick & !distribution & !intent &
           !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
-          !maintain_keep & !manufacture & !litter & !larceny & !jail_penal &
+          !maintain_keep & !litter & !larceny & !jail_penal &
           !school & !park & !drive ~ "CDS (Other / Unspecified)",
 
         # Drug / Tax Stuff -----------------------------------------------------
@@ -168,7 +168,7 @@ apply_ojo_regex <- function(data,
         arson & !first & !one & !danger & !second & !two & !third & !three & !four ~ "Arson (Other / Unspecified)",
 
         # Fraud / Forgery ------------------------------------------------------
-        personate ~ "Fraud (False Personation)",
+        personate | (identity & theft) ~ "Fraud (False Personation)",
         ((bogus & check) | bc_code) & !(pretense | deception) ~ "Fraud (Bogus Check)",
         (pretense | deception) & !(bogus & check) & !elder ~ "Fraud (False Pretense / Deception)", # Some forms of elder abuse include the term "deception"
         credit_card ~ "Fraud (Credit Card)", # May need more refining
@@ -184,7 +184,7 @@ apply_ojo_regex <- function(data,
         embezzle ~ "Embezzlement",
 
         # Malicious Injury to Property / minor property crimes -----------------
-        malicious & injury & property ~ "Malicious Injury to Property",
+        malicious & injury ~ "Malicious Injury to Property", # removed "property" flag from this one to make it more inclusive
 
         # Trespassing ----------------------------------------------------------
         trespass & !rail & !timber ~ "Trespassing After Being Forbidden",
@@ -242,7 +242,6 @@ apply_ojo_regex <- function(data,
         rape & instrument ~ "Rape by Instrumentation",
         sodomy ~ "Forcible Sodomy", # Not sure this is specific enough.
         rape & !first & ! one & !second & !two & !instrument ~ "Rape (Other / Unspecified)",
-
 
         # Pointing firearm -----------------------------------------------------
         point & weapon ~ "Pointing Weapon at Another",
@@ -325,7 +324,7 @@ apply_ojo_regex <- function(data,
         stop & (sign | light) ~ "Fail to Stop at Sign",
         attention & !medical ~ "Inattentive Driving", # Originally had "drive" in here too, but some just say "INATTENTION" and stuff so this works better
         authorized & automobile & !license ~ "Unauthorized Use of Vehicle",
-        reckless & drive ~ "Reckless Driving",
+        (reckless | careless) & drive ~ "Reckless Driving",
         failure & signal ~ "Fail to Signal",
         left & center ~ "Driving Left of Center",
 
