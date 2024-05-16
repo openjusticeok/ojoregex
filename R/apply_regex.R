@@ -311,6 +311,9 @@ apply_ojo_regex <- function(data,
         # Violent crime registration related -----------------------------------
         (registration | address) & violence & (offender | comply | violate) ~ "Failure to Comply With Violent Crime Offender Registration Act",
 
+        # Emergency phone call -------------------------------------------------
+        emergency & (phone | call) ~ "Interfering With Emergency Call",
+
         # =====================================================================================================================
         # Traffic / Motor Vehicles ============================================================================================
         # Basic Traffic Stuff --------------------------------------------------
@@ -350,6 +353,9 @@ apply_ojo_regex <- function(data,
 
         # Leaving scene --------------------------------------------------------
         leave & scene ~ "Leaving the Scene of an Accident",
+
+        # Failure to yield to emergency vehicle --------------------------------
+        emergency & automobile ~ "Fail to Yield to Emergency Vehicle",
 
         # =====================================================================================================================
         # Defaults / special cases ============================================================================================
