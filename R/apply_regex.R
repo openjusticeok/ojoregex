@@ -20,7 +20,8 @@
 #'}
 apply_ojo_regex <- function(data,
                             col_to_clean = "count_as_filed",
-                            .keep_flags = FALSE
+                            .keep_flags = FALSE,
+                            .include_cats = TRUE
                             ) {
 
   # Validate data ==============================================================
@@ -382,6 +383,7 @@ apply_ojo_regex <- function(data,
     )
 
   # Join on categories from the ojo_regex_cats data
+  if(.include_cats) {
   ojo_regex_cats_tidy <- ojo_regex_cats |>
     select("clean_charge_description", "category", "subcategory", "title", "statutes", "chapter")
 
@@ -395,6 +397,15 @@ apply_ojo_regex <- function(data,
                   paste0(col_to_clean, "_clean"),
                   data_names,
                   "category", "subcategory", "title", "statutes", "chapter")
+
+  } else {
+    # Clean this up, you're being lazy
+    true_clean_data <- clean_data |>
+      dplyr::select({{ col_to_clean }},
+                    paste0(col_to_clean, "_clean"),
+                    data_names,
+      )
+  }
 
   if(.keep_flags == TRUE) {
     return(clean_data) # clean_data is just the version that still has the flags
