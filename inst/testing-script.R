@@ -28,3 +28,6 @@ ds <- test_data_cf_cm |>
     col_to_clean = "count_as_filed",
     .keep_flags = FALSE
   )
+
+ds |>
+  count(count_as_filed, count_as_filed_clean, sort = T) |>
