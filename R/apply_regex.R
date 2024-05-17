@@ -376,7 +376,7 @@ apply_ojo_regex <- function(data,
         # !!dplyr::sym(col_to_clean) == "DISMISSED" ~ "DISMISSED",
         dismiss ~ "ojoRegex Error: DISMISSED",
         count_x ~ "ojoRegex Error: COUNT X",
-        TRUE ~ "ojoRegex Error: NA value"
+        TRUE ~ NA_character_
       ),
       # Cleaned charge CATEGORIES (i.e. "drug related", "property crime", "violent crime", etc.)
       # category = dplyr::case_when(...)
