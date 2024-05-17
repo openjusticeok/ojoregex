@@ -373,20 +373,28 @@ apply_ojo_regex <- function(data,
         conspiracy ~ "Conspiracy (Other / Unspecified)",
 
         # !!dplyr::sym(col_to_clean) == "DISMISSED" ~ "DISMISSED",
-        dismiss ~ "Error: DISMISSED",
-        count_x ~ "Error: COUNT X",
-        TRUE ~ NA_character_
+        dismiss ~ "ojoRegex Error: DISMISSED",
+        count_x ~ "ojoRegex Error: COUNT X",
+        TRUE ~ "ojoRegex Error: NA value"
       ),
       # Cleaned charge CATEGORIES (i.e. "drug related", "property crime", "violent crime", etc.)
       # category = dplyr::case_when(...)
     )
 
   # Join on categories from the ojo_regex_cats data
+  ojo_regex_cats_tidy <- ojo_regex_cats |>
+    select("clean_charge_description", "category", "subcategory", "title", "statutes", "chapter")
+
+  clean_data <- clean_data |>
+    left_join(ojo_regex_cats_tidy,
+              by = join_by({{ clean_col_name }} == "clean_charge_description"))
 
   # true_clean_data is the original data + the final categories, no flags
   true_clean_data <- clean_data |>
-    dplyr::select({{ col_to_clean }}, paste0(col_to_clean, "_clean"),
-                  data_names)
+    dplyr::select({{ col_to_clean }},
+                  paste0(col_to_clean, "_clean"),
+                  data_names,
+                  "category", "subcategory", "title", "statutes", "chapter")
 
   if(.keep_flags == TRUE) {
     return(clean_data) # clean_data is just the version that still has the flags

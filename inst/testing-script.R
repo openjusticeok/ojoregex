@@ -24,6 +24,7 @@ test_data_cf_cm <- test_data |>
   select(-c(id, counts, open_counts))
 
 ds <- test_data_cf_cm |>
+  # head(1000) |>
   ojoregex::apply_ojo_regex(
     col_to_clean = "count_as_filed",
     .keep_flags = FALSE
@@ -32,3 +33,6 @@ ds <- test_data_cf_cm |>
 ds |>
   count(count_as_filed, count_as_filed_clean, sort = T) |>
   view()
+
+ds |>
+  count(category, sort = T)
