@@ -4,7 +4,12 @@
 \alias{apply_ojo_regex}
 \title{Apply OJO Regex}
 \usage{
-apply_ojo_regex(data, col_to_clean = "count_as_filed", .keep_flags = FALSE)
+apply_ojo_regex(
+  data,
+  col_to_clean = "count_as_filed",
+  .keep_flags = FALSE,
+  .include_cats = TRUE
+)
 }
 \arguments{
 \item{data}{A data frame containing the dataset to be processed.}
