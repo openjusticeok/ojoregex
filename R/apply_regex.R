@@ -34,17 +34,17 @@ apply_ojo_regex <- function(data,
 
   # Uncomment this for dev / debugging -----------------------------------------
   # Regex list
-  googlesheets4::gs4_auth(email = "abell@okpolicy.org")
-  ojo_regex_flags <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
-                                               sheet = "Regex Flag List")
-  ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
-                                              sheet = "Clean Categories List",
-                                              col_types = "lccccccccccccc") |>
-    dplyr::filter(in_ojoregex == TRUE)
-
-  # Save the regex data to the package data
-  save(ojo_regex_flags, file = here::here("data", "ojo_regex_flags.rda"))
-  save(ojo_regex_cats, file = here::here("data", "ojo_regex_cats.rda"))
+  # googlesheets4::gs4_auth(email = "abell@okpolicy.org")
+  # ojo_regex_flags <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+  #                                              sheet = "Regex Flag List")
+  # ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
+  #                                             sheet = "Clean Categories List",
+  #                                             col_types = "lccccccccccccc") |>
+  #   dplyr::filter(in_ojoregex == TRUE)
+  #
+  # # Save the regex data to the package data
+  # save(ojo_regex_flags, file = here::here("data", "ojo_regex_flags.rda"))
+  # save(ojo_regex_cats, file = here::here("data", "ojo_regex_cats.rda"))
 
   # Load the regex data
   regex <- ojo_regex_flags
@@ -79,6 +79,7 @@ apply_ojo_regex <- function(data,
   cli::cli_progress_bar(
     "Applying regex flags to data...",
     total = nrow(regex),
+    clear = FALSE
   )
 
   for (i in seq(nrow(regex))) {
@@ -90,7 +91,7 @@ apply_ojo_regex <- function(data,
 
   }
 
-  cli::cli_progress_done()
+  cli::cli_progress_done(result = "Done flagging data!")
 
   # ...then, apply the groups where relevant... ----------------------------------
   for (j in seq(nrow(group_data))) {

@@ -14,10 +14,10 @@ devtools::load_all()
 # readr::write_csv(test_data, here::here("data", "test_data.csv"))
 test_data <- readr::read_csv(here::here("data", "test_data.csv"))
 
-test_data <- ojo_crim_cases(districts = "all",
-                            case_types = c("CF", "CM", "TR"),
-                            file_years = c(2018:2024)) |>
-  ojo_collect()
+# test_data <- ojo_crim_cases(districts = "all",
+#                             case_types = c("CF", "CM", "TR"),
+#                             file_years = c(2018:2024)) |>
+#   ojo_collect()
 
 test_data_cf_cm <- test_data |>
   filter(case_type != "TR") |>
@@ -31,3 +31,4 @@ ds <- test_data_cf_cm |>
 
 ds |>
   count(count_as_filed, count_as_filed_clean, sort = T) |>
+  view()
