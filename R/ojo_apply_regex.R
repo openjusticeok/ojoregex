@@ -5,6 +5,7 @@
 #' @param data A data frame containing the dataset to be processed.
 #' @param col_to_clean The name of the column in the dataset containing the charge descriptions to be cleaned and categorized.
 #' @param .keep_flags Logical value indicating whether to keep the concept flags generated during processing. Defaults to FALSE, which returns only the cleaned dataset without the flags.
+#' @param .include_cats Logical value indiciating whether the categories / subcategories should be included in the returned data
 #'
 #' @return A cleaned and categorized dataset with charge descriptions in the specified column, along with any additional columns present in the original dataset.
 #'
@@ -18,7 +19,7 @@
 #' # Apply OJO Regex to clean and categorize charge descriptions
 #' cleaned_data <- apply_ojo_regex(data = example_data, col_to_clean = "charge_description")
 #'}
-apply_ojo_regex <- function(data,
+ojo_apply_regex <- function(data,
                             col_to_clean = "count_as_filed",
                             .keep_flags = FALSE,
                             .include_cats = TRUE
@@ -48,7 +49,7 @@ apply_ojo_regex <- function(data,
   # save(ojo_regex_cats, file = here::here("data", "ojo_regex_cats.rda"))
 
   # Load the regex data
-  regex <- ojo_regex_flags
+  regex <- ojoregex::ojo_regex_flags
 
   # Creating a list of groups and their relevant flags also (like cds | meth | paraphernalia ... = any_drugs)
   # these should all start with any_ prefix
@@ -384,12 +385,12 @@ apply_ojo_regex <- function(data,
 
   # Join on categories from the ojo_regex_cats data
   if(.include_cats) {
-  ojo_regex_cats_tidy <- ojo_regex_cats |>
-    select("clean_charge_description", "category", "subcategory", "title", "statutes", "chapter")
+  ojo_regex_cats_tidy <- ojoregex::ojo_regex_cats |>
+    dplyr::select("clean_charge_description", "category", "subcategory", "title", "statutes", "chapter")
 
   clean_data <- clean_data |>
-    left_join(ojo_regex_cats_tidy,
-              by = join_by({{ clean_col_name }} == "clean_charge_description"))
+    dplyr::left_join(ojo_regex_cats_tidy,
+                     by = dplyr::join_by({{ clean_col_name }} == "clean_charge_description"))
 
   # true_clean_data is the original data + the final categories, no flags
   true_clean_data <- clean_data |>
