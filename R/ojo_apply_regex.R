@@ -75,7 +75,9 @@ ojo_apply_regex <- function(data,
     dplyr::mutate(
       # This removes "... in concert with _____"
       !!paste0(col_to_clean, "_clean") := ojoregex::regex_pre_clean(!!dplyr::sym(col_to_clean))
-    )
+    ) |>
+    # Remove all unnecessary columns; they will be added back at the end to avoid name issues
+    dplyr::select({{ col_to_clean }})
 
   # Apply function over every row of the dataset... ------------------------------
   cli::cli_progress_bar(
@@ -109,6 +111,7 @@ ojo_apply_regex <- function(data,
   # Categorizing
 
   clean_data <- flagged_data |>
+    dplyr::distinct(!!sym(col_to_clean), .keep_all = TRUE) |>
     dplyr::mutate(
       # Earlier ones will overwrite later ones, so the order is important!
       !!paste0(col_to_clean, "_clean") := dplyr::case_when(
@@ -381,6 +384,14 @@ ojo_apply_regex <- function(data,
       ),
       # Cleaned charge CATEGORIES (i.e. "drug related", "property crime", "violent crime", etc.)
       # category = dplyr::case_when(...)
+    )
+
+  # Add original columns back on
+  clean_data <- data |>
+    left_join(
+      clean_data,
+      by = {{ col_to_clean }},
+      suffix = c("", "_flag") # If a column in data is the same as a flag name, add _flag suffix after
     )
 
   # Join on categories from the ojo_regex_cats data

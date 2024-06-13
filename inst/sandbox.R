@@ -3,24 +3,25 @@ library(ojodb)
 library(tidyverse)
 library(tictoc)
 
-# ds <- ojo_crim_cases(
-#   districts = "all",
-#   case_types = c("CF", "CM", "TR"),
-#   file_years = 2000:2024,
-# ) |>
-#   ojo_collect()
-#
+ds <- ojo_crim_cases(
+  districts = "all",
+  case_types = c("CF", "CM"),
+  file_years = 2022:2022,
+) |>
+  ojo_collect()
+
 # write_rds(ds, "./data/test-data-all.rds")
 #
 # beepr::beep()
 
 # ds <- read_rds("./data/test-data-tr-all.rds")
-ds <- read_rds("./data/test-data-all.rds")
+# ds <- read_rds("./data/test-data-all.rds")
 
 # Using new regex --------------------------------------------------------------
 tic()
 final <- ds |>
-  ojoregex::apply_ojo_regex(col_to_clean = "count_as_filed",
+  mutate(grand = "test :D") |>
+  ojoregex::ojo_apply_regex(col_to_clean = "count_as_filed",
                             .keep_flags = FALSE)
 toc()
 
