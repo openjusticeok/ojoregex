@@ -20,7 +20,7 @@ ojo_get_flag_regex <- function(flag = NA) {
     dplyr::pull(var = regex)
 
   # Case insensitive
-  paste0("(?!)", regex)
+  paste0("(?i)", regex)
 
 }
 
