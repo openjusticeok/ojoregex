@@ -41,7 +41,7 @@ ojo_apply_regex <- function(data,
   #                                              sheet = "Regex Flag List")
   # ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
   #                                             sheet = "Clean Categories List",
-  #                                             col_types = "lccccccccccccc") |>
+  #                                             col_types = "lcccccccccccccc") |>
   #   dplyr::filter(in_ojoregex == TRUE)
   #
   # # Save the regex data to the package data
@@ -401,7 +401,8 @@ ojo_apply_regex <- function(data,
   # Join on categories from the ojo_regex_cats data
   if(.include_cats) {
   ojo_regex_cats_tidy <- ojoregex::ojo_regex_cats |>
-    dplyr::select("clean_charge_description", "category", "subcategory", "title", "statutes", "chapter")
+    dplyr::select("clean_charge_description", "category", "subcategory", "title",
+                  "statutes", "chapter", "cf_cm", "sq780_status")
 
   clean_data <- clean_data |>
     dplyr::left_join(ojo_regex_cats_tidy,
@@ -412,7 +413,8 @@ ojo_apply_regex <- function(data,
     dplyr::select({{ col_to_clean }},
                   paste0(col_to_clean, "_clean"),
                   data_names,
-                  "category", "subcategory", "title", "statutes", "chapter")
+                  "category", "subcategory", "title", "statutes", "chapter", "cf_cm",
+                  "sq780_status") # Might not be needed long term?
 
   } else {
     # Clean this up, you're being lazy

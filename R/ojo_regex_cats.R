@@ -16,5 +16,6 @@
 #'   \item{cf_cm_notes}{Description of cf_cm_notes}
 #'   \item{outdated}{Description of outdated}
 #'   \item{notes}{Description of notes}
+#'   \item{sq780_status}{Description of sq780_status}
 #' }
 "ojo_regex_cats"

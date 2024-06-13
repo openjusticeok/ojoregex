@@ -21,6 +21,7 @@ A data frame with X rows and 13 columns:
 \item{cf_cm_notes}{Description of cf_cm_notes}
 \item{outdated}{Description of outdated}
 \item{notes}{Description of notes}
+\item{sq780_status}{Description of sq780_status}
 }
 }
 \usage{

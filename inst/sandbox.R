@@ -22,7 +22,7 @@ tic()
 final <- ds |>
   mutate(grand = "test :D") |>
   ojoregex::ojo_apply_regex(col_to_clean = "count_as_filed",
-                            .keep_flags = FALSE)
+                            .keep_flags = FALSE, .include_cats = TRUE)
 toc()
 
 # Percent categorized:
