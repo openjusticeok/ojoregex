@@ -64,9 +64,13 @@ ojo_apply_regex <- function(data,
   # Creating function to apply the patterns --------------------------------------
   apply_regex_pattern <- function(data, flag, regex_pattern) {
     data |>
+      # dplyr::mutate(
+      #   !!flag := stringr::str_detect(!!dplyr::sym(col_to_clean),
+      #                                 stringr::regex(regex_pattern, ignore_case = TRUE))
+      # )
       dplyr::mutate(
-        !!flag := stringr::str_detect(!!dplyr::sym(col_to_clean),
-                                      stringr::regex(regex_pattern, ignore_case = TRUE))
+        !!flag := stringi::stri_detect(str = !!dplyr::sym(col_to_clean),
+                                       regex = paste0("(?i)", regex_pattern)) # Case insensitive
       )
   }
 
