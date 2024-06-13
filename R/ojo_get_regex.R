@@ -11,13 +11,17 @@
 ojo_get_flag_regex <- function(flag = NA) {
 
   if(!flag %in% ojo_regex_flags$flag) {
-  # rlang::arg_match(arg = flag, values = ojo_regex_flags$flag)
+    # rlang::arg_match(arg = flag, values = ojo_regex_flags$flag)
     rlang::abort("That flag was not found in the list.")
   }
 
-  ojoregex::ojo_regex_flags |>
+  regex <- ojoregex::ojo_regex_flags |>
     dplyr::filter(flag == {{ flag }}) |>
     dplyr::pull(var = regex)
+
+  # Case insensitive
+  paste0("(?!)", regex)
+
 }
 
 #' Return OJO Regex for a given statute
