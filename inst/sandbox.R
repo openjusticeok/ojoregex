@@ -3,12 +3,12 @@ library(ojodb)
 library(tidyverse)
 library(tictoc)
 
-ds <- ojo_crim_cases(
-  districts = "all",
-  case_types = c("CF", "CM"),
-  file_years = 2022:2022,
-) |>
-  ojo_collect()
+# ds <- ojo_crim_cases(
+#   districts = "all",
+#   case_types = c("CF", "CM"),
+#   file_years = 2022:2022,
+# ) |>
+#   ojo_collect()
 
 # write_rds(ds, "./data/test-data-all.rds")
 #
@@ -16,6 +16,7 @@ ds <- ojo_crim_cases(
 
 # ds <- read_rds("./data/test-data-tr-all.rds")
 # ds <- read_rds("./data/test-data-all.rds")
+ds <- read_csv("~/Documents/GitHub/loft-sq781-estimate/local/cm_cf_2001_2023.csv")
 
 # Using new regex --------------------------------------------------------------
 tic()
