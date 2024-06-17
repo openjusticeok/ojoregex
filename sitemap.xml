@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/404.html</loc>
+  </url>
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/authors.html</loc>
+  </url>
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/index.html</loc>
+  </url>
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/reference/ojo_apply_regex.html</loc>
+  </url>
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/reference/ojo_get_flag_regex.html</loc>
+  </url>
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/reference/ojo_get_statute_regex.html</loc>
+  </url>
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/reference/ojo_regex_cats.html</loc>
+  </url>
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/reference/ojo_regex_flags.html</loc>
+  </url>
+  <url>
+    <loc>https://openjusticeok.github.io/ojoregex/reference/regex_pre_clean.html</loc>
+  </url>
+</urlset>
