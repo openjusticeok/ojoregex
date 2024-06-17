@@ -5,23 +5,25 @@ library(tictoc)
 
 # ds <- ojo_crim_cases(
 #   districts = "all",
-#   case_types = c("CF", "CM", "TR"),
-#   file_years = 2000:2024,
+#   case_types = c("CF", "CM"),
+#   file_years = 2022:2022,
 # ) |>
 #   ojo_collect()
-#
+
 # write_rds(ds, "./data/test-data-all.rds")
 #
 # beepr::beep()
 
 # ds <- read_rds("./data/test-data-tr-all.rds")
-ds <- read_rds("./data/test-data-all.rds")
+# ds <- read_rds("./data/test-data-all.rds")
+ds <- read_csv("~/Documents/GitHub/loft-sq781-estimate/local/cm_cf_2001_2023.csv")
 
 # Using new regex --------------------------------------------------------------
 tic()
 final <- ds |>
-  ojoregex::apply_ojo_regex(col_to_clean = "count_as_filed",
-                            .keep_flags = FALSE)
+  mutate(grand = "test :D") |>
+  ojoregex::ojo_apply_regex(col_to_clean = "count_as_filed",
+                            .keep_flags = FALSE, .include_cats = TRUE)
 toc()
 
 # Percent categorized:
@@ -49,7 +51,7 @@ explore <- final |>
 remaining_nas <- final |>
   filter(is.na(count_as_filed_clean),
          !is.na(count_as_filed)) |>
-  select(-c(id, district, case_number, case_type, date_filed, date_closed, counts, open_counts, disposition,
+  select(-c(id, district, case_number, case_type, date_filed, date_closed, open_counts, disposition,
             count_as_filed_clean)) |>
   group_by(count_as_filed) |>
   mutate(n = n()) |>
@@ -64,7 +66,7 @@ remaining_nas |>
 #
 
 final |>
-  filter(str_detect(count_as_filed_clean, "Obstruction")) |>
+  # filter(str_detect(count_as_filed_clean, "Obstruction")) |>
   # distinct(count_as_filed, .keep_all = TRUE) |>
   count(count_as_filed, count_as_filed_clean, sort = T) |> view()
 

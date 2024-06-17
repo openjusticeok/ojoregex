@@ -41,7 +41,7 @@ ojo_apply_regex <- function(data,
   #                                              sheet = "Regex Flag List")
   # ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
   #                                             sheet = "Clean Categories List",
-  #                                             col_types = "lccccccccccccc") |>
+  #                                             col_types = "lcccccccccccccc") |>
   #   dplyr::filter(in_ojoregex == TRUE)
   #
   # # Save the regex data to the package data
@@ -64,9 +64,13 @@ ojo_apply_regex <- function(data,
   # Creating function to apply the patterns --------------------------------------
   apply_regex_pattern <- function(data, flag, regex_pattern) {
     data |>
+      # dplyr::mutate(
+      #   !!flag := stringr::str_detect(!!dplyr::sym(col_to_clean),
+      #                                 stringr::regex(regex_pattern, ignore_case = TRUE))
+      # )
       dplyr::mutate(
-        !!flag := stringr::str_detect(!!dplyr::sym(col_to_clean),
-                                      stringr::regex(regex_pattern, ignore_case = TRUE))
+        !!flag := stringi::stri_detect(str = !!dplyr::sym(col_to_clean),
+                                       regex = paste0("(?i)", regex_pattern)) # Case insensitive
       )
   }
 
@@ -75,7 +79,9 @@ ojo_apply_regex <- function(data,
     dplyr::mutate(
       # This removes "... in concert with _____"
       !!paste0(col_to_clean, "_clean") := ojoregex::regex_pre_clean(!!dplyr::sym(col_to_clean))
-    )
+    ) |>
+    # Remove all unnecessary columns; they will be added back at the end to avoid name issues
+    dplyr::select({{ col_to_clean }})
 
   # Apply function over every row of the dataset... ------------------------------
   cli::cli_progress_bar(
@@ -109,6 +115,7 @@ ojo_apply_regex <- function(data,
   # Categorizing
 
   clean_data <- flagged_data |>
+    dplyr::distinct(!!sym(col_to_clean), .keep_all = TRUE) |>
     dplyr::mutate(
       # Earlier ones will overwrite later ones, so the order is important!
       !!paste0(col_to_clean, "_clean") := dplyr::case_when(
@@ -325,6 +332,9 @@ ojo_apply_regex <- function(data,
         # Emergency phone call -------------------------------------------------
         emergency & (phone | call) ~ "Interfering With Emergency Call",
 
+        # Gang related offense -------------------------------------------------
+        gang ~ "Gang Related Offense",
+
         # =====================================================================================================================
         # Traffic / Motor Vehicles ============================================================================================
         # Basic Traffic Stuff --------------------------------------------------
@@ -383,10 +393,19 @@ ojo_apply_regex <- function(data,
       # category = dplyr::case_when(...)
     )
 
+  # Add original columns back on
+  clean_data <- data |>
+    left_join(
+      clean_data,
+      by = {{ col_to_clean }},
+      suffix = c("", "_flag") # If a column in data is the same as a flag name, add _flag suffix after
+    )
+
   # Join on categories from the ojo_regex_cats data
   if(.include_cats) {
   ojo_regex_cats_tidy <- ojoregex::ojo_regex_cats |>
-    dplyr::select("clean_charge_description", "category", "subcategory", "title", "statutes", "chapter")
+    dplyr::select("clean_charge_description", "category", "subcategory", "title",
+                  "statutes", "chapter", "cf_cm", "sq780_status")
 
   clean_data <- clean_data |>
     dplyr::left_join(ojo_regex_cats_tidy,
@@ -397,7 +416,8 @@ ojo_apply_regex <- function(data,
     dplyr::select({{ col_to_clean }},
                   paste0(col_to_clean, "_clean"),
                   data_names,
-                  "category", "subcategory", "title", "statutes", "chapter")
+                  "category", "subcategory", "title", "statutes", "chapter", "cf_cm",
+                  "sq780_status") # Might not be needed long term?
 
   } else {
     # Clean this up, you're being lazy
