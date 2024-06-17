@@ -51,7 +51,7 @@ explore <- final |>
 remaining_nas <- final |>
   filter(is.na(count_as_filed_clean),
          !is.na(count_as_filed)) |>
-  select(-c(id, district, case_number, case_type, date_filed, date_closed, counts, open_counts, disposition,
+  select(-c(id, district, case_number, case_type, date_filed, date_closed, open_counts, disposition,
             count_as_filed_clean)) |>
   group_by(count_as_filed) |>
   mutate(n = n()) |>
@@ -66,7 +66,7 @@ remaining_nas |>
 #
 
 final |>
-  filter(str_detect(count_as_filed_clean, "Obstruction")) |>
+  # filter(str_detect(count_as_filed_clean, "Obstruction")) |>
   # distinct(count_as_filed, .keep_all = TRUE) |>
   count(count_as_filed, count_as_filed_clean, sort = T) |> view()
 
