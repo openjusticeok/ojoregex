@@ -32,6 +32,22 @@ cli::cli_alert_success(
 )
 beepr::beep()
 
+final |>
+  filter(
+    count_as_filed_clean == "CDS (Other / Unspecified)",
+    !str_detect(count_as_filed, ojo_get_flag_regex(flag = "manufacture")), # no "Manufacturing"
+    !str_detect(count_as_filed, ojo_get_flag_regex(flag = "intoxication")), # no DWI or public intox
+    !str_detect(count_as_filed, ojo_get_flag_regex(flag = "under_the_influence")),
+    !str_detect(count_as_filed, ojo_get_flag_regex(flag = "forge")), # no "obtain by fraud"
+    !str_detect(count_as_filed, "(?i)telecom"), # No "use of telecom device in cds transaction"
+    !str_detect(count_as_filed, "(?i)cult"), # no "cultivation of cds"
+    !str_detect(count_as_filed, ojo_get_flag_regex(flag = "deliver")), # no "delivery of cds"
+    !str_detect(count_as_filed, "(?i)traff") # no "trafficking"
+  ) |>
+  distinct(count_as_filed) |>
+  view()
+
+
 # # Classifications rundown
 # final |>
 #   # filter(str_detect(count_as_filed_clean, "Fraud")) |>
