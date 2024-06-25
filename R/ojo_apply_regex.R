@@ -132,7 +132,7 @@ ojo_apply_regex <- function(data,
         any_drugs & possess & !traffic_or_traffick & !distribution & !intent &
           !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
           !maintain_keep & !manufacture & !litter & !larceny & !jail_penal &
-          !school & !park ~ "CDS Possession (Simple)",
+          !school & !park & !deliver ~ "CDS Possession (Simple)",
         any_drugs & possess & (school | park | child) ~ "CDS Possession (Proximate to School, Park, or Minor)",
         # any_drugs & jail_penal ~ "CDS Possession (in Jail / Prison)",
         # Actually think I should just have a generic "contraband in jail" charge, that seems to be how it's used
@@ -140,13 +140,13 @@ ojo_apply_regex <- function(data,
         any_drugs & larceny ~ "Larceny of a CDS",
         any_drugs & paraphernalia ~ "CDS Paraphernalia Possession / Distribution",
         any_drugs & intent & possess & (traffic_or_traffick | distribution) ~ "CDS Possession With Intent (PWID)",
-        any_drugs & (traffic_or_traffick | distribution) & !possess & !paraphernalia ~ "CDS Trafficking / Distribution",
+        any_drugs & (traffic_or_traffick | distribution | deliver) & !possess & !paraphernalia ~ "CDS Trafficking / Distribution",
         any_drugs & fraud ~ "Obtain CDS by Fraud",
         # Sometimes it will just say "Marijuana", etc.
         any_drugs & !possess & !traffic_or_traffick & !distribution & !intent &
           !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
           !maintain_keep & !litter & !larceny & !jail_penal &
-          !school & !park & !drive ~ "CDS (Other / Unspecified)",
+          !school & !park & !drive & !throw ~ "CDS (Other / Unspecified)",
 
         # Drug / Tax Stuff -----------------------------------------------------
         any_drugs & stamp ~ "CDS Possession (Tax Stamp)",
