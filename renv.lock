@@ -1304,12 +1304,13 @@
     "ojodb": {
       "Package": "ojodb",
       "Version": "2.9.0",
-      "Source": "GitHub",
-      "RemoteType": "github",
+      "Source": "git",
+      "RemoteType": "git",
+      "RemoteUrl": "https://github.com/openjusticeok/ojodb",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "ojodb",
       "RemoteUsername": "openjusticeok",
-      "RemoteRef": "HEAD",
+      "RemoteRepo": "ojodb",
+      "RemoteRef": "main",
       "RemoteSha": "556fae2035576dd4c1aa2ddca02ff3d38b423315",
       "Requirements": [
         "DBI",
@@ -1331,7 +1332,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "ada71e55613f511690bc31bd6ba45576"
+      "Hash": "454233fe577e77e97946efb9b946a9c5"
     },
     "openssl": {
       "Package": "openssl",
