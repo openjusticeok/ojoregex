@@ -38,6 +38,12 @@
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/oscn-appendix.html">Appendix: Clean OSCN Charge Descriptions</a>
+  </div>
+</li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
@@ -56,13 +62,13 @@
 <p>This will be a package inside of the <code>{ojoverse}</code> family. It will only contain a few things:</p>
 <ul>
 <li>Datasets of regex patterns that we’ve defined for cleaning charge descriptions, etc.</li>
-<li>A function for applying / joining those categories to a table from <code>{ojodb}</code>
+<li>A function for applying / joining those categories to a table from <a href="https://github.com/openjusticeok/ojodb" class="external-link">ojodb</a>
 <ul>
 <li>This will have a few layers to it</li>
 </ul>
 </li>
 </ul>
-<p>The idea is that we want to be able to tweak / update our regexes whenever we want, without having to do a breaking change to <code>{ojodb}</code>. We want people to be able to use any version of the package with any version of the regex, and you should be able to stay with “version 1.3” of the regex or whatever if you need to.</p>
+<p>The idea is that we want to be able to tweak / update our regexes whenever we want, without having to do a breaking change to <a href="https://github.com/openjusticeok/ojodb" class="external-link">ojodb</a>. We want people to be able to use any version of the package with any version of the regex, and you should be able to stay with “version 1.3” of the regex or whatever if you need to.</p>
 </div>
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
