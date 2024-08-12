@@ -41,7 +41,7 @@ ojo_apply_regex <- function(data,
   #                                              sheet = "Regex Flag List")
   # ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
   #                                             sheet = "Clean Categories List",
-  #                                             col_types = "lcccccccccccccl") |>
+  #                                             col_types = "lcccccccccccccll") |>
   #   dplyr::filter(in_ojoregex == TRUE)
   #
   # # Save the regex data to the package data
