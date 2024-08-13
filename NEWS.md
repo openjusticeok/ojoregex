@@ -1,3 +1,5 @@
+# ojoregex 0.6.0
+
 # ojoregex 0.5.1
 
 * Fixed a bug with the `violent_crimes_list` column not being included in the returned result.
