@@ -1,5 +1,8 @@
 # ojoregex 0.6.0
 
+* Changed the appendix from a vignette to an article in the `ojoregex` package documentation.
+* Added `update_datasets()` function to update the datasets in the package from the Big Ol Regex Spreadsheet.
+
 # ojoregex 0.5.1
 
 * Fixed a bug with the `violent_crimes_list` column not being included in the returned result.
