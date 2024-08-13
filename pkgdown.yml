@@ -3,7 +3,7 @@ pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
   oscn-appendix: oscn-appendix.html
-last_built: 2024-08-13T20:06Z
+last_built: 2024-08-13T20:50Z
 urls:
   reference: https://openjusticeok.github.io/ojoregex/reference
   article: https://openjusticeok.github.io/ojoregex/articles
