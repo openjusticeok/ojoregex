@@ -17,5 +17,6 @@
 #'   \item{outdated}{Description of outdated}
 #'   \item{notes}{Description of notes}
 #'   \item{sq780_status}{Description of sq780_status}
+#'   \item{violent_crimes_list}{Description of violent_crime_list}
 #' }
 "ojo_regex_cats"

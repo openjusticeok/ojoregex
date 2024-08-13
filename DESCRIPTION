@@ -7,10 +7,12 @@ Description: This package houses all the regex strings we use in our work. The m
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports:
   cli,
   dplyr,
+  googlesheets4,
+  here,
   rlang,
   stringi,
   stringr
@@ -20,3 +22,7 @@ Depends:
     R (>= 3.5.0)
 LazyData: true
 URL: https://openjusticeok.github.io/ojoregex/
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

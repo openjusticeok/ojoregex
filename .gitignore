@@ -48,3 +48,4 @@ vignettes/*.pdf
 data/*.rds
 crim-data.rds
 docs
+inst/doc

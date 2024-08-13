@@ -10,19 +10,16 @@ library(tictoc)
 # ) |>
 #   ojo_collect()
 
-# write_rds(ds, "./data/test-data-all.rds")
+# write_rds(ds, "/mnt/data/data/test-data-all.rds")
 #
 # beepr::beep()
 
-# ds <- read_rds("./data/test-data-tr-all.rds")
-# ds <- read_rds("./data/test-data-all.rds")
-ds <- read_csv("~/Documents/GitHub/loft-sq781-estimate/local/cm_cf_2001_2023.csv")
+ds <- read_rds("/mnt/data/data/test-data-tr-all.rds")
 
 # Using new regex --------------------------------------------------------------
 tic()
 final <- ds |>
-  mutate(grand = "test :D") |>
-  head(1000) |>
+  head(10000) |>
   ojoregex::ojo_apply_regex(col_to_clean = "count_as_filed",
                             .keep_flags = FALSE, .include_cats = TRUE)
 toc()
