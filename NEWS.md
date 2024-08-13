@@ -1,3 +1,7 @@
+# ojoregex 0.6.1
+
+* Made `update_datasets()` non-exported, since it's intended to be used only during development.
+
 # ojoregex 0.6.0
 
 * Changed the appendix from a vignette to an article in the `ojoregex` package documentation.
