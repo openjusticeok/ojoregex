@@ -22,6 +22,7 @@ ds <- read_csv("~/Documents/GitHub/loft-sq781-estimate/local/cm_cf_2001_2023.csv
 tic()
 final <- ds |>
   mutate(grand = "test :D") |>
+  head(1000) |>
   ojoregex::ojo_apply_regex(col_to_clean = "count_as_filed",
                             .keep_flags = FALSE, .include_cats = TRUE)
 toc()

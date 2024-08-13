@@ -405,7 +405,7 @@ ojo_apply_regex <- function(data,
   if(.include_cats) {
   ojo_regex_cats_tidy <- ojoregex::ojo_regex_cats |>
     dplyr::select("clean_charge_description", "category", "subcategory", "title",
-                  "statutes", "chapter", "cf_cm", "sq780_status")
+                  "statutes", "chapter", "cf_cm", "sq780_status", "violent_crimes_list")
 
   clean_data <- clean_data |>
     dplyr::left_join(ojo_regex_cats_tidy,
@@ -417,7 +417,7 @@ ojo_apply_regex <- function(data,
                   paste0(col_to_clean, "_clean"),
                   data_names,
                   "category", "subcategory", "title", "statutes", "chapter", "cf_cm",
-                  "sq780_status") # Might not be needed long term?
+                  "sq780_status", "violent_crimes_list") # Might not be needed long term?
 
   } else {
     # Clean this up, you're being lazy
