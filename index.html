@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">ojoregex</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,18 +52,65 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="ojoregex">ojoRegex<a class="anchor" aria-label="anchor" href="#ojoregex"></a>
+<div class="page-header"><h1 id="the-ojoregex-package">The <code>ojoRegex</code> package<a class="anchor" aria-label="anchor" href="#the-ojoregex-package"></a>
 </h1></div>
-<p>This will be a package inside of the <code>{ojoverse}</code> family. It will only contain a few things:</p>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>This package includes functions to clean our data sources. It is part of the <code>ojoverse</code>. Currently, it focuses on cleaning hand-entered charge descriptions from court / jail / etc. data.</p>
 <ul>
-<li>Datasets of regex patterns that we’ve defined for cleaning charge descriptions, etc.</li>
-<li>A function for applying / joining those categories to a table from <a href="https://github.com/openjusticeok/ojodb" class="external-link">ojodb</a>
+<li>Analysts can use the <code><a href="reference/ojo_apply_regex.html">ojoregex::ojo_apply_regex()</a></code> function to clean hand-entered charge description data, from OSCN, OCDC, or elsewhere. It works best with OSCN data, since that’s what it was primarily built for thus far.</li>
+<li>It also includes a table of notes on all the charges it covers. This table includes the relevant statutes, the circumstances where the charge is a felony or a misdemeanor, SQ 780 relevance, violent crime status, and other useful notes, all of which are structured such that they can easily be joined onto any dataset with the <code>ojo_apply_regex(.include_cats = TRUE)</code> function / argument.</li>
+<li>To make development easier, all the flags and categories / notes are stored and edited in a Google Sheet known as the <a href="https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?gid=0#gid=0" class="external-link">Big Ol Regex Sheet</a>. We don’t want our code directly relying on that connection though, so a copy is saved as a .RDS file in each version of ojoRegex.</li>
+</ul>
+<div class="float">
+<img src="https://github.com/user-attachments/assets/9b6c307d-f7fe-4a21-a5ea-fa93370468d9" alt="image"><div class="figcaption">image</div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="methodology">Methodology<a class="anchor" aria-label="anchor" href="#methodology"></a>
+</h2>
+<p>The <code>ojoRegex</code> package uses <strong>concept flags</strong> to categorize charge descriptions into clean, consistent categories.</p>
 <ul>
-<li>This will have a few layers to it</li>
+<li>“Concept flags” are just concepts that commonly appear in charge descriptions — things like “attempted”, “within 1,000 feet”, “robbery”, “deadly weapon”, etc. — and each has an associated regex pattern to find it.
+<ul>
+<li>For example, the flag <strong>registration</strong> (which is used to find charges like “failure to register as a sex offender”, “driving vehicle without proper registration”, etc.) has the regex pattern <code>regist|\b(reg|regis)\b</code> . I created this flag by perusing the charges in the data, and identifying the simplest pattern that would capture all the instances of the concept. In this case, I was able to do so by matching all instances of the string “regist” (this covered all the typos I could find too), and by matching the complete word “reg” or “regis”, which were common shortenings I found in the data.
+<ul>
+<li>The word boundary round the abbreviated words is really important in this one; without it, this flag would get applied to anything with a “reg” in it anywhere, like “<strong>reg</strong>ulate” or “p<strong>reg</strong>nant”.</li>
+<li>This one is fairly simple, but hopefully it illustrates the process of making these flags.</li>
+</ul>
+</li>
+<li>As of Aug 13, 2024, there are nearly 240 concept flags in the <code>ojoRegex</code> package.</li>
+</ul>
+</li>
+<li>Analysts start by calling the <code>ojoRegex::ojo_apply_regex()</code> function on their dataset, specifying the column to be cleaned. They can also specify whether they want the notes and categories for each charge included in the result (<code>.include_cats = TRUE</code>), and whether they want all 240 concept flags (<code>.keep_flags = TRUE</code>).
+<ul>
+<li>
+<code><a href="reference/ojo_apply_regex.html">ojo_apply_regex()</a></code> starts by pre-cleaning the data with <code><a href="reference/regex_pre_clean.html">regex_pre_clean()</a></code>, removing common extraneous things like “IN CONCERT WITH BILLY BOB” that can screw up the regex with false positives. The pre-cleaning steps live in <a href="https://github.com/openjusticeok/ojoregex/blob/main/R/pre_clean.R" class="external-link"><code>pre_clean.R</code></a>.</li>
+<li>Next, it checks each charge description in the dataset for all of the 200+ concept flags. This is pretty memory intensive and can take a while; it’s probably the single most inefficient part of this whole thing. Afterwards, the data have 200+ new columns with <code>TRUE</code> or <code>FALSE</code> depending on whether each concept is present.</li>
+<li>Next, it uses a giant <code>case_when()</code> call to classify each charge description into a cleaned category. It does this by <strong>combining the flags</strong> in meaningful ways.
+<ul>
+<li>For example, the following line defines the pattern for Grand Larceny: <code>larceny &amp; grand &amp; !petit &amp; !any_drugs ~ "Larceny (Grand)",</code> In other words, if the uncleaned description says anything about larceny, anything about the word “grand”, nothing about the word “petit”, and nothing about drugs, it’s Grand Larceny.</li>
+<li>Conversely, here’s the line that defines Larceny of a CDS: <code>any_drugs &amp; larceny ~ "Larceny of a CDS",</code> Like the concept flags themselves, these were created by going back and forth with the data and tinkering with my definitions until the results looked the way I wanted them to look.</li>
+<li>This part can be a bit tricky to work with, because ideally we want these to be mutually exclusive categories. There are a few things to remember though:
+<ul>
+<li>First, the earlier lines will take precedence over the later ones. That’s why <code>accessory ~ "Accessory to a Felony"</code> is right at the top — if it says anything about accessory, I want it to be classified as “Accessory to a Felony” regardless of what the actual felony was. You can use this to override things, like in that case, and you can specify things at the end to act as a kind of “if it hasn’t been categorized already, do this” thing (this is the case for “Conspiracy” right now, for example). You should also just generally keep it in mind as you’re working with this function.</li>
+<li>Second, the hand-entered descriptions will often be ambiguous. Sometimes it will say “LARCENY (GRAND / PETIT)”, for example — how do we categorize that? For these, I’ve included extra “Other / Unspecified” categories, meaning in this case we’d classify it as “Larceny (Other / Unspecified)”.
+<ul>
+<li>This approach acknowledges the ambiguity, but leaves it up to the analyst to decide what to do about it in each specific case.</li>
+<li>I am only adding these where necessary, so most charges won’t have one of these. They’re most useful in cases where you’ve got several different kinds of a charge, like grand vs. petit larceny, or Burglary I vs. Burglary II, etc.</li>
 </ul>
 </li>
 </ul>
-<p>The idea is that we want to be able to tweak / update our regexes whenever we want, without having to do a breaking change to <a href="https://github.com/openjusticeok/ojodb" class="external-link">ojodb</a>. We want people to be able to use any version of the package with any version of the regex, and you should be able to stay with “version 1.3” of the regex or whatever if you need to.</p>
+</li>
+</ul>
+</li>
+<li>Finally, it joins categories and notes onto the cleaned charges (like whether the charge is a violent crime, drug crime, property crime, etc., whether it’s one of the charges amended by SQ 780, etc.) and returns the result.</li>
+</ul>
+</li>
+<li>You can see the results using <a href="https://openjusticeok.github.io/ojoregex/articles/oscn-appendix.html">the OSCN appendix</a>. Currently, it covers around 95% of all charge descriptions in CF / CM / TR cases from 2000 through 2023. We can keep adding new ones as needed until we have almost everything covered.</li>
+</ul>
+</div>
 </div>
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
