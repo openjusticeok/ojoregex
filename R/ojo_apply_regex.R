@@ -267,7 +267,7 @@ ojo_apply_regex <- function(data,
         # sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
 
         # Obstructing / Eluding ------------------------------------------------
-        (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
+        flight_to_avoid | ((resist | elude) & (officer | arrest)) & !obstruct ~ "Resisting / Eluding Officer",
         (obstruct & (officer | justice)) | obstruction_of_justice ~ "Obstruction of Justice",
 
         # VPO / Stalking -------------------------------------------------------
@@ -343,7 +343,7 @@ ojo_apply_regex <- function(data,
         fr5_code | ((failure | comply | no | compulsory) & (insurance | secure)) ~ "Driving Without Valid Insurance / Security",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag / Registration", # There are a couple of these...
         taxes_due ~ "Driving Without Proper Tag / Registration", # "taxes due to state"
-        (registration | tag) & (expire | violate | improper | alter) & !sex & !violence ~ "Driving Without Proper Tag / Registration",
+        (registration | tag) & (expire | violate | improper | alter | illegal) & !sex & !violence ~ "Driving Without Proper Tag / Registration",
         license & (improper | alter) ~ "Driving Without Proper Tag / Registration", # "Altered / Improper license plates"
 
         # Defective equipment --------------------------------------------------
@@ -369,6 +369,7 @@ ojo_apply_regex <- function(data,
         # This is at the end so that anything with "conspiracy" that already hasn't been categorized
         # will get put down as "Conspiracy (Other / Unspecified)"
         conspiracy ~ "Conspiracy (Other / Unspecified)",
+        hold_only ~ "Hold",
 
         # !!dplyr::sym(col_to_clean) == "DISMISSED" ~ "DISMISSED",
         dismiss ~ "ojoRegex Error: DISMISSED",
