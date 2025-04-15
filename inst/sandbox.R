@@ -36,6 +36,7 @@ ocdc <- read_rds("/mnt/data/data/ocdc-data.rds")
 # Using new regex --------------------------------------------------------------
 tic()
 final <- ocdc |>
+  select(arrest_no, charge_description, case_no) |>
   # filter(is.na(final_release_date_time)) |>
   ojoregex::ojo_apply_regex(col_to_clean = "charge_description",
                             .keep_flags = F,
@@ -56,6 +57,15 @@ final |>
 final |>
   filter(!is.na(charge_description_clean)) |>
   count(charge_description_clean, sort = T)
+
+summary <- final |>
+  group_by(arrest_no) |>
+  reframe(
+    list_charges = paste0(charge_description, collapse = ", "),
+    list_charges_clean = paste0(charge_description_clean, collapse = ", "),
+    n_charges = n(),
+    controlling_charge = charge_description_clean[which.max(control_rank)]
+  )
 
 # ------------
 

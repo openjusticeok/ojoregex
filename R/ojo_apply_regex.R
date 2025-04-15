@@ -392,22 +392,23 @@ ojo_apply_regex <- function(data,
   if(.include_cats) {
   ojo_regex_cats_tidy <- ojoregex::ojo_regex_cats |>
     dplyr::select("clean_charge_description", "category", "subcategory", "title",
-                  "statutes", "chapter", "cf_cm", "sq780_status", "violent_crimes_list")
+                  "statutes", "chapter", "cf_cm", "sq780_status", "violent_crimes_list",
+                  "control_rank")
 
   clean_data <- clean_data |>
     dplyr::left_join(ojo_regex_cats_tidy,
                      by = dplyr::join_by({{ clean_col_name }} == "clean_charge_description"))
 
-  # true_clean_data is the original data + the final categories, no flags
+  # true_clean_data is the original data + the final categories, WITHOUT FLAGS
   true_clean_data <- clean_data |>
     dplyr::select({{ col_to_clean }},
                   paste0(col_to_clean, "_clean"),
                   data_names,
                   "category", "subcategory", "title", "statutes", "chapter", "cf_cm",
-                  "sq780_status", "violent_crimes_list") # Might not be needed long term?
+                  "sq780_status", "violent_crimes_list", "control_rank") # Might not be needed long term?
 
   } else {
-    # Clean this up, you're being lazy
+    # if .include_cats == FALSE, then skip adding the categories dataset
     true_clean_data <- clean_data |>
       dplyr::select({{ col_to_clean }},
                     paste0(col_to_clean, "_clean"),
