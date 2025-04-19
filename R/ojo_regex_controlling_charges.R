@@ -54,10 +54,10 @@ ojo_add_controlling_charges <- function(ojo_regex_cats) {
       ),
       # Tie breakers
       control_rank = dplyr::case_when(
-        str_detect(clean_charge_description, "(?i)murder|manslau|homicid") ~ control_rank + 0.5,
-        str_detect(clean_charge_description, "(?i)rape|sex|molest") ~ control_rank + 0.4,
-        str_detect(clean_charge_description, "(?i)child") ~ control_rank + 0.3,
-        str_detect(clean_charge_description, "(?i)aggrivated|armed|weapon") ~ control_rank + 0.2,
+        stringr::str_detect(clean_charge_description, "(?i)murder|manslau|homicid") ~ control_rank + 0.5,
+        stringr::str_detect(clean_charge_description, "(?i)rape|sex|molest") ~ control_rank + 0.4,
+        stringr::str_detect(clean_charge_description, "(?i)child") ~ control_rank + 0.3,
+        stringr::str_detect(clean_charge_description, "(?i)aggrivated|armed|weapon") ~ control_rank + 0.2,
         TRUE ~ control_rank
       )
     )|>

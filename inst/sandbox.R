@@ -40,6 +40,7 @@ final <- ocdc |>
   # filter(is.na(final_release_date_time)) |>
   ojoregex::ojo_apply_regex(col_to_clean = "charge_description",
                             .keep_flags = F,
+                            .quiet = F,
                             .include_cats = TRUE)
 toc()
 

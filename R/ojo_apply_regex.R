@@ -22,7 +22,8 @@
 ojo_apply_regex <- function(data,
                             col_to_clean = "count_as_filed",
                             .keep_flags = FALSE,
-                            .include_cats = TRUE
+                            .include_cats = TRUE,
+                            .quiet = FALSE
                             ) {
 
   # Validate data ==============================================================
@@ -70,22 +71,24 @@ ojo_apply_regex <- function(data,
     dplyr::select({{ col_to_clean }})
 
   # Apply function over every row of the dataset... ------------------------------
-  cli::cli_progress_bar(
-    "Applying regex flags to data...",
-    total = nrow(regex),
-    clear = FALSE
-  )
+  if(!.quiet){
+    cli::cli_progress_bar(
+      "Applying regex flags to data...",
+      total = nrow(regex),
+      clear = FALSE
+    )
+  }
 
   for (i in seq(nrow(regex))) {
     flagged_data <- apply_regex_pattern(flagged_data,
                                         regex$flag[i],
                                         regex$regex[i])
 
-    cli::cli_progress_update()
-
+    if(!.quiet){ cli::cli_progress_update() }
   }
 
-  cli::cli_progress_done(result = "Done flagging data!")
+
+  if(!.quiet){ cli::cli_progress_done(result = "Done flagging data!") }
 
   # ...then, apply the groups where relevant... ----------------------------------
   for (j in seq(nrow(group_data))) {
