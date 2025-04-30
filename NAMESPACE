@@ -3,4 +3,5 @@
 export(ojo_apply_regex)
 export(ojo_get_flag_regex)
 export(ojo_get_statute_regex)
+export(ojo_regex_unhoused)
 export(regex_pre_clean)

@@ -6,6 +6,7 @@
 #' @param col_to_clean The name of the column in the dataset containing the charge descriptions to be cleaned and categorized.
 #' @param .keep_flags Logical value indicating whether to keep the concept flags generated during processing. Defaults to FALSE, which returns only the cleaned dataset without the flags.
 #' @param .include_cats Logical value indiciating whether the categories / subcategories should be included in the returned data
+#' @param .quiet Should the progress bar be shown?
 #'
 #' @return A cleaned and categorized dataset with charge descriptions in the specified column, along with any additional columns present in the original dataset.
 #'

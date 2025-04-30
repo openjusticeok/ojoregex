@@ -8,7 +8,8 @@ ojo_apply_regex(
   data,
   col_to_clean = "count_as_filed",
   .keep_flags = FALSE,
-  .include_cats = TRUE
+  .include_cats = TRUE,
+  .quiet = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ ojo_apply_regex(
 \item{.keep_flags}{Logical value indicating whether to keep the concept flags generated during processing. Defaults to FALSE, which returns only the cleaned dataset without the flags.}
 
 \item{.include_cats}{Logical value indiciating whether the categories / subcategories should be included in the returned data}
+
+\item{.quiet}{Should the progress bar be shown?}
 }
 \value{
 A cleaned and categorized dataset with charge descriptions in the specified column, along with any additional columns present in the original dataset.
