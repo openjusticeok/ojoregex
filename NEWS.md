@@ -1,3 +1,5 @@
+# ojoregex 0.7.0
+
 # ojoregex 0.6.1
 
 * Made `update_datasets()` non-exported, since it's intended to be used only during development.

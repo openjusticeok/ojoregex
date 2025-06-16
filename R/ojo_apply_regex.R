@@ -6,6 +6,7 @@
 #' @param col_to_clean The name of the column in the dataset containing the charge descriptions to be cleaned and categorized.
 #' @param .keep_flags Logical value indicating whether to keep the concept flags generated during processing. Defaults to FALSE, which returns only the cleaned dataset without the flags.
 #' @param .include_cats Logical value indiciating whether the categories / subcategories should be included in the returned data
+#' @param .quiet Should the progress bar be shown?
 #'
 #' @return A cleaned and categorized dataset with charge descriptions in the specified column, along with any additional columns present in the original dataset.
 #'
@@ -22,7 +23,8 @@
 ojo_apply_regex <- function(data,
                             col_to_clean = "count_as_filed",
                             .keep_flags = FALSE,
-                            .include_cats = TRUE
+                            .include_cats = TRUE,
+                            .quiet = FALSE
                             ) {
 
   # Validate data ==============================================================
@@ -70,22 +72,24 @@ ojo_apply_regex <- function(data,
     dplyr::select({{ col_to_clean }})
 
   # Apply function over every row of the dataset... ------------------------------
-  cli::cli_progress_bar(
-    "Applying regex flags to data...",
-    total = nrow(regex),
-    clear = FALSE
-  )
+  if(!.quiet){
+    cli::cli_progress_bar(
+      "Applying regex flags to data...",
+      total = nrow(regex),
+      clear = FALSE
+    )
+  }
 
   for (i in seq(nrow(regex))) {
     flagged_data <- apply_regex_pattern(flagged_data,
                                         regex$flag[i],
                                         regex$regex[i])
 
-    cli::cli_progress_update()
-
+    if(!.quiet){ cli::cli_progress_update() }
   }
 
-  cli::cli_progress_done(result = "Done flagging data!")
+
+  if(!.quiet){ cli::cli_progress_done(result = "Done flagging data!") }
 
   # ...then, apply the groups where relevant... ----------------------------------
   for (j in seq(nrow(group_data))) {
@@ -201,7 +205,7 @@ ojo_apply_regex <- function(data,
         # Murder / Intentional Homicide ----------------------------------------
         (shoot & kill & intent) | (weapon & automobile & !transport) | drive_by  ~ "Shooting With Intent to Kill",
         murder & (one | first) & !solicit ~ "Murder (First Degree)",
-        murder & (two | second) & !solicit ~ "Murder (Second Degree",
+        murder & (two | second) & !solicit ~ "Murder (Second Degree)",
         murder & solicit ~ "Solicting Murder",
         murder & !(solicit | one | first | two | second) ~ "Murder (Other / Unspecified)",
 
@@ -267,7 +271,7 @@ ojo_apply_regex <- function(data,
         # sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
 
         # Obstructing / Eluding ------------------------------------------------
-        (resist | elude) & (officer | arrest) & !obstruct ~ "Resisting / Eluding Officer",
+        flight_to_avoid | ((resist | elude) & (officer | arrest)) & !obstruct ~ "Resisting / Eluding Officer",
         (obstruct & (officer | justice)) | obstruction_of_justice ~ "Obstruction of Justice",
 
         # VPO / Stalking -------------------------------------------------------
@@ -343,7 +347,7 @@ ojo_apply_regex <- function(data,
         fr5_code | ((failure | comply | no | compulsory) & (insurance | secure)) ~ "Driving Without Valid Insurance / Security",
         (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag / Registration", # There are a couple of these...
         taxes_due ~ "Driving Without Proper Tag / Registration", # "taxes due to state"
-        (registration | tag) & (expire | violate | improper | alter) & !sex & !violence ~ "Driving Without Proper Tag / Registration",
+        (registration | tag) & (expire | violate | improper | alter | illegal) & !sex & !violence ~ "Driving Without Proper Tag / Registration",
         license & (improper | alter) ~ "Driving Without Proper Tag / Registration", # "Altered / Improper license plates"
 
         # Defective equipment --------------------------------------------------
@@ -369,6 +373,7 @@ ojo_apply_regex <- function(data,
         # This is at the end so that anything with "conspiracy" that already hasn't been categorized
         # will get put down as "Conspiracy (Other / Unspecified)"
         conspiracy ~ "Conspiracy (Other / Unspecified)",
+        hold_only ~ "Hold",
 
         # !!dplyr::sym(col_to_clean) == "DISMISSED" ~ "DISMISSED",
         dismiss ~ "ojoRegex Error: DISMISSED",
@@ -391,22 +396,23 @@ ojo_apply_regex <- function(data,
   if(.include_cats) {
   ojo_regex_cats_tidy <- ojoregex::ojo_regex_cats |>
     dplyr::select("clean_charge_description", "category", "subcategory", "title",
-                  "statutes", "chapter", "cf_cm", "sq780_status", "violent_crimes_list")
+                  "statutes", "chapter", "cf_cm", "sq780_status", "violent_crimes_list",
+                  "control_rank")
 
   clean_data <- clean_data |>
     dplyr::left_join(ojo_regex_cats_tidy,
                      by = dplyr::join_by({{ clean_col_name }} == "clean_charge_description"))
 
-  # true_clean_data is the original data + the final categories, no flags
+  # true_clean_data is the original data + the final categories, WITHOUT FLAGS
   true_clean_data <- clean_data |>
     dplyr::select({{ col_to_clean }},
                   paste0(col_to_clean, "_clean"),
                   data_names,
                   "category", "subcategory", "title", "statutes", "chapter", "cf_cm",
-                  "sq780_status", "violent_crimes_list") # Might not be needed long term?
+                  "sq780_status", "violent_crimes_list", "control_rank") # Might not be needed long term?
 
   } else {
-    # Clean this up, you're being lazy
+    # if .include_cats == FALSE, then skip adding the categories dataset
     true_clean_data <- clean_data |>
       dplyr::select({{ col_to_clean }},
                     paste0(col_to_clean, "_clean"),

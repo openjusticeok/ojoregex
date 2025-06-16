@@ -3,26 +3,75 @@ library(ojodb)
 library(tidyverse)
 library(tictoc)
 
-# ds <- ojo_crim_cases(
+# oscn <- ojo_crim_cases(
 #   districts = "all",
-#   case_types = c("CF", "CM"),
-#   file_years = 2022:2022,
+#   case_types = c("CF", "CM", "TR"),
+#   file_years = 2015:2025,
 # ) |>
 #   ojo_collect()
-
-# write_rds(ds, "/mnt/data/data/test-data-all.rds")
 #
-# beepr::beep()
+# write_rds(oscn, "/mnt/data/data/ocdc-data.rds")
+# oscn <- read_rds("/mnt/data/data/ocdc-data.rds")
 
-ds <- read_rds("/mnt/data/data/test-data-tr-all.rds")
+# ocdc <- current_charges <- ojo_tbl(schema = "ocdc_new", table = "arrest_info") |>
+#   filter(arrest_date_time >= "2020-01-01",
+#          record_deleted == "False") |>
+#   left_join(
+#     ojo_tbl(schema = "ocdc_new", table = "booking_info") |>
+#       filter(record_deleted == "False"),
+#     by = "arrest_no",
+#     suffix = c("_arrest", "_book")
+#   ) |>
+#   left_join(
+#     ojo_tbl(schema = "ocdc_new", table = "charges") |>
+#       filter(record_deleted == "False"),
+#     by = "arrest_no",
+#     suffix = c("_arrest", "_charge")
+#   ) |>
+#   ojo_collect()
+#
+# write_rds(ocdc, "/mnt/data/data/ocdc-data.rds")
+ocdc <- read_rds("/mnt/data/data/ocdc-data.rds")
 
 # Using new regex --------------------------------------------------------------
 tic()
-final <- ds |>
-  head(10000) |>
-  ojoregex::ojo_apply_regex(col_to_clean = "count_as_filed",
-                            .keep_flags = FALSE, .include_cats = TRUE)
+final <- ocdc |>
+  select(arrest_no, charge_description, case_no) |>
+  # filter(is.na(final_release_date_time)) |>
+  ojoregex::ojo_apply_regex(col_to_clean = "charge_description",
+                            .keep_flags = F,
+                            .quiet = F,
+                            .include_cats = TRUE)
 toc()
+
+# % classified:
+cli::cli_alert_success(
+  paste0(100 * round((final |> filter(!is.na(charge_description_clean)) |> nrow()) / nrow(final |> filter(!is.na(charge_description))), 4), "% Done!!")
+)
+
+# Remaining unclassified:
+final |>
+  filter(is.na(charge_description_clean)) |>
+  count(charge_description, sort = T)
+
+# Most common in data:
+final |>
+  filter(!is.na(charge_description_clean)) |>
+  count(charge_description_clean, sort = T)
+
+summary <- final |>
+  group_by(arrest_no) |>
+  reframe(
+    list_charges = paste0(charge_description, collapse = ", "),
+    list_charges_clean = paste0(charge_description_clean, collapse = ", "),
+    n_charges = n(),
+    controlling_charge = charge_description_clean[which.max(control_rank)]
+  )
+
+final |>
+  count(charge_description_clean, category, sort = T)
+
+# ------------
 
 # Percent categorized:
 cli::cli_alert_success(
@@ -117,8 +166,8 @@ final |>
              fill = count_as_filed_clean)) +
   geom_col() +
   facet_wrap(~case_type)
-  # facet_wrap(~district, scales = "free_y")
-  # guides(fill = "none")
+# facet_wrap(~district, scales = "free_y")
+# guides(fill = "none")
 
 
 # --- temp ---

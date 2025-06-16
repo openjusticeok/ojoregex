@@ -19,8 +19,9 @@ update_datasets <- function(email = NULL) {
                                                sheet = "Regex Flag List")
   ojo_regex_cats <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing",
                                               sheet = "Clean Categories List",
-                                              col_types = "lcccccccccccccll") |>
-    dplyr::filter(in_ojoregex == TRUE)
+                                              col_types = "lcccccccccccccccll") |>
+    dplyr::filter(in_ojoregex == TRUE) |>
+    ojo_add_controlling_charges()
 
   # Save the regex data to the package data
   save(ojo_regex_flags, file = here::here("data", "ojo_regex_flags.rda"))
