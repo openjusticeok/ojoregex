@@ -68,6 +68,9 @@ summary <- final |>
     controlling_charge = charge_description_clean[which.max(control_rank)]
   )
 
+final |>
+  count(charge_description_clean, category, sort = T)
+
 # ------------
 
 # Percent categorized:

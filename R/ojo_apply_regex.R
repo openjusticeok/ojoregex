@@ -205,7 +205,7 @@ ojo_apply_regex <- function(data,
         # Murder / Intentional Homicide ----------------------------------------
         (shoot & kill & intent) | (weapon & automobile & !transport) | drive_by  ~ "Shooting With Intent to Kill",
         murder & (one | first) & !solicit ~ "Murder (First Degree)",
-        murder & (two | second) & !solicit ~ "Murder (Second Degree",
+        murder & (two | second) & !solicit ~ "Murder (Second Degree)",
         murder & solicit ~ "Solicting Murder",
         murder & !(solicit | one | first | two | second) ~ "Murder (Other / Unspecified)",
 
