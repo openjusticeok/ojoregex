@@ -1,3 +1,9 @@
+# ojoregex 0.8.0
+
+* Remove `renv` from repo
+* Document globals
+* Declare dependencies used in vignettes
+
 # ojoregex 0.7.0
 
 # ojoregex 0.6.1

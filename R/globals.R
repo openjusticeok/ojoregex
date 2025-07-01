@@ -1,0 +1,12 @@
+utils::globalVariables(c(
+  "max_sentence_first_offense_type",
+  "max_sentence_first_offense",
+  "max_sentence_any_offense_type",
+  "max_sentence_any",
+  "max_sentence_first_time_in_doc",
+  "max_sentence_any_time_in_doc",
+  "group",
+  "flag",
+  "in_ojoregex",
+  "ojo_regex_flags"
+))
