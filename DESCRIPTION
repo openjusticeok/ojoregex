@@ -13,17 +13,19 @@ Imports:
   dplyr,
   googlesheets4,
   here,
-  ojodb,
+  lubridate,
+  readr,
   rlang,
   stringi,
   stringr
-Remotes:
-  openjusticeok/ojodb
+Suggests:
+  knitr,
+  ojodb,
+  rmarkdown
 Depends: 
     R (>= 3.5.0)
+Remotes:
+  openjusticeok/ojodb
 LazyData: true
 URL: https://openjusticeok.github.io/ojoregex/
-Suggests: 
-    knitr,
-    rmarkdown
 VignetteBuilder: knitr
