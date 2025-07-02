@@ -19,6 +19,7 @@ Imports:
   stringi,
   stringr
 Suggests:
+  gt,
   knitr,
   ojodb,
   rmarkdown
