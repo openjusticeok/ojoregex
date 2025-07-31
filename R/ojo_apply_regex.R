@@ -105,7 +105,7 @@ ojo_apply_regex <- function(data,
   # Categorizing
 
   clean_data <- flagged_data |>
-    dplyr::distinct(!!sym(col_to_clean), .keep_all = TRUE) |>
+    dplyr::distinct(!!dplyr::sym(col_to_clean), .keep_all = TRUE) |>
     dplyr::mutate(
       # Earlier ones will overwrite later ones, so the order is important!
       !!paste0(col_to_clean, "_clean") := dplyr::case_when(
@@ -386,7 +386,7 @@ ojo_apply_regex <- function(data,
 
   # Add original columns back on
   clean_data <- data |>
-    left_join(
+    dplyr::left_join(
       clean_data,
       by = {{ col_to_clean }},
       suffix = c("", "_flag") # If a column in data is the same as a flag name, add _flag suffix after
