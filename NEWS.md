@@ -1,5 +1,8 @@
 # ojoregex 0.9.0
 
+* Fixed a bug with "malicious injury to property" having two rows in the categories spreadsheet
+* Fixed some missing namespace prefixes
+
 # ojoregex 0.8.0
 
 * Remove `renv` from repo
@@ -7,6 +10,8 @@
 * Declare dependencies used in vignettes
 
 # ojoregex 0.7.0
+
+* Added a few new charges, etc. for the OCDC stuff
 
 # ojoregex 0.6.1
 
