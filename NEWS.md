@@ -1,3 +1,5 @@
+# ojoregex 0.9.0
+
 # ojoregex 0.8.0
 
 * Remove `renv` from repo
