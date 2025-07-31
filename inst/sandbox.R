@@ -11,7 +11,7 @@ library(tictoc)
 #   ojo_collect()
 #
 # write_rds(oscn, "/mnt/data/data/ocdc-data.rds")
-# oscn <- read_rds("/mnt/data/data/ocdc-data.rds")
+oscn <- read_rds("/mnt/data/data/ocdc-data.rds")
 
 # ocdc <- current_charges <- ojo_tbl(schema = "ocdc_new", table = "arrest_info") |>
 #   filter(arrest_date_time >= "2020-01-01",
@@ -35,7 +35,7 @@ ocdc <- read_rds("/mnt/data/data/ocdc-data.rds")
 
 # Using new regex --------------------------------------------------------------
 tic()
-final <- ocdc |>
+final <- oscn |>
   select(arrest_no, charge_description, case_no) |>
   # filter(is.na(final_release_date_time)) |>
   ojoregex::ojo_apply_regex(col_to_clean = "charge_description",
@@ -57,7 +57,9 @@ final |>
 # Most common in data:
 final |>
   filter(!is.na(charge_description_clean)) |>
-  count(charge_description_clean, sort = T)
+  count(charge_description_clean, charge_description, sort = T) |>
+  filter(charge_description_clean == "CDS Possession (Simple)") |>
+  print(n = 50)
 
 summary <- final |>
   group_by(arrest_no) |>
