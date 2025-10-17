@@ -51,78 +51,52 @@ ojo_apply_regex <- function(
     )
 
   # Applying flags ===============================================================
-  # Creating function to apply the patterns --------------------------------------
-  apply_regex_pattern <- function(data, flag, regex_pattern) {
-    data |>
-      # dplyr::mutate(
-      #   !!flag := stringr::str_detect(!!dplyr::sym(col_to_clean),
-      #                                 stringr::regex(regex_pattern, ignore_case = TRUE))
-      # )
-      dplyr::mutate(
-        !!flag := stringi::stri_detect(
-          str = !!dplyr::sym(col_to_clean),
-          regex = paste0("(?i)", regex_pattern)
-        ) # Case insensitive
-      )
-  }
-
   # Pre-cleaning steps -----------------------------------------------------------
-  flagged_data <- data |>
+  distinct_charges <- data |>
+    dplyr::distinct(!!dplyr::sym(col_to_clean)) |>
     dplyr::mutate(
-      # This removes "... in concert with _____"
-      !!paste0(col_to_clean, "_clean") := ojoregex::regex_pre_clean(
-        !!dplyr::sym(col_to_clean)
-      )
-    ) |>
-    # Remove all unnecessary columns; they will be added back at the end to avoid name issues
-    dplyr::select({{ col_to_clean }})
+      !!clean_col_name := ojoregex::regex_pre_clean(!!dplyr::sym(col_to_clean))
+    )
 
-  # Apply function over every row of the dataset... ------------------------------
+  # Apply regex flags to the distinct charges ------------------------------------
   if (!.quiet) {
     cli::cli_progress_bar(
-      "Applying regex flags to data...",
-      total = nrow(regex),
-      clear = FALSE
+      "Applying regex flags...",
+      total = nrow(regex)
     )
   }
 
-  for (i in seq(nrow(regex))) {
-    flagged_data <- apply_regex_pattern(
-      flagged_data,
-      regex$flag[i],
-      regex$regex[i]
-    )
-
-    if (!.quiet) {
-      cli::cli_progress_update()
+  flags_list <- purrr::map(
+    purrr::set_names(regex$regex, regex$flag),
+    \(p) {
+      if (!.quiet) cli::cli_progress_update()
+      stringi::stri_detect(
+        distinct_charges[[clean_col_name]],
+        regex = paste0("(?i)", p)
+      )
     }
-  }
+  )
 
-  if (!.quiet) {
-    cli::cli_progress_done(result = "Done flagging data!")
-  }
+  if (!.quiet) cli::cli_progress_done() 
+
+  flagged_data <- dplyr::bind_cols(distinct_charges, flags_list)
 
   # ...then, apply the groups where relevant... ----------------------------------
-  for (j in seq(nrow(group_data))) {
-    group_flag <- group_data$group[j]
-    flags <- unlist(stringr::str_split(group_data$list_flags[j], "\\|"))
+  group_flags_list <- purrr::map(
+    purrr::set_names(group_data$list_flags, group_data$group),
+    \(flags_str) {
+      flags <- unlist(stringr::str_split(flags_str, "\\|"))
+      rowSums(dplyr::select(flagged_data, dplyr::all_of(flags)), na.rm = TRUE) > 0
+    }
+  )
 
-    flagged_data <- flagged_data |>
-      dplyr::mutate(
-        !!group_flag := rowSums(
-          dplyr::select(flagged_data, dplyr::all_of(flags)),
-          na.rm = TRUE
-        ) >
-          0
-      )
-  }
+  flagged_data <- dplyr::bind_cols(flagged_data, group_flags_list)
 
   # ...now we have the flags in place, and we're ready to categorize!
 
   # Categorizing
 
   clean_data <- flagged_data |>
-    dplyr::distinct(!!dplyr::sym(col_to_clean), .keep_all = TRUE) |>
     dplyr::mutate(
       # Earlier ones will overwrite later ones, so the order is important!
       !!paste0(col_to_clean, "_clean") := dplyr::case_when(
