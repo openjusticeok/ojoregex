@@ -72,4 +72,4 @@ test_data <- bind_rows(
     description
   )
 
-save(test_data, file = here::here("data-raw", "test_data.rda"))
+save(test_data, file = here::here("tests", "testthat", "test_data.rda"))

@@ -48,5 +48,5 @@ vignettes/*.pdf
 docs
 inst/doc
 
-data-raw/test_data.rda
+tests/testthat/test_data.rda
 
