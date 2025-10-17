@@ -12,6 +12,6 @@ test_that("Applying regex works the same", {
   temp_path <- tempfile(fileext = "csv")
 
   readr::write_csv(categorized_test_data, temp_path)
-  
+
   expect_snapshot_file(temp_path, "categorized_test_data.csv")
 })
