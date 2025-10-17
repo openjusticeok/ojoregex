@@ -50,3 +50,5 @@ inst/doc
 
 tests/testthat/test_data.rda
 
+tests/testthat/_snaps/ojo_apply_regex
+tests/testthat/_snaps/pre_clean
