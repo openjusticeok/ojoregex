@@ -19,10 +19,11 @@ Imports:
   stringi,
   stringr
 Suggests:
-  gt,
-  knitr,
-  ojodb,
-  rmarkdown
+    gt,
+    knitr,
+    ojodb,
+    rmarkdown,
+    testthat (>= 3.0.0)
 Depends: 
     R (>= 3.5.0)
 Remotes:
@@ -30,3 +31,4 @@ Remotes:
 LazyData: true
 URL: https://openjusticeok.github.io/ojoregex/
 VignetteBuilder: knitr
+Config/testthat/edition: 3
