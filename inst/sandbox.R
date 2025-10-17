@@ -38,15 +38,25 @@ tic()
 final <- oscn |>
   select(arrest_no, charge_description, case_no) |>
   # filter(is.na(final_release_date_time)) |>
-  ojoregex::ojo_apply_regex(col_to_clean = "charge_description",
-                            .keep_flags = F,
-                            .quiet = F,
-                            .include_cats = TRUE)
+  ojoregex::ojo_apply_regex(
+    col_to_clean = "charge_description",
+    .keep_flags = F,
+    .quiet = F,
+    .include_cats = TRUE
+  )
 toc()
 
 # % classified:
 cli::cli_alert_success(
-  paste0(100 * round((final |> filter(!is.na(charge_description_clean)) |> nrow()) / nrow(final |> filter(!is.na(charge_description))), 4), "% Done!!")
+  paste0(
+    100 *
+      round(
+        (final |> filter(!is.na(charge_description_clean)) |> nrow()) /
+          nrow(final |> filter(!is.na(charge_description))),
+        4
+      ),
+    "% Done!!"
+  )
 )
 
 # Remaining unclassified:
@@ -77,7 +87,15 @@ final |>
 
 # Percent categorized:
 cli::cli_alert_success(
-  paste0(100 * round((final |> filter(!is.na(count_as_filed_clean)) |> nrow()) / nrow(final |> filter(!is.na(count_as_filed))), 4), "% Done!!")
+  paste0(
+    100 *
+      round(
+        (final |> filter(!is.na(count_as_filed_clean)) |> nrow()) /
+          nrow(final |> filter(!is.na(count_as_filed))),
+        4
+      ),
+    "% Done!!"
+  )
 )
 beepr::beep()
 
@@ -87,7 +105,10 @@ final |>
     count_as_filed_clean == "CDS (Other / Unspecified)",
     !str_detect(count_as_filed, ojo_get_flag_regex(flag = "manufacture")), # no "Manufacturing"
     !str_detect(count_as_filed, ojo_get_flag_regex(flag = "intoxication")), # no DWI or public intox
-    !str_detect(count_as_filed, ojo_get_flag_regex(flag = "under_the_influence")),
+    !str_detect(
+      count_as_filed,
+      ojo_get_flag_regex(flag = "under_the_influence")
+    ),
     !str_detect(count_as_filed, ojo_get_flag_regex(flag = "forge")), # no "obtain by fraud"
     !str_detect(count_as_filed, "(?i)telecom|wire"), # No "use of telecom device in cds transaction"
     !str_detect(count_as_filed, "(?i)cult"), # no "cultivation of cds"
@@ -103,9 +124,7 @@ final |>
 
 # Larceny (Other / Unspecified) refinement for LOFT stuff ----------------------
 
-
 # Fraud (Other / Unspecified) refinement for LOFT stuff ------------------------
-
 
 # # Classifications rundown
 # final |>
@@ -124,10 +143,20 @@ explore <- final |>
 
 # Remaining unclassified
 remaining_nas <- final |>
-  filter(is.na(count_as_filed_clean),
-         !is.na(count_as_filed)) |>
-  select(-c(id, district, case_number, case_type, date_filed, date_closed, open_counts, disposition,
-            count_as_filed_clean)) |>
+  filter(is.na(count_as_filed_clean), !is.na(count_as_filed)) |>
+  select(
+    -c(
+      id,
+      district,
+      case_number,
+      case_type,
+      date_filed,
+      date_closed,
+      open_counts,
+      disposition,
+      count_as_filed_clean
+    )
+  ) |>
   group_by(count_as_filed) |>
   mutate(n = n()) |>
   distinct(count_as_filed, .keep_all = TRUE) |>
@@ -143,7 +172,8 @@ remaining_nas |>
 final |>
   # filter(str_detect(count_as_filed_clean, "Obstruction")) |>
   # distinct(count_as_filed, .keep_all = TRUE) |>
-  count(count_as_filed, count_as_filed_clean, sort = T) |> view()
+  count(count_as_filed, count_as_filed_clean, sort = T) |>
+  view()
 
 final |>
   count(count_as_filed_clean, sort = T) |>
@@ -158,19 +188,18 @@ final |>
 
 final |>
   filter(str_detect(count_as_filed_clean, "Larceny")) |>
-  count(count_as_filed_clean,
-        # district,
-        case_type,
-        year = year(date_filed),
-        sort = T) |>
-  ggplot(aes(x = year,
-             y = n,
-             fill = count_as_filed_clean)) +
+  count(
+    count_as_filed_clean,
+    # district,
+    case_type,
+    year = year(date_filed),
+    sort = T
+  ) |>
+  ggplot(aes(x = year, y = n, fill = count_as_filed_clean)) +
   geom_col() +
   facet_wrap(~case_type)
 # facet_wrap(~district, scales = "free_y")
 # guides(fill = "none")
-
 
 # --- temp ---
 # larceny_cases <- final |>

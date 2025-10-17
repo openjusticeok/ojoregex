@@ -15,10 +15,11 @@
 #' clean_text
 #' }
 regex_pre_clean <- function(count_as_filed) {
-
   # Remove "in concert ... [end of string]"
-  clean_text <- stringr::str_remove_all(count_as_filed, stringr::regex("\\s*in(| )conc(ert|).*$", ignore_case = TRUE))
+  clean_text <- stringr::str_remove_all(
+    count_as_filed,
+    stringr::regex("\\s*in(| )conc(ert|).*$", ignore_case = TRUE)
+  )
 
   return(clean_text)
-
 }

@@ -8,7 +8,7 @@ oscn_count_as_filed <- ojo_tbl("count") |>
     description = count_as_filed
   ) |>
   mutate(
-    source = "oscn" 
+    source = "oscn"
   )
 
 oscn_count_as_disposed <- ojo_tbl("count") |>
@@ -18,37 +18,37 @@ oscn_count_as_disposed <- ojo_tbl("count") |>
     description = count_as_disposed
   ) |>
   mutate(
-    source = "oscn" 
+    source = "oscn"
   )
 
 ocdc_charges <- ojo_tbl("charges", schema = "ocdc_new") |>
   distinct(charge_description) |>
   collect() |>
   rename(
-    description = charge_description 
+    description = charge_description
   ) |>
   mutate(
-    source = "ocdc" 
+    source = "ocdc"
   )
 
 ocdc_charges_history <- ojo_tbl("charges_history", schema = "ocdc_new") |>
   distinct(charge_description) |>
   collect() |>
   rename(
-    description = charge_description 
+    description = charge_description
   ) |>
   mutate(
-    source = "ocdc" 
+    source = "ocdc"
   )
 
 odoc_offense <- ojo_tbl("offense", schema = "odoc") |>
   distinct(description) |>
   collect() |>
   rename(
-    description = description 
+    description = description
   ) |>
   mutate(
-    source = "odoc" 
+    source = "odoc"
   )
 
 test_data <- bind_rows(
@@ -73,4 +73,3 @@ test_data <- bind_rows(
   )
 
 save(test_data, file = here::here("data-raw", "test_data.rda"))
-

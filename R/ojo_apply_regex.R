@@ -22,13 +22,13 @@
 #' # Apply OJO Regex to clean and categorize charge descriptions
 #' cleaned_data <- apply_ojo_regex(data = example_data, col_to_clean = "charge_description")
 #'}
-ojo_apply_regex <- function(data,
-                            col_to_clean = "count_as_filed",
-                            .keep_flags = FALSE,
-                            .include_cats = TRUE,
-                            .quiet = FALSE
-                            ) {
-
+ojo_apply_regex <- function(
+  data,
+  col_to_clean = "count_as_filed",
+  .keep_flags = FALSE,
+  .include_cats = TRUE,
+  .quiet = FALSE
+) {
   # Validate data ==============================================================
   data_names <- names(data)
   clean_col_name <- paste0(col_to_clean, "_clean")
@@ -59,8 +59,10 @@ ojo_apply_regex <- function(data,
       #                                 stringr::regex(regex_pattern, ignore_case = TRUE))
       # )
       dplyr::mutate(
-        !!flag := stringi::stri_detect(str = !!dplyr::sym(col_to_clean),
-                                       regex = paste0("(?i)", regex_pattern)) # Case insensitive
+        !!flag := stringi::stri_detect(
+          str = !!dplyr::sym(col_to_clean),
+          regex = paste0("(?i)", regex_pattern)
+        ) # Case insensitive
       )
   }
 
@@ -68,13 +70,15 @@ ojo_apply_regex <- function(data,
   flagged_data <- data |>
     dplyr::mutate(
       # This removes "... in concert with _____"
-      !!paste0(col_to_clean, "_clean") := ojoregex::regex_pre_clean(!!dplyr::sym(col_to_clean))
+      !!paste0(col_to_clean, "_clean") := ojoregex::regex_pre_clean(
+        !!dplyr::sym(col_to_clean)
+      )
     ) |>
     # Remove all unnecessary columns; they will be added back at the end to avoid name issues
     dplyr::select({{ col_to_clean }})
 
   # Apply function over every row of the dataset... ------------------------------
-  if(!.quiet){
+  if (!.quiet) {
     cli::cli_progress_bar(
       "Applying regex flags to data...",
       total = nrow(regex),
@@ -83,15 +87,20 @@ ojo_apply_regex <- function(data,
   }
 
   for (i in seq(nrow(regex))) {
-    flagged_data <- apply_regex_pattern(flagged_data,
-                                        regex$flag[i],
-                                        regex$regex[i])
+    flagged_data <- apply_regex_pattern(
+      flagged_data,
+      regex$flag[i],
+      regex$regex[i]
+    )
 
-    if(!.quiet){ cli::cli_progress_update() }
+    if (!.quiet) {
+      cli::cli_progress_update()
+    }
   }
 
-
-  if(!.quiet){ cli::cli_progress_done(result = "Done flagging data!") }
+  if (!.quiet) {
+    cli::cli_progress_done(result = "Done flagging data!")
+  }
 
   # ...then, apply the groups where relevant... ----------------------------------
   for (j in seq(nrow(group_data))) {
@@ -99,7 +108,13 @@ ojo_apply_regex <- function(data,
     flags <- unlist(stringr::str_split(group_data$list_flags[j], "\\|"))
 
     flagged_data <- flagged_data |>
-      dplyr::mutate(!!group_flag := rowSums(dplyr::select(flagged_data, dplyr::all_of(flags)), na.rm = TRUE) > 0)
+      dplyr::mutate(
+        !!group_flag := rowSums(
+          dplyr::select(flagged_data, dplyr::all_of(flags)),
+          na.rm = TRUE
+        ) >
+          0
+      )
   }
 
   # ...now we have the flags in place, and we're ready to categorize!
@@ -121,24 +136,61 @@ ojo_apply_regex <- function(data,
         # ====================================================================================================================
         # Drug Crimes ========================================================================================================
         # Basic Drug Stuff -----------------------------------------------------
-        any_drugs & possess & !traffic_or_traffick & !distribution & !intent &
-          !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
-          !maintain_keep & !manufacture & !litter & !larceny & !jail_penal &
-          !school & !park & !deliver ~ "CDS Possession (Simple)",
-        any_drugs & possess & (school | park | child) ~ "CDS Possession (Proximate to School, Park, or Minor)",
+        any_drugs &
+          possess &
+          !traffic_or_traffick &
+          !distribution &
+          !intent &
+          !proceed &
+          !paraphernalia &
+          !dui_or_apc &
+          !stamp &
+          !weapon &
+          !maintain_keep &
+          !manufacture &
+          !litter &
+          !larceny &
+          !jail_penal &
+          !school &
+          !park &
+          !deliver ~
+          "CDS Possession (Simple)",
+        any_drugs & possess & (school | park | child) ~
+          "CDS Possession (Proximate to School, Park, or Minor)",
         # any_drugs & jail_penal ~ "CDS Possession (in Jail / Prison)",
         # Actually think I should just have a generic "contraband in jail" charge, that seems to be how it's used
         any_drugs & maintain_keep ~ "CDS Possesssion (Maintaining a Place)",
         any_drugs & larceny ~ "Larceny of a CDS",
-        any_drugs & paraphernalia ~ "CDS Paraphernalia Possession / Distribution",
-        any_drugs & intent & possess & (traffic_or_traffick | distribution) ~ "CDS Possession With Intent (PWID)",
-        any_drugs & (traffic_or_traffick | distribution | deliver) & !possess & !paraphernalia ~ "CDS Trafficking / Distribution",
+        any_drugs & paraphernalia ~
+          "CDS Paraphernalia Possession / Distribution",
+        any_drugs & intent & possess & (traffic_or_traffick | distribution) ~
+          "CDS Possession With Intent (PWID)",
+        any_drugs &
+          (traffic_or_traffick | distribution | deliver) &
+          !possess &
+          !paraphernalia ~
+          "CDS Trafficking / Distribution",
         any_drugs & fraud ~ "Obtain CDS by Fraud",
         # Sometimes it will just say "Marijuana", etc.
-        any_drugs & !possess & !traffic_or_traffick & !distribution & !intent &
-          !proceed & !paraphernalia & !dui_or_apc & !stamp & !weapon &
-          !maintain_keep & !litter & !larceny & !jail_penal &
-          !school & !park & !drive & !throw ~ "CDS (Other / Unspecified)",
+        any_drugs &
+          !possess &
+          !traffic_or_traffick &
+          !distribution &
+          !intent &
+          !proceed &
+          !paraphernalia &
+          !dui_or_apc &
+          !stamp &
+          !weapon &
+          !maintain_keep &
+          !litter &
+          !larceny &
+          !jail_penal &
+          !school &
+          !park &
+          !drive &
+          !throw ~
+          "CDS (Other / Unspecified)",
 
         # Drug / Tax Stuff -----------------------------------------------------
         any_drugs & stamp ~ "CDS Possession (Tax Stamp)",
@@ -146,8 +198,10 @@ ojo_apply_regex <- function(data,
         # Acquiring proceeds ---------------------------------------------------
         # proceed & any_drugs & (acquire | possess | transport | conceal) ~ "Possession of Proceeds in Violation UCDSA",
         # proceed & !any_drugs & (acquire | possess | transport | conceal) ~ "Possession of Proceeds from Unlawful Activity",
-        proceed & any_drugs & !bail ~ "Possession of Proceeds in Violation UCDSA",
-        proceed & !any_drugs & !bail ~ "Possession of Proceeds from Unlawful Activity",
+        proceed & any_drugs & !bail ~
+          "Possession of Proceeds in Violation UCDSA",
+        proceed & !any_drugs & !bail ~
+          "Possession of Proceeds from Unlawful Activity",
 
         # =====================================================================================================================
         # Property Crimes =====================================================================================================
@@ -155,38 +209,81 @@ ojo_apply_regex <- function(data,
         larceny & grand & !petit & !any_drugs ~ "Larceny (Grand)",
         larceny & petit & !grand & !any_drugs ~ "Larceny (Petit)",
         (larceny & merchandise) | shoplift ~ "Larceny (Shoplifting)",
-        (larceny | theft | steal) & automobile & !(false & report) ~ "Larceny (Auto)",
-        larceny & !petit & !grand & !any_drugs & !(merchandise | shoplift) & !automobile ~ "Larceny (Other / Unspecified)", # Sometimes it lists none...
+        (larceny | theft | steal) & automobile & !(false & report) ~
+          "Larceny (Auto)",
+        larceny &
+          !petit &
+          !grand &
+          !any_drugs &
+          !(merchandise | shoplift) &
+          !automobile ~
+          "Larceny (Other / Unspecified)", # Sometimes it lists none...
         larceny & petit & grand & !any_drugs ~ "Larceny (Other / Unspecified)", # ...and sometimes it lists all.
-        theft & !identity & !credit_card & !(false & report) ~ "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
+        theft & !identity & !credit_card & !(false & report) ~
+          "Larceny (Other / Unspecified)", # identity theft / credit card stuff is technically FRAUD, not LARCENY
 
         # RCSP -----------------------------------------------------------------
-        ((property & (receive | conceal)) | kcsp | (rcsp_code & !credit_card)) & !rcspmv_code ~ "Receiving / Concealing Stolen Property",
+        ((property & (receive | conceal)) | kcsp | (rcsp_code & !credit_card)) &
+          !rcspmv_code ~
+          "Receiving / Concealing Stolen Property",
 
         # Burglary -------------------------------------------------------------
         burgle & (first | one) ~ "Burglary (First Degree)",
         burgle & (second | two) ~ "Burglary (Second Degree)",
         burgle & (third | three | automobile) ~ "Burglary (Third Degree)",
         burgle & tools_implements ~ "Possession of Burglar's Tools",
-        burgle & !first & !one & !second & !two & !third & !three & !tools_implements ~ "Burglary (Other / Unspecified)",
-        (enter & intent) | (breaking & enter) ~ "Entering with Intent To Commit a Crime",
+        burgle &
+          !first &
+          !one &
+          !second &
+          !two &
+          !third &
+          !three &
+          !tools_implements ~
+          "Burglary (Other / Unspecified)",
+        (enter & intent) | (breaking & enter) ~
+          "Entering with Intent To Commit a Crime",
 
         # Arson ----------------------------------------------------------------
         arson & (first | one | danger) ~ "Arson (First Degree)", # This is actually a violent crime
         arson & (second | two) ~ "Arson (Second Degree)",
         arson & (third | three) ~ "Arson (Third Degree)",
         arson & (fourth | four) ~ "Arson (Fourth Degree)",
-        arson & !first & !one & !danger & !second & !two & !third & !three & !four ~ "Arson (Other / Unspecified)",
+        arson &
+          !first &
+          !one &
+          !danger &
+          !second &
+          !two &
+          !third &
+          !three &
+          !four ~
+          "Arson (Other / Unspecified)",
 
         # Fraud / Forgery ------------------------------------------------------
         personate | (identity & theft) ~ "Fraud (False Personation)",
-        ((bogus & check) | bc_code) & !(pretense | deception) ~ "Fraud (Bogus Check)",
-        (pretense | deception) & !(bogus & check) & !elder ~ "Fraud (False Pretense / Deception)", # Some forms of elder abuse include the term "deception"
+        ((bogus & check) | bc_code) & !(pretense | deception) ~
+          "Fraud (Bogus Check)",
+        (pretense | deception) & !(bogus & check) & !elder ~
+          "Fraud (False Pretense / Deception)", # Some forms of elder abuse include the term "deception"
         credit_card ~ "Fraud (Credit Card)", # May need more refining
-        (forge | counterfeit) & !license & !bogus & !credit_card ~ "Fraud (Forgery / Counterfeiting)",
-        (corporate & !embezzle) | (insurance & fraud) | (insurance & false) ~ "Fraud (Corporate / Insurance)",
-        (pretense | deception) & (bogus & check) ~ "Fraud (Other / Unspecified)", # Sometimes both will be listed
-        fraud & !personate & !pretense & !deception & !credit_card & !forge & !counterfeit & !corporate & !insurance & !any_drugs ~ "Fraud (Other / Unspecified)",
+        (forge | counterfeit) & !license & !bogus & !credit_card ~
+          "Fraud (Forgery / Counterfeiting)",
+        (corporate & !embezzle) | (insurance & fraud) | (insurance & false) ~
+          "Fraud (Corporate / Insurance)",
+        (pretense | deception) & (bogus & check) ~
+          "Fraud (Other / Unspecified)", # Sometimes both will be listed
+        fraud &
+          !personate &
+          !pretense &
+          !deception &
+          !credit_card &
+          !forge &
+          !counterfeit &
+          !corporate &
+          !insurance &
+          !any_drugs ~
+          "Fraud (Other / Unspecified)",
 
         # False declaration of ownership ---------------------------------------
         false & declaration ~ "False Declaration of Ownership",
@@ -199,52 +296,89 @@ ojo_apply_regex <- function(data,
 
         # Trespassing ----------------------------------------------------------
         trespass & !rail & !timber ~ "Trespassing After Being Forbidden",
-        trespass & rail & !timber ~ "Trespassing / Destroying Railroad Equipment",
+        trespass & rail & !timber ~
+          "Trespassing / Destroying Railroad Equipment",
         trespass & !rail & timber ~ "Trespassing by Cutting Timber",
 
         # =====================================================================================================================
         # Violent Crimes ======================================================================================================
         # Murder / Intentional Homicide ----------------------------------------
-        (shoot & kill & intent) | (weapon & automobile & !transport) | drive_by  ~ "Shooting With Intent to Kill",
+        (shoot & kill & intent) |
+          (weapon & automobile & !transport) |
+          drive_by ~
+          "Shooting With Intent to Kill",
         murder & (one | first) & !solicit ~ "Murder (First Degree)",
         murder & (two | second) & !solicit ~ "Murder (Second Degree)",
         murder & solicit ~ "Solicting Murder",
-        murder & !(solicit | one | first | two | second) ~ "Murder (Other / Unspecified)",
+        murder & !(solicit | one | first | two | second) ~
+          "Murder (Other / Unspecified)",
 
         # Manslaughter / Negligent Homicide ------------------------------------
         manslaughter & (one | first) ~ "Manslaughter (First Degree)",
         manslaughter & (two | second) ~ "Manslaughter (Second Degree)",
-        manslaughter & !(one | first | two | second) ~ "Manslaughter (Other / Unspecified)",
+        manslaughter & !(one | first | two | second) ~
+          "Manslaughter (Other / Unspecified)",
         homicide & negligent ~ "Negligent Vehicular Homicide",
 
         # Assault / Battery ----------------------------------------------------
-        (assault | battery | a_and_b | abuse | violence | abdom) & domestic & !weapon ~ "Domestic Assault / Battery (Simple)",
-        (assault | battery | a_and_b | abuse | violence | abdom) & domestic & weapon ~ "Domestic Assault / Battery (Dangerous Weapon)",
-        (assault | battery | a_and_b | abgen) & weapon & !domestic & !abdom ~ "Assault / Battery (Dangerous Weapon)",
-        (assault | battery | a_and_b | abgen) & officer ~ "Assault / Battery (On Official)",
-        (assault | battery | a_and_b | abgen) & !weapon & !domestic & !abdom & !sex & !officer ~ "Assault / Battery (Simple)",
+        (assault | battery | a_and_b | abuse | violence | abdom) &
+          domestic &
+          !weapon ~
+          "Domestic Assault / Battery (Simple)",
+        (assault | battery | a_and_b | abuse | violence | abdom) &
+          domestic &
+          weapon ~
+          "Domestic Assault / Battery (Dangerous Weapon)",
+        (assault | battery | a_and_b | abgen) & weapon & !domestic & !abdom ~
+          "Assault / Battery (Dangerous Weapon)",
+        (assault | battery | a_and_b | abgen) & officer ~
+          "Assault / Battery (On Official)",
+        (assault | battery | a_and_b | abgen) &
+          !weapon &
+          !domestic &
+          !abdom &
+          !sex &
+          !officer ~
+          "Assault / Battery (Simple)",
 
         # Robbery --------------------------------------------------------------
-        rob & (first | one | force | fear) & !(conjoint | two_or_more) ~ "Robbery (First Degree)",
-        rob & (second | two) & !(conjoint | two_or_more) ~ "Robbery (Second Degree)",
-        rob & weapon & !(conjoint | two_or_more) ~ "Robbery (With a Dangerous Weapon)",
+        rob & (first | one | force | fear) & !(conjoint | two_or_more) ~
+          "Robbery (First Degree)",
+        rob & (second | two) & !(conjoint | two_or_more) ~
+          "Robbery (Second Degree)",
+        rob & weapon & !(conjoint | two_or_more) ~
+          "Robbery (With a Dangerous Weapon)",
         rob & (conjoint | two_or_more) ~ "Robbery (Conjoint)",
-        rob & !first & !one & !second & !two & !conjoint & !two_or_more & !weapon & !extort ~ "Robbery (Other / Unspecified)",
+        rob &
+          !first &
+          !one &
+          !second &
+          !two &
+          !conjoint &
+          !two_or_more &
+          !weapon &
+          !extort ~
+          "Robbery (Other / Unspecified)",
 
         # Kidnapping -----------------------------------------------------------
-        kidnap & !child & !extort & !traffic_or_traffick ~ "Kidnapping (Simple)",
-        (kidnap | steal) & child & !traffic_or_traffick ~ "Kidnapping (Child Stealing)",
-        kidnap & extort & !child & !traffic_or_traffick ~ "Kidnapping (Extortion)",
+        kidnap & !child & !extort & !traffic_or_traffick ~
+          "Kidnapping (Simple)",
+        (kidnap | steal) & child & !traffic_or_traffick ~
+          "Kidnapping (Child Stealing)",
+        kidnap & extort & !child & !traffic_or_traffick ~
+          "Kidnapping (Extortion)",
         human & traffic_or_traffick ~ "Kidnapping (Human Trafficking)",
 
         # Maiming --------------------------------------------------------------
         maim ~ "Maiming",
 
         # Child Abuse ----------------------------------------------------------
-        (child & (abuse | neglect | danger)) & !school ~ "Child Abuse / Neglect / Sexual Abuse",
+        (child & (abuse | neglect | danger)) & !school ~
+          "Child Abuse / Neglect / Sexual Abuse",
         # Does this include OMIT TO PROVIDE ?
         # This is where we'd distinguish if we want
-        (child | molest | proposal | act) & (lewd | indecent) ~ "Indecent or Lewd Acts With Child",
+        (child | molest | proposal | act) & (lewd | indecent) ~
+          "Indecent or Lewd Acts With Child",
 
         # Rape -----------------------------------------------------------------
         (sex & battery) & !instrument ~ "Rape (First Degree)",
@@ -252,7 +386,8 @@ ojo_apply_regex <- function(data,
         rape & (second | two) & !instrument ~ "Rape (Second Degree)",
         rape & instrument ~ "Rape by Instrumentation",
         sodomy ~ "Forcible Sodomy", # Not sure this is specific enough.
-        rape & !first & ! one & !second & !two & !instrument ~ "Rape (Other / Unspecified)",
+        rape & !first & !one & !second & !two & !instrument ~
+          "Rape (Other / Unspecified)",
 
         # Pointing firearm -----------------------------------------------------
         point & weapon ~ "Pointing Weapon at Another",
@@ -260,9 +395,11 @@ ojo_apply_regex <- function(data,
         # =====================================================================================================================
         # Other ===============================================================================================================
         # # Sex Work -------------------------------------------------------------
-        sex_work & !child & !maintain_keep & !operate ~ "Engaging in Sex Work (Simple)",
+        sex_work & !child & !maintain_keep & !operate ~
+          "Engaging in Sex Work (Simple)",
         sex_work & child ~ "Engaging in Sex Work (Minor Involved)",
-        sex_work & (maintain_keep | operate) ~ "Maintaining / Operating Place for Sex Work",
+        sex_work & (maintain_keep | operate) ~
+          "Maintaining / Operating Place for Sex Work",
         # sex_work & !aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Engaging in Sex Work (Simple)",
         # sex_work & !aid_abet & !child & !maintain_keep & !operate & within_x_feet ~ "Engaging in Sex Work (Within 1,000 Feet)",
         # sex_work & aid_abet & !child & !maintain_keep & !operate & !within_x_feet ~ "Aiding / Abetting Sex Work (Simple)",
@@ -273,15 +410,27 @@ ojo_apply_regex <- function(data,
         # sex_work & (maintain_keep | operate) & within_x_feet ~ "Maintaining / Operating Place for Sex Work (Within 1,000 Feet)",
 
         # Obstructing / Eluding ------------------------------------------------
-        flight_to_avoid | ((resist | elude) & (officer | arrest)) & !obstruct ~ "Resisting / Eluding Officer",
-        (obstruct & (officer | justice)) | obstruction_of_justice ~ "Obstruction of Justice",
+        flight_to_avoid | ((resist | elude) & (officer | arrest)) & !obstruct ~
+          "Resisting / Eluding Officer",
+        (obstruct & (officer | justice)) | obstruction_of_justice ~
+          "Obstruction of Justice",
 
         # VPO / Stalking -------------------------------------------------------
-        vpo_code | (violate & protect) | (violate & vpo) | (stalk & vpo) | (stalk & violate) ~ "Violation of Protective Order (VPO)",
+        vpo_code |
+          (violate & protect) |
+          (violate & vpo) |
+          (stalk & vpo) |
+          (stalk & violate) ~
+          "Violation of Protective Order (VPO)",
         stalk & !vpo ~ "Stalking",
 
         # Violation of compulsory education act --------------------------------
-        delinquent & !weapon | truant | (compulsory & education) | (school & (compel | refuse | neglect)) ~ "Violation of Compulsory Education Act",
+        delinquent &
+          !weapon |
+          truant |
+          (compulsory & education) |
+          (school & (compel | refuse | neglect)) ~
+          "Violation of Compulsory Education Act",
         # child & neglect
 
         # Public Decency / Disturbing Peace Crimes -----------------------------
@@ -292,10 +441,13 @@ ojo_apply_regex <- function(data,
         indecent & expose ~ "Indecent Exposure",
 
         # Firearm Possession ---------------------------------------------------
-        (under_the_influence | intoxication) & weapon & !contraband ~ "Carrying Firearm While Under the Influence",
+        (under_the_influence | intoxication) & weapon & !contraband ~
+          "Carrying Firearm While Under the Influence",
         transport & weapon ~ "Improper Transportation of Firearms",
-        (possess | carry | transfer) & weapon & !serial_number ~ "Illegal Possession of a Firearm",
-        ((possess | carry | use) & weapon & commit) | (weapon & serial_number) ~ "Use of Firearm During Felony / Altering Serial Number",
+        (possess | carry | transfer) & weapon & !serial_number ~
+          "Illegal Possession of a Firearm",
+        ((possess | carry | use) & weapon & commit) | (weapon & serial_number) ~
+          "Use of Firearm During Felony / Altering Serial Number",
         reckless & weapon ~ "Reckless Conduct With Firearm",
         discharge & weapon ~ "Reckless Discharge of Firearm",
 
@@ -307,19 +459,23 @@ ojo_apply_regex <- function(data,
         # Bail jumping / bond forfeiture ---------------------------------------
         (bail | bond) & jump & !forfeit ~ "Bail Jumping",
         (bail | bond) & forfeit & !jump ~ "Bail Forfeiture",
-        (bail | bond) & ((forfeit & jump) | (!forfeit & !jump)) ~ "Bail Jumping", # Just gonna have these default to the more common one for now
+        (bail | bond) & ((forfeit & jump) | (!forfeit & !jump)) ~
+          "Bail Jumping", # Just gonna have these default to the more common one for now
 
         # Animal Cruelty / neglect ---------------------------------------------
         animal & cruel ~ "Cruelty to Animals",
 
         # Sex Offender related -------------------------------------------------
         # (registration | address) & sex & offender ~ "Failure to Comply With Sex Offender Registration Act",
-        (sex & offender) & !within_x_feet & !zone_of_safety ~ "Failure to Comply With Sex Offender Registration Act",
-        (sex & offender) & within_x_feet & !zone_of_safety ~ "Sex Offender Living Within 2000 Feet of School / Park / Child Care",
+        (sex & offender) & !within_x_feet & !zone_of_safety ~
+          "Failure to Comply With Sex Offender Registration Act",
+        (sex & offender) & within_x_feet & !zone_of_safety ~
+          "Sex Offender Living Within 2000 Feet of School / Park / Child Care",
         zone_of_safety ~ "Sex Offender Violating Zone of Safety",
 
         # Violent crime registration related -----------------------------------
-        (registration | address) & violence & (offender | comply | violate) ~ "Failure to Comply With Violent Crime Offender Registration Act",
+        (registration | address) & violence & (offender | comply | violate) ~
+          "Failure to Comply With Violent Crime Offender Registration Act",
 
         # Emergency phone call -------------------------------------------------
         emergency & (phone | call) ~ "Interfering With Emergency Call",
@@ -343,23 +499,45 @@ ojo_apply_regex <- function(data,
         left & center ~ "Driving Left of Center",
 
         # Driving without proper documentation / tags / etc --------------------
-        ((operate | drive | violate | possess | display) & (revocation | suspend)) |
-          dus_code | dur_code | (suspend & license) ~ "Driving Under Suspension / Revocation",
-        (operate | drive | violate | possess | display | valid) & license & !tag & !suspend & !weapon ~ "Driving Without Valid License",
-        fr5_code | ((failure | comply | no | compulsory) & (insurance | secure)) ~ "Driving Without Valid Insurance / Security",
-        (operate | drive) & automobile & tag  ~ "Driving Without Proper Tag / Registration", # There are a couple of these...
+        ((operate | drive | violate | possess | display) &
+          (revocation | suspend)) |
+          dus_code |
+          dur_code |
+          (suspend & license) ~
+          "Driving Under Suspension / Revocation",
+        (operate | drive | violate | possess | display | valid) &
+          license &
+          !tag &
+          !suspend &
+          !weapon ~
+          "Driving Without Valid License",
+        fr5_code |
+          ((failure | comply | no | compulsory) & (insurance | secure)) ~
+          "Driving Without Valid Insurance / Security",
+        (operate | drive) & automobile & tag ~
+          "Driving Without Proper Tag / Registration", # There are a couple of these...
         taxes_due ~ "Driving Without Proper Tag / Registration", # "taxes due to state"
-        (registration | tag) & (expire | violate | improper | alter | illegal) & !sex & !violence ~ "Driving Without Proper Tag / Registration",
-        license & (improper | alter) ~ "Driving Without Proper Tag / Registration", # "Altered / Improper license plates"
+        (registration | tag) &
+          (expire | violate | improper | alter | illegal) &
+          !sex &
+          !violence ~
+          "Driving Without Proper Tag / Registration",
+        license & (improper | alter) ~
+          "Driving Without Proper Tag / Registration", # "Altered / Improper license plates"
 
         # Defective equipment --------------------------------------------------
-        defective & (automobile | brake | tire | light | equip | muffler) ~ "Defective Vehicle",
+        defective & (automobile | brake | tire | light | equip | muffler) ~
+          "Defective Vehicle",
         overweight ~ "Overweight Violation",
 
         # DUI / APC / TOC / etc. -----------------------------------------------
-        (drive | automobile) & (influence | intoxication) | (dui_or_apc | under_the_influence & !weapon) ~ "Driving Under the Influence / Actual Physical Control",
+        (drive | automobile) &
+          (influence | intoxication) |
+          (dui_or_apc | under_the_influence & !weapon) ~
+          "Driving Under the Influence / Actual Physical Control",
         (drive | automobile) & impair ~ "Driving While Impaired",
-        toc | open & (container | bottle | beer) ~ "Transporting Open Container",
+        toc | open & (container | bottle | beer) ~
+          "Transporting Open Container",
 
         # Stolen Vehicles ------------------------------------------------------
         (possess | receive) & automobile ~ "Possession of Stolen Vehicle",
@@ -395,37 +573,56 @@ ojo_apply_regex <- function(data,
     )
 
   # Join on categories from the ojo_regex_cats data
-  if(.include_cats) {
-  ojo_regex_cats_tidy <- ojoregex::ojo_regex_cats |>
-    dplyr::select("clean_charge_description", "category", "subcategory", "title",
-                  "statutes", "chapter", "cf_cm", "sq780_status", "violent_crimes_list",
-                  "control_rank")
+  if (.include_cats) {
+    ojo_regex_cats_tidy <- ojoregex::ojo_regex_cats |>
+      dplyr::select(
+        "clean_charge_description",
+        "category",
+        "subcategory",
+        "title",
+        "statutes",
+        "chapter",
+        "cf_cm",
+        "sq780_status",
+        "violent_crimes_list",
+        "control_rank"
+      )
 
-  clean_data <- clean_data |>
-    dplyr::left_join(ojo_regex_cats_tidy,
-                     by = dplyr::join_by({{ clean_col_name }} == "clean_charge_description"))
+    clean_data <- clean_data |>
+      dplyr::left_join(
+        ojo_regex_cats_tidy,
+        by = dplyr::join_by({{ clean_col_name }} == "clean_charge_description")
+      )
 
-  # true_clean_data is the original data + the final categories, WITHOUT FLAGS
-  true_clean_data <- clean_data |>
-    dplyr::select({{ col_to_clean }},
-                  paste0(col_to_clean, "_clean"),
-                  data_names,
-                  "category", "subcategory", "title", "statutes", "chapter", "cf_cm",
-                  "sq780_status", "violent_crimes_list", "control_rank") # Might not be needed long term?
-
+    # true_clean_data is the original data + the final categories, WITHOUT FLAGS
+    true_clean_data <- clean_data |>
+      dplyr::select(
+        {{ col_to_clean }},
+        paste0(col_to_clean, "_clean"),
+        data_names,
+        "category",
+        "subcategory",
+        "title",
+        "statutes",
+        "chapter",
+        "cf_cm",
+        "sq780_status",
+        "violent_crimes_list",
+        "control_rank"
+      ) # Might not be needed long term?
   } else {
     # if .include_cats == FALSE, then skip adding the categories dataset
     true_clean_data <- clean_data |>
-      dplyr::select({{ col_to_clean }},
-                    paste0(col_to_clean, "_clean"),
-                    data_names,
+      dplyr::select(
+        {{ col_to_clean }},
+        paste0(col_to_clean, "_clean"),
+        data_names,
       )
   }
 
-  if(.keep_flags == TRUE) {
+  if (.keep_flags == TRUE) {
     return(clean_data) # clean_data is just the version that still has the flags
   } else {
     return(true_clean_data)
   }
-
 }
