@@ -1,0 +1,11 @@
+unique_record_id,category,risk_level,value
+id_001,X,HIGH,100
+id_002,X,LOW,101
+id_003,Y,MEDIUM,102
+id_004,Z,HIGH,103
+id_005,X,HIGH,104
+id_006,Y,LOW,105
+id_007,X,MEDIUM,106
+id_008,Z,LOW,107
+id_009,X,HIGH,108
+id_010,Y,MEDIUM,109
