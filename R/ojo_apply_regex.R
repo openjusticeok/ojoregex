@@ -69,7 +69,9 @@ ojo_apply_regex <- function(
   flags_list <- purrr::map(
     purrr::set_names(regex$regex, regex$flag),
     \(p) {
-      if (!.quiet) cli::cli_progress_update()
+      if (!.quiet) {
+        cli::cli_progress_update()
+      }
       stringi::stri_detect(
         distinct_charges[[clean_col_name]],
         regex = paste0("(?i)", p)
@@ -77,7 +79,9 @@ ojo_apply_regex <- function(
     }
   )
 
-  if (!.quiet) cli::cli_progress_done() 
+  if (!.quiet) {
+    cli::cli_progress_done()
+  }
 
   flagged_data <- dplyr::bind_cols(distinct_charges, flags_list)
 
@@ -86,7 +90,8 @@ ojo_apply_regex <- function(
     purrr::set_names(group_data$list_flags, group_data$group),
     \(flags_str) {
       flags <- unlist(stringr::str_split(flags_str, "\\|"))
-      rowSums(dplyr::select(flagged_data, dplyr::all_of(flags)), na.rm = TRUE) > 0
+      rowSums(dplyr::select(flagged_data, dplyr::all_of(flags)), na.rm = TRUE) >
+        0
     }
   )
 
@@ -275,6 +280,56 @@ ojo_apply_regex <- function(
         trespass & !rail & timber ~ "Trespassing by Cutting Timber",
 
         # =====================================================================================================================
+        # Crimes Against Children ======================================================================================================
+        (child & (abuse | neglect | endanger | sex | injury | beating)) &
+          !school ~
+          "Child Abuse / Neglect / Sexual Abuse",
+        (child | molest | proposal | act) & (lewd | indecent) ~
+          "Indecent or Lewd Acts With Child",
+        (child & (omit | provide)) | (child & failure & !report) ~
+          "Ommission to provide for child",
+        (child & permit) &
+          (beating |
+            abuse |
+            neglect |
+            endanger |
+            sex |
+            manufacture |
+            automobile) &
+          !traffic_or_traffick ~
+          "Permitting Child Abuse",
+        (child & school) &
+          (failure |
+            report |
+            abuse |
+            neglect |
+            endanger |
+            sex |
+            injury |
+            beating) ~
+          "School Superintendent or Administrator - Failure to Report Child Abuse and Neglect",
+        (child & traffic_or_traffick) & !sex ~ "Trafficking in children",
+        (child & traffic_or_traffick & sex) & !transport ~
+          "Child sex trafficking",
+        (child & traffic_or_traffick & sex & transport) ~
+          "Offering or Transporting Child for Purpose of Child Sex Trafficking",
+        (child & second & (rape | sodomy | lewd | molest | sex | abuse)) ~
+          "Second Offense - First Degree Rape, Sodomy, Lewd Molestation, Sexual Abuse of a Child",
+        (child & pornography & aggravated) |
+          (child & sex & material & aggravated) ~
+          "Aggravated Possession of Child Pornography",
+        (child & pornography & !aggravated) |
+          (child & sex & material & !aggravated) ~
+          "Purchase, Procurement, or Possession of Child Sexual Abuse Material",
+        child & abandon & !animal ~ "Abandoning Child under Age Ten",
+        child & desertion ~ "Desertion of Wife or Child Under 15",
+        child & enticing & !(lewd | sex) ~
+          "Maliciously, Forcibly or Fraudulently Taking or Enticing Away Children",
+        harbor & (child | runaway) ~ "Harboring Runaway Child",
+        (aid_abet | supervision | deprive | delinquent) & child & !school ~
+          "Contributing/Causing Delinquency of Minors",
+
+        # =====================================================================================================================
         # Violent Crimes ======================================================================================================
         # Murder / Intentional Homicide ----------------------------------------
         (shoot & kill & intent) |
@@ -341,18 +396,10 @@ ojo_apply_regex <- function(
           "Kidnapping (Child Stealing)",
         kidnap & extort & !child & !traffic_or_traffick ~
           "Kidnapping (Extortion)",
-        human & traffic_or_traffick ~ "Kidnapping (Human Trafficking)",
+        human & traffic_or_traffick & !child ~ "Kidnapping (Human Trafficking)",
 
         # Maiming --------------------------------------------------------------
         maim ~ "Maiming",
-
-        # Child Abuse ----------------------------------------------------------
-        (child & (abuse | neglect | danger)) & !school ~
-          "Child Abuse / Neglect / Sexual Abuse",
-        # Does this include OMIT TO PROVIDE ?
-        # This is where we'd distinguish if we want
-        (child | molest | proposal | act) & (lewd | indecent) ~
-          "Indecent or Lewd Acts With Child",
 
         # Rape -----------------------------------------------------------------
         (sex & battery) & !instrument ~ "Rape (First Degree)",
@@ -405,7 +452,6 @@ ojo_apply_regex <- function(
           (compulsory & education) |
           (school & (compel | refuse | neglect)) ~
           "Violation of Compulsory Education Act",
-        # child & neglect
 
         # Public Decency / Disturbing Peace Crimes -----------------------------
         public & (intoxication | drunk) ~ "Public Intoxication",
@@ -456,6 +502,49 @@ ojo_apply_regex <- function(
 
         # Gang related offense -------------------------------------------------
         gang ~ "Gang Related Offense",
+
+        # Abortion/Concealing death of child ------------------------------------
+        ((abortion | miscarriage | (dead & child)) &
+          !(abdom | domestic | abuse)) ~
+          "Abortion/ Procuring Abortion/ Concealing Death of Child",
+        perform & abortion & !(procure | conceal) ~
+          "Persons Who May Perform Abortions",
+        induce & abortion & !(procure | perform | conceal) ~
+          "Self-Induced Abortions",
+        conceal & (birth | dead) & child & !abortion ~
+          "Concealing Birth or Death of Child",
+
+        # Corpse
+        authorized & remove & (corpse | body) ~
+          "Unauthorized Removal of Dead Bodies",
+        (desecrate | disrupt) & (corpse | body) ~ "Desecration of Human Corpse",
+
+        # Elders & Caretakers
+        (abuse | neglect | exploit) &
+          (by_caretaker | of_caretaker | caretaker) &
+          !child ~
+          "Abuse, Neglect, or Financial Exploitation by Caretaker",
+        (elder | disable) &
+          exploit &
+          !(child | by_caretaker | of_caretaker | caretaker) ~
+          "Exploitation of Elderly Persons or Disabled Adults",
+        (verbal & abuse & (by_caretaker | of_caretaker | caretaker)) ~
+          "Verbal Abuse by a Caretaker",
+
+        # Tattoo
+        (unlawful & (tattoo | piercing)) |
+          (license & (tattoo | piercing)) |
+          ((tattoo | piercing) & child) ~
+          "Unlawful Body Tattooing, Body Piercing, and Scleral Tattooing",
+
+        # Fluids & Waste
+        ((jail_penal | officer) & (waste | fluid)) ~
+          "Placing Body Wastes or Fluids on State Employee",
+
+        # LEO Animals
+        (mistreat | interfere) & officer & animal ~
+          "Mistreating or Interfering with Police Dog or Horse",
+        (kill | beat) & animal & officer ~ "Killing Police Dog or Horse",
 
         # =====================================================================================================================
         # Traffic / Motor Vehicles ============================================================================================
