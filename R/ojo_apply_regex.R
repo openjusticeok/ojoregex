@@ -168,6 +168,7 @@ ojo_apply_regex <- function(
           !school &
           !park &
           !drive &
+          !automobile &
           !throw ~
           "CDS (Other / Unspecified)",
 
