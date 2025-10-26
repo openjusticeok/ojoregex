@@ -20,36 +20,35 @@ new_data <- read_csv(
   col_types = col_types_apply_regex
 )
 
-diff_data <- full_join(
-  old_data,
-  new_data,
-  by = "description",
-  suffix = c(".old", ".new"),
-  keep = TRUE,
-  relationship = "many-to-many"
-)
-
-added_rows <- diff_data |>
-  filter(
-    is.na(description.old)
+get_changes <- function(old_data, new_data, variable) {
+  data <- full_join(
+    old_data,
+    new_data,
+    by = "description",
+    suffix = c(".old", ".new"),
+    keep = TRUE,
+    relationship = "many-to-many"
   )
 
-removed_rows <- diff_data |>
-  filter(
-    is.na(description.new)
-  )
+  added_rows <- data |>
+    filter(
+      is.na(description.old)
+    )
 
-common_rows <- diff_data |>
-  filter(
-    !is.na(description.old) & !is.na(description.new)
-  )
+  removed_rows <- data |>
+    filter(
+      is.na(description.new)
+    )
 
-n_added <- nrow(added_rows)
-n_removed <- nrow(removed_rows)
-n_common <- nrow(common_rows)
+  common_rows <- data |>
+    filter(
+      !is.na(description.old) & !is.na(description.new)
+    )
 
-get_changes <- function(data, variable) {
-  # These are STRINGS: e.g., "race.old", "race.new"
+  n_added <- nrow(added_rows)
+  n_removed <- nrow(removed_rows)
+  n_common <- nrow(common_rows)
+
   old_variable <- paste0(variable, ".old")
   new_variable <- paste0(variable, ".new")
 
@@ -61,7 +60,6 @@ get_changes <- function(data, variable) {
 
   transition_data <- changed_common |>
     summarise(
-      # FIX 2: Use all_of() to be explicit with the character vector
       .by = all_of(c(old_variable, new_variable)),
       count = n()
     ) |>
@@ -93,6 +91,11 @@ get_changes <- function(data, variable) {
     cli_h1("{.fn ojo_apply_regex} diff")
     cli_end()
     cli_text("")
+    cli_bullets(c(
+      "i" = paste("Common Rows:", n_common),
+      "v" = paste("Added Rows: ", n_added),
+      "x" = paste("Removed Rows:", n_removed)
+    ))
     cli_div(
       theme = list(
         .strong = list(
@@ -122,75 +125,6 @@ get_changes <- function(data, variable) {
     )
   )
 }
-
-get_changes(diff_data, "category")
-get_changes(diff_data, "subcategory")
-get_changes(diff_data, "description_clean")
-
-changed_common <- common_rows |>
-  filter(
-    !identical(category.old, category.new),
-    !(is.na(category.old) & is.na(category.new))
-  )
-
-transition_data <- changed_common |>
-  summarise(
-    .by = c(category.old, category.new),
-    count = n()
-  ) |>
-  arrange(desc(count))
-
-changed_summary <- transition_data |>
-  filter(
-    category.old != category.new
-  )
-
-cli({
-  cli_div()
-  cli_h1("{.fn ojo_apply_regex} diff")
-  cli_end()
-  cli_text("")
-  cli_bullets(c(
-    "i" = paste("Common Rows:", n_common),
-    "v" = paste("Added Rows: ", n_added),
-    "x" = paste("Removed Rows:", n_removed)
-  ))
-  cli_div(
-    theme = list(
-      .strong = list(
-        color = "green"
-      ),
-      .blue = list(
-        color = "blue"
-      )
-    )
-  )
-  cli_h2("Category Changes")
-  pwalk(
-    changed_summary,
-    \(category.old, category.new, count, ...) {
-      cli_li("{.blue {category.old}} -> {category.new} {.strong {count}}")
-    }
-  )
-  cli_end()
-})
-
-changed_data <- changed_summary |>
-  pmap(
-    \(category.old, category.new, ...) {
-      common_rows |>
-        filter(
-          category.old == !!category.old,
-          category.new == !!category.new
-        )
-    }
-  )
-
-all(changed_summary$count == changed_data |>
-  map_int(nrow))
-
-changed_data |>
-  map(\(x) x |> distinct(description.old))
 
 trace_charge_regex <- function(charge_string) {
   cleaned_charge <- regex_pre_clean(charge_string)
@@ -249,4 +183,9 @@ trace_charge_regex <- function(charge_string) {
   invisible(res)
 }
 
-trace_charge_regex(changed_data[[1]][[1, 1]])
+category_change_data <- get_changes(old_data, new_data, "category")
+subcategory_change_data <- get_changes(old_data, new_data, "subcategory")
+description_clean_change_data <- get_changes(old_data, new_data, "description_clean")
+
+
+trace_charge_regex(category_change_data[[2]][[1]][[1, 1]])
