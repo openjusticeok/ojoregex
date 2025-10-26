@@ -21,24 +21,24 @@ oscn_count_as_disposed <- ojo_tbl("count") |>
     source = "oscn"
   )
 
-ocdc_charges <- ojo_tbl("charges", schema = "ocdc_new") |>
+oklahoma_county_jail_charges <- ojo_tbl("charges", schema = "oklahoma_county_jail") |>
   distinct(charge_description) |>
   collect() |>
   rename(
     description = charge_description
   ) |>
   mutate(
-    source = "ocdc"
+    source = "oklahoma_county_jail"
   )
 
-ocdc_charges_history <- ojo_tbl("charges_history", schema = "ocdc_new") |>
+oklahoma_county_jail_charges_history <- ojo_tbl("charges_history", schema = "oklahoma_county_jail") |>
   distinct(charge_description) |>
   collect() |>
   rename(
     description = charge_description
   ) |>
   mutate(
-    source = "ocdc"
+    source = "oklahoma_county_jail"
   )
 
 odoc_offense <- ojo_tbl("offense", schema = "odoc") |>
@@ -54,8 +54,8 @@ odoc_offense <- ojo_tbl("offense", schema = "odoc") |>
 test_data <- bind_rows(
   oscn_count_as_filed,
   oscn_count_as_disposed,
-  ocdc_charges,
-  ocdc_charges_history,
+  oklahoma_county_jail_charges,
+  oklahoma_county_jail_charges_history,
   odoc_offense
 ) |>
   distinct() |>
