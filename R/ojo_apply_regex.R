@@ -225,7 +225,7 @@ ojo_apply_regex <- function(
           "Entering with Intent To Commit a Crime",
 
         # Arson ----------------------------------------------------------------
-        arson & (first | one | danger) ~ "Arson (First Degree)", # This is actually a violent crime
+        arson & (first | one | endanger) ~ "Arson (First Degree)", # This is actually a violent crime
         arson & (second | two) ~ "Arson (Second Degree)",
         arson & (third | three) ~ "Arson (Third Degree)",
         arson & (fourth | four) ~ "Arson (Fourth Degree)",
