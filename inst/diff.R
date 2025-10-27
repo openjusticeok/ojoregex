@@ -74,7 +74,7 @@ get_changes <- function(old_data, new_data, variable) {
   changed_data <- changed_summary |>
     pmap(
       \(...) {
-        .row_data <- list(...) 
+        .row_data <- list(...)
 
         .current_old_val <- .row_data[[old_variable]]
         .current_new_val <- .row_data[[new_variable]]
@@ -113,7 +113,9 @@ get_changes <- function(old_data, new_data, variable) {
       \(...) {
         .row_data <- list(...)
         # FIX 1: Wrap .row_data[...] in parentheses to avoid cli error
-        cli_li("{.blue {(.row_data[[old_variable]])}} -> {(.row_data[[new_variable]])} {.strong {(.row_data$count)}}")
+        cli_li(
+          "{.blue {(.row_data[[old_variable]])}} -> {(.row_data[[new_variable]])} {.strong {(.row_data$count)}}"
+        )
       }
     )
     cli_end()
@@ -134,7 +136,10 @@ trace_charge_regex <- function(charge_string) {
 
   matching_flags <- regex_flags |>
     mutate(
-      is_match = stringi::stri_detect(cleaned_charge, regex = paste0("(?i)", regex))
+      is_match = stringi::stri_detect(
+        cleaned_charge,
+        regex = paste0("(?i)", regex)
+      )
     ) |>
     filter(is_match)
 
@@ -161,7 +166,9 @@ trace_charge_regex <- function(charge_string) {
       )
     ) |>
     select(
-      flag, regex, match
+      flag,
+      regex,
+      match
     )
 
   cli::cli_text("{.strong Matching Flags}")
@@ -186,7 +193,11 @@ trace_charge_regex <- function(charge_string) {
 
 category_change_data <- get_changes(old_data, new_data, "category")
 subcategory_change_data <- get_changes(old_data, new_data, "subcategory")
-description_clean_change_data <- get_changes(old_data, new_data, "description_clean")
+description_clean_change_data <- get_changes(
+  old_data,
+  new_data,
+  "description_clean"
+)
 
 trace_charge_regex(category_change_data[[2]][[1]][[1, 1]])
 

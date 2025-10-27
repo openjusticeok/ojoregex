@@ -21,7 +21,10 @@ oscn_count_as_disposed <- ojo_tbl("count") |>
     source = "oscn"
   )
 
-oklahoma_county_jail_charges <- ojo_tbl("charges", schema = "oklahoma_county_jail") |>
+oklahoma_county_jail_charges <- ojo_tbl(
+  "charges",
+  schema = "oklahoma_county_jail"
+) |>
   distinct(charge_description) |>
   collect() |>
   rename(
@@ -31,7 +34,10 @@ oklahoma_county_jail_charges <- ojo_tbl("charges", schema = "oklahoma_county_jai
     source = "oklahoma_county_jail"
   )
 
-oklahoma_county_jail_charges_history <- ojo_tbl("charges_history", schema = "oklahoma_county_jail") |>
+oklahoma_county_jail_charges_history <- ojo_tbl(
+  "charges_history",
+  schema = "oklahoma_county_jail"
+) |>
   distinct(charge_description) |>
   collect() |>
   rename(

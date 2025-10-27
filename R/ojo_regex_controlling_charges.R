@@ -60,7 +60,7 @@ ojo_add_controlling_charges <- function(ojo_regex_cats) {
               max_sentence_any,
               na = c("Life", "Death", "Other")
             )) |>
-            round(2),
+          round(2),
         max_sentence_first_offense_type == "Other / Unknown" ~ 0,
         TRUE ~ NA
       ),
