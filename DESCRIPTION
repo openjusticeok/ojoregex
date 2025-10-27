@@ -1,8 +1,9 @@
 Package: ojoregex
 Title: Regex Categorization Tools for OJO Analysts
-Version: 0.9.0
-Authors@R: 
-  person("Andrew", "Bell", , "abell@okpolicy.com", role = c("aut", "cre"))
+Version: 0.10.0
+Authors@R: c( 
+  person("Andrew", "Bell", , "abell@okpolicy.com", role = c("aut", "cre")),
+  person("Brancen", "Gregory", , "bgregory@okpolicy.com", role = c("aut")))
 Description: This package houses all the regex strings we use in our work. The main functionality cleaning charge descriptions from raw OSCN data.
 License: GPL (>= 3)
 Encoding: UTF-8
@@ -11,8 +12,8 @@ RoxygenNote: 7.3.2
 Imports:
   cli,
   dplyr,
-  here,
   lubridate,
+  purrr,
   readr,
   rlang,
   stringi,
@@ -20,13 +21,14 @@ Imports:
 Suggests:
   googlesheets4,
   gt,
+  here,
   knitr,
   ojodb,
   rmarkdown,
   testthat (>= 3.0.0),
   usethis
 Depends: 
-  R (>= 3.5.0)
+  R (>= 4.1.0)
 Remotes:
   openjusticeok/ojodb
 LazyData: true
