@@ -7,6 +7,7 @@ library(tidyr)
 library(purrr)
 library(cli)
 library(stringr)
+library(googlesheets4)
 
 col_types_apply_regex <- "cclllcccccclld"
 
@@ -187,5 +188,24 @@ category_change_data <- get_changes(old_data, new_data, "category")
 subcategory_change_data <- get_changes(old_data, new_data, "subcategory")
 description_clean_change_data <- get_changes(old_data, new_data, "description_clean")
 
-
 trace_charge_regex(category_change_data[[2]][[1]][[1, 1]])
+
+
+gs_id <- gs4_create("ojoregex_pj_change_data")
+
+gs_names <- description_clean_change_data[[1]] |>
+  mutate(
+    sheet_name = paste(description_clean.old, "->", description_clean.new) |>
+      str_trunc(width = 100, side = "right")
+  ) |>
+  pull(sheet_name)
+
+walk2(
+  gs_names,
+  description_clean_change_data[[2]],
+  \(x, y) {
+    write_sheet(y, ss = gs_id, sheet = x)
+  }
+)
+
+gs4_browse(gs_id)
