@@ -66,7 +66,7 @@ jobs:
       - uses: quarto-dev/quarto-actions/setup@v2
 
       - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = TRUE)
+        run: pkgdown::build_site_github_pages(new_process = FALSE, install = TRUE, lazy = TRUE)
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀

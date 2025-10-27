@@ -7,10 +7,14 @@ smooth-scroll: true
 title-block-banner-color: "white" # The text color for the header banner
 fontcolor: "black" # Default text color for the body
 linkcolor: "black" # Default link color for the body
-toc: true # This should be 'false' if your end goal is a PDF 
+toc: true # This should be 'false' if your end goal is a PDF
+vignette: >
+  %\VignetteIndexEntry{Appendix: Clean OSCN Charge Descriptions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, message=FALSE, echo=FALSE, warning=FALSE}
+```{r setup, message=FALSE, echo=FALSE, warning=FALSE, eval=FALSE}
 library(ojodb)
 library(ojoregex)
 library(gt)
@@ -49,7 +53,7 @@ For example, if the "drugs" flag, the "possess" flag, and the "intent" flag are 
 
 This appendix covers charge descriptions from the OSCN data which were filed in felony, misdemeanor, or traffic cases from `r start_year` to `r end_year`. There are `r nrow(ds_clean) |> format(big.mark = ",")` total unique charge descriptions in the data, but only those appearing at least 1,000 times from `r start_year` - `r end_year` (there are `r ds_clean |> filter(n >= 1000) |> nrow() |> format(big.mark = ",")` unique descriptions) are included for brevity. For a full list, please contact [Andrew Bell at abell@okpolicy.org](mailto:abell@okpolicy.org).
 
-```{r big_table, message=FALSE, echo=FALSE, warning=FALSE}
+```{r big_table, message=FALSE, echo=FALSE, warning=FALSE, eval=FALSE}
 
 ds_clean |>
   select(count_as_filed, count_as_filed_clean, statutes, n) |>

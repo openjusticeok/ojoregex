@@ -7,5 +7,5 @@
 ^docs$
 ^pkgdown$
 ^\.github$
-^vignettes/articles$
 ^data-raw$
+^vignettes/articles/oscn-appendix\.Rmd\.orig$
