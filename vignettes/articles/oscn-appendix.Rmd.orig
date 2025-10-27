@@ -1,0 +1,65 @@
+---
+title: 'Appendix: Clean OSCN Charge Descriptions'
+subtitle: 'List of cleaned charge descriptions from OSCN data'
+# Formatting options -----------------------------------------------------------
+number-sections: true
+smooth-scroll: true
+title-block-banner-color: "white" # The text color for the header banner
+fontcolor: "black" # Default text color for the body
+linkcolor: "black" # Default link color for the body
+toc: true # This should be 'false' if your end goal is a PDF 
+---
+
+```{r setup, message=FALSE, echo=FALSE, warning=FALSE}
+library(ojodb)
+library(ojoregex)
+library(gt)
+
+start_year <- 2010
+end_year <- 2024
+
+ds <- ojo_crim_cases(districts = "all",
+                     case_types = c("CM", "CF", "TR"),
+                     file_years = 2010:2024) |>
+  count(count_as_filed) |>
+  ojo_collect() |>
+  filter(!is.na(count_as_filed)) |>
+  arrange(desc(n))
+
+ds_clean <- ds |> 
+  ojo_apply_regex(col_to_clean = "count_as_filed", 
+                  .keep_flags = F, 
+                  .include_cats = T)
+
+```
+
+# ojoRegex and OSCN
+
+The `ojoRegex` package is a collection of regular expressions that can be used to clean and extract information from court data, in particular data from the Oklahoma State Court Network (OSCN). This appendix provides a list of how unique charge descriptions in the OSCN data are cleaned by the `ojoRegex` package.
+
+The `ojoRegex::ojo_apply_regex()` function begins with a table of regex strings (`ojoregex::ojo_regex_flags`) that correspond to broad concepts like "marijuana", "seatbelt", or "permit". The function takes a list of raw charge descriptions, then checks each one for a match with all the regular expressions in the table, applying a "flag" for each concept it finds. Next, it classifies each description with a cleaned charge description / category (`ojoregex::ojo_regex_cats`) based on what concept flags are present.
+
+For example, if the "drugs" flag, the "possess" flag, and the "intent" flag are all found, the charge will be classified as "CDS Possession (PWID)". Alternatively, if the "drugs" flag and "possess" flag are found, but the "paraphernalia" flag is also present, then "CDS Paraphernalia Possession / Distribution" will be applied instead.
+
+* The list of flags and cleaned descriptions can be found in [this Google Sheet.](https://docs.google.com/spreadsheets/d/1LyaUXb21OuBj5Cb0CewJ1lVMsVsExn6yOcfyDT5sqL0/edit?usp=sharing)
+
+* Note that not every charge in the Oklahoma state statutes has been incorporated into the package just yet.
+
+# Cleaned OSCN charge descriptions
+
+This appendix covers charge descriptions from the OSCN data which were filed in felony, misdemeanor, or traffic cases from `r start_year` to `r end_year`. There are `r nrow(ds_clean) |> format(big.mark = ",")` total unique charge descriptions in the data, but only those appearing at least 1,000 times from `r start_year` - `r end_year` (there are `r ds_clean |> filter(n >= 1000) |> nrow() |> format(big.mark = ",")` unique descriptions) are included for brevity. For a full list, please contact [Andrew Bell at abell@okpolicy.org](mailto:abell@okpolicy.org).
+
+```{r big_table, message=FALSE, echo=FALSE, warning=FALSE}
+
+ds_clean |>
+  select(count_as_filed, count_as_filed_clean, statutes, n) |>
+  filter(n >= 1000) |>
+  gt() |>
+  fmt_number(columns = "n",
+             decimals = 0) |>
+  cols_label(count_as_filed = "Original Charge Description",
+             count_as_filed_clean = "Cleaned Charge Description",
+             statutes = "Relevant Statutes",
+             n = "Total Filed 2010-2024") 
+
+```
