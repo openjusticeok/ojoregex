@@ -45,7 +45,12 @@ vignettes/*.pdf
 /secrets/
 .Rproj.user
 
-data/*.rds
-crim-data.rds
 docs
 inst/doc
+
+tests/testthat/test_data.rda
+
+tests/testthat/_snaps/ojo_apply_regex
+tests/testthat/_snaps/pre_clean
+tests/testthat/_snaps/ojo_regex_cats
+tests/testthat/_snaps/ojo_regex_flags

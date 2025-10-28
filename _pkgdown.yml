@@ -1,4 +1,5 @@
 url: https://openjusticeok.github.io/ojoregex/
 template:
   bootstrap: 5
-
+vignettes:
+  - vignettes/articles/oscn-appendix.Rmd

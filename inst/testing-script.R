@@ -40,5 +40,13 @@ ds |>
 
 ds |>
   head(10000) |>
-  select(count_as_filed, count_as_filed_clean, category, subcategory, title, statutes, chapter) |>
+  select(
+    count_as_filed,
+    count_as_filed_clean,
+    category,
+    subcategory,
+    title,
+    statutes,
+    chapter
+  ) |>
   view()
