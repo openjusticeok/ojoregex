@@ -713,7 +713,7 @@ ojo_apply_regex <- function(
       dplyr::select(
         {{ col_to_clean }},
         paste0(col_to_clean, "_clean"),
-        data_names,
+        dplyr::all_of(data_names),
         "category",
         "subcategory",
         "title",
@@ -730,7 +730,7 @@ ojo_apply_regex <- function(
       dplyr::select(
         {{ col_to_clean }},
         paste0(col_to_clean, "_clean"),
-        data_names,
+        dplyr::all_of(data_names),
       )
   }
 
