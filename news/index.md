@@ -1,5 +1,11 @@
 # Changelog
 
+## ojoregex 0.9.0
+
+- Fixed a bug with “malicious injury to property” having two rows in the
+  categories spreadsheet
+- Fixed some missing namespace prefixes
+
 ## ojoregex 0.8.0
 
 - Remove `renv` from repo
@@ -8,20 +14,19 @@
 
 ## ojoregex 0.7.0
 
+- Added a few new charges, etc. for the OCDC stuff
+
 ## ojoregex 0.6.1
 
-- Made
-  [`update_datasets()`](https://openjusticeok.github.io/ojoregex/reference/update_datasets.md)
-  non-exported, since it’s intended to be used only during development.
+- Made `update_datasets()` non-exported, since it’s intended to be used
+  only during development.
 
 ## ojoregex 0.6.0
 
 - Changed the appendix from a vignette to an article in the `ojoregex`
   package documentation.
-- Added
-  [`update_datasets()`](https://openjusticeok.github.io/ojoregex/reference/update_datasets.md)
-  function to update the datasets in the package from the Big Ol Regex
-  Spreadsheet.
+- Added `update_datasets()` function to update the datasets in the
+  package from the Big Ol Regex Spreadsheet.
 
 ## ojoregex 0.5.1
 

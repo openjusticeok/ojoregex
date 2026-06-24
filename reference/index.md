@@ -18,5 +18,3 @@
   : Unhoused / Homeless address regex
 - [`regex_pre_clean()`](https://openjusticeok.github.io/ojoregex/reference/regex_pre_clean.md)
   : Pre clean charge descriptions to be matched
-- [`update_datasets()`](https://openjusticeok.github.io/ojoregex/reference/update_datasets.md)
-  : Update ojoRegex datasets to match the Big Ol Spreadsheet
