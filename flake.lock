@@ -1,0 +1,92 @@
+{
+  "nodes": {
+    "flake-parts": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790898470,
+        "narHash": "sha256-zTwuwezD0w3hpga6a6P8emidzAZFyWqlNeRBlpWOOl8=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "024633cd702b10285db5cb19b40ad48d2399ba60",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-parts_2": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "ojodb",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790898470,
+        "narHash": "sha256-zTwuwezD0w3hpga6a6P8emidzAZFyWqlNeRBlpWOOl8=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "024633cd702b10285db5cb19b40ad48d2399ba60",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1792169480,
+        "narHash": "sha256-SII1efFxsfTxQs/D5nosSfDMrKzBLJ6CHgbjAkRBtlc=",
+        "owner": "rstats-on-nix",
+        "repo": "nixpkgs",
+        "rev": "98368a105b1214c20d6480ba8a831d9d6909e5ce",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rstats-on-nix",
+        "ref": "r-daily",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "ojodb": {
+      "inputs": {
+        "flake-parts": "flake-parts_2",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792182058,
+        "narHash": "sha256-J+PZsvLa4favowfG7GO5rM8m1aFL0Us1yaWu7g7naaM=",
+        "owner": "openjusticeok",
+        "repo": "ojodb",
+        "rev": "242697f208ddddf70733ea6b7ff0a1ba7c5c2b17",
+        "type": "github"
+      },
+      "original": {
+        "owner": "openjusticeok",
+        "ref": "ojodb-v3",
+        "repo": "ojodb",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "flake-parts": "flake-parts",
+        "nixpkgs": "nixpkgs",
+        "ojodb": "ojodb"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
