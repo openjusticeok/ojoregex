@@ -8,4 +8,10 @@
 ^pkgdown$
 ^\.github$
 ^data-raw$
-^vignettes/articles/oscn-appendix\.Rmd\.orig$
+^vignettes/articles$
+^vignettes/articles/
+^flake\.nix$
+^flake\.lock$
+^result$
+^\.envrc$
+^\.direnv$
