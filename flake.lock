@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790898470,
-        "narHash": "sha256-zTwuwezD0w3hpga6a6P8emidzAZFyWqlNeRBlpWOOl8=",
+        "lastModified": 1793576659,
+        "narHash": "sha256-V1h85lUaJBQoHFrB2vpXZOE0Ju1MYSnIpsehoVZYlDo=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "024633cd702b10285db5cb19b40ad48d2399ba60",
+        "rev": "ea2630b7470978622c7689a1ff75d2b389175399",
         "type": "github"
       },
       "original": {
@@ -43,11 +43,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1792169480,
-        "narHash": "sha256-SII1efFxsfTxQs/D5nosSfDMrKzBLJ6CHgbjAkRBtlc=",
+        "lastModified": 1793995258,
+        "narHash": "sha256-/6v6USGJreD49x4MTEuzhOb1X1sCcnzXtbC4wxUKoMU=",
         "owner": "rstats-on-nix",
         "repo": "nixpkgs",
-        "rev": "98368a105b1214c20d6480ba8a831d9d6909e5ce",
+        "rev": "731440d60a1c9d16c16dac5369a22f8645dc67ce",
         "type": "github"
       },
       "original": {
@@ -65,16 +65,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1792182058,
-        "narHash": "sha256-J+PZsvLa4favowfG7GO5rM8m1aFL0Us1yaWu7g7naaM=",
+        "lastModified": 1794345627,
+        "narHash": "sha256-K6aan3fmflFDMcFUx+/NafUYKT2zHXom/YsS6OYf/0g=",
         "owner": "openjusticeok",
         "repo": "ojodb",
-        "rev": "242697f208ddddf70733ea6b7ff0a1ba7c5c2b17",
+        "rev": "33a90ddb49f53604ec7b08a19b25a5f4afd023aa",
         "type": "github"
       },
       "original": {
         "owner": "openjusticeok",
-        "ref": "ojodb-v3",
         "repo": "ojodb",
         "type": "github"
       }
