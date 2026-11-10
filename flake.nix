@@ -8,7 +8,7 @@
     # Suggests dependency; a private sibling package. Needed so `R CMD check`
     # does not flag it as "suggested but not available".
     ojodb = {
-      url = "github:openjusticeok/ojodb/ojodb-v3";
+      url = "github:openjusticeok/ojodb";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
