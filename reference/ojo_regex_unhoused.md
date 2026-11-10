@@ -8,7 +8,3 @@ Detects whether an address is likely to indicate "homeless" / "unhoused"
 ``` r
 ojo_regex_unhoused
 ```
-
-## Format
-
-An object of class `character` of length 1.
